@@ -1,5 +1,5 @@
 # TACT AI — SCIENTIFIC LAB NOTEBOOK (PHASE 1)
-**Project Title:** Tac-Guard: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies  
+**Project Title:** TactAI: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies  
 **Lead Researchers:** Tact AI Team (Independent Research Initiative)  
 **Host Lab Destination:** Institute for Intelligent Autonomous Systems (IAS), TU Darmstadt  
 **Date of Entry:** October 7, 2026  

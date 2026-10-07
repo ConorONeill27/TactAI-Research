@@ -1,5 +1,5 @@
 """
-Structured Episode Logger for Tac-Guard Simulation Benchmarks.
+Structured Episode Logger for TactAI Simulation Benchmarks.
 Provides scientific provenance, deterministic logging, and structured trajectory storage.
 
 Saves:

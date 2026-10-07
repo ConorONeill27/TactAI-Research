@@ -1,6 +1,6 @@
 """
 Phase 1 Scientific Validation Script: MuJoCo 3.15 Simulation, Perception & Invariant Engine
-Project: Tac-Guard (Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies)
+Project: TactAI (Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies)
 
 Executes:
 1. Benchmark A Baseline Evaluation (Sub-millimeter slot insertion under OOD tilt)
@@ -25,7 +25,7 @@ from src.invariants.tactile_invariants import ContactMode
 
 def run_phase1_validation():
     print("=" * 80)
-    print("  TAC-GUARD: PHASE 1 SCIENTIFIC VALIDATION BENCHMARK")
+    print("  TACTAI: PHASE 1 SCIENTIFIC VALIDATION BENCHMARK")
     print("  Target Destination: IAS, TU Darmstadt (Belousov & Peters)")
     print("=" * 80)
 

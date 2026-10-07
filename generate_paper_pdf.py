@@ -1,6 +1,6 @@
 """
-Generate IEEE/RSS Research Paper PDF for Tac-Guard
-Title: Tac-Guard: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
+Generate IEEE/RSS Research Paper PDF for TactAI
+Title: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
 """
 
 import os
@@ -37,7 +37,7 @@ class NumberedCanvas(canvas.Canvas):
         
         # Header (pages > 1)
         if self._pageNumber > 1:
-            self.drawString(54, 11 * inch - 36, "Tac-Guard: Tactile Safety Filtering for Learned Manipulation Policies")
+            self.drawString(54, 11 * inch - 36, "Tactile Safety Filtering for Learned Manipulation Policies")
             self.drawRightString(8.5 * inch - 54, 11 * inch - 36, "Tact AI -- Research Draft (October 2026)")
             self.setStrokeColor(colors.HexColor("#CCCCCC"))
             self.setLineWidth(0.5)
@@ -53,7 +53,7 @@ class NumberedCanvas(canvas.Canvas):
         self.restoreState()
 
 
-def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
+def create_paper_pdf(output_path="D:/TactAI/docs/research_paper.pdf"):
     doc = SimpleDocTemplate(
         output_path,
         pagesize=letter,
@@ -215,7 +215,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     # ---------------------------------------------------------
     # TITLE & HEADER
     # ---------------------------------------------------------
-    story.append(Paragraph("Tac-Guard: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies", title_style))
+    story.append(Paragraph("Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies", title_style))
     story.append(Paragraph("A 1 kHz Control Barrier Function Architecture for Anti-Jamming and Guaranteed Contact Passivity", subtitle_style))
     story.append(Paragraph("Tact AI Research Group<sup>1</sup>, In Collaboration with Institute for Intelligent Autonomous Systems (IAS)<sup>2</sup>", authors_style))
     story.append(Paragraph("<sup>1</sup>Autonomous Physical AI Initiative &nbsp;&nbsp;|&nbsp;&nbsp; <sup>2</sup>Technical University of Darmstadt, Germany", affil_style))
@@ -229,14 +229,14 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
         "have achieved impressive visual versatility but frequently suffer from catastrophic force spikes, mechanical wedging, "
         "and part damage when deployed in contact-rich tasks under geometric misalignments. Because neural policies are unconstrained "
         "approximators, out-of-distribution (OOD) contact states lead to dangerous extrapolation and task failure. In this work, "
-        "we present Tac-Guard, a high-frequency (1 kHz) supervisory control architecture that sits between any pre-trained "
-        "manipulation policy and robot actuators to guarantee physical contact safety. Tac-Guard processes high-resolution 3D force "
+        "we present a high-frequency (1 kHz) supervisory control architecture that sits between any pre-trained "
+        "manipulation policy and robot actuators to guarantee physical contact safety. The system processes high-resolution 3D force "
         "distribution fields from vision-based elastomeric tactile sensors (GelSight Mini) and extracts invariant geometric contact "
         "manifolds: the Traction Center of Pressure (CoP), the Contact Constraint Tensor, and the Incipient Slip Ratio. "
-        "Using these invariants, Tac-Guard solves a lightweight convex Quadratic Program (QP) subject to Control Barrier Functions (CBFs) "
+        "Using these invariants, the supervisory filter solves a lightweight convex Quadratic Program (QP) subject to Control Barrier Functions (CBFs) "
         "and an Energy Tank passivity monitor. This formulation mathematically bounds contact forces below material failure thresholds, "
         "prevents two-point contact force couples (jamming), and enforces asymptotic Lyapunov passivity during non-smooth contact "
-        "transitions. Crucially, Tac-Guard requires zero retraining or additional demonstrations from the underlying policy. "
+        "transitions. Crucially, this requires zero retraining or additional demonstrations from the underlying policy. "
         "We specify the mathematical architecture, formal safety theorems, and a standardized benchmark protocol across tight-clearance "
         "insertion, non-planar contour wiping, and fragile object manipulation.</b>"
     )
@@ -286,10 +286,10 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
         body_style
     ))
     story.append(Paragraph(
-        "<b>Core Contribution:</b> In this work, we propose <b>Tac-Guard</b>, an optimization-based supervisory safety filter. "
-        "Rather than retraining the primary policy, Tac-Guard intercepts policy action commands at 1 kHz and solves a convex "
+        "<b>Core Contribution:</b> In this work, we propose an optimization-based tactile supervisory safety filter. "
+        "Rather than retraining the primary policy, the safety filter intercepts policy action commands at 1 kHz and solves a convex "
         "Quadratic Program (QP) with Control Barrier Functions (CBFs). By exploiting the dense spatial force distribution field "
-        "of the GelSight Mini sensor, Tac-Guard computes contact normals, incipient slip ratios, and jamming force couples in real time, "
+        "of the GelSight Mini sensor, the system computes contact normals, incipient slip ratios, and jamming force couples in real time, "
         "projecting the nominal command onto the nearest physically safe action. The primary contributions are:",
         body_style
     ))
@@ -320,7 +320,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     story.append(Paragraph(
         "<b>Control Barrier Functions & Passivity in Robotics:</b> Control Barrier Functions (Ames et al., 2019) have emerged as the "
         "mathematical gold standard for safety-critical control. Energy Tanks (Ferraguti et al., 2013; Kronander & Billard, 2014) ensure "
-        "strict passivity in variable impedance systems. Tac-Guard synthesizes these principles with distributed tactile contact mechanics.",
+        "strict passivity in variable impedance systems. Our approach synthesizes these principles with distributed tactile contact mechanics.",
         body_style
     ))
     
@@ -351,12 +351,12 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     story.append(Paragraph("Ratio_jam = F_insert / (||tau_tilt|| + eps) <= 1 / mu_env  ==>  JAMMED", math_style))
     
     # ---------------------------------------------------------
-    # SECTION IV: TAC-GUARD ARCHITECTURE & CBF FORMULATION
+    # SECTION IV: SUPERVISORY SAFETY FILTER ARCHITECTURE & CBF FORMULATION
     # ---------------------------------------------------------
-    story.append(Paragraph("IV. TAC-GUARD SAFETY FILTER ARCHITECTURE", sec_heading))
+    story.append(Paragraph("IV. SUPERVISORY SAFETY FILTER ARCHITECTURE", sec_heading))
     story.append(Paragraph(
         "Let u_pi in R^n be the nominal torque command generated by an unconstrained policy (e.g., FARM diffusion policy). "
-        "Tac-Guard computes a safe filtered command u_safe = u* by solving a convex Quadratic Program (QP) at 1 kHz:",
+        "The supervisory filter computes a safe filtered command u_safe = u* by solving a convex Quadratic Program (QP) at 1 kHz:",
         body_style
     ))
     
@@ -371,7 +371,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     
     story.append(Paragraph(
         "<b>Theorem 1 (Forward Invariance & Zero Jamming):</b> If the safe set C_safe = {x | h_i(x) >= 0} is non-empty and "
-        "alpha_i are class-K functions, the closed-loop system under Tac-Guard guarantees that x(t) in C_safe for all t >= 0. "
+        "alpha_i are class-K functions, the closed-loop system under the safety filter guarantees that x(t) in C_safe for all t >= 0. "
         "Consequently, peak normal forces satisfy F_n(t) <= F_max and the manipulator cannot enter the two-point jamming regime.",
         body_style
     ))
@@ -387,7 +387,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     # ---------------------------------------------------------
     story.append(Paragraph("V. EXPERIMENTAL BENCHMARK PROTOCOL", sec_heading))
     story.append(Paragraph(
-        "To rigorously validate Tac-Guard prior to physical deployment at IAS TU Darmstadt, we establish three standardized "
+        "To rigorously validate the supervisory safety filter prior to physical deployment at IAS TU Darmstadt, we establish three standardized "
         "contact-rich manipulation benchmarks simulated in MuJoCo 3.15 and TacEx / Isaac Sim with GelSight Mini sensor models:",
         body_style
     ))
@@ -420,7 +420,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
          Paragraph("[TO BE EVAL]", table_cell),
          Paragraph("[TO BE EVAL]", table_cell),
          Paragraph("[TO BE EVAL]", table_cell)],
-        [Paragraph("<b>Tac-Guard + FARM (Ours)</b>", table_cell),
+        [Paragraph("<b>Tactile Safety Filter + FARM (Ours)</b>", table_cell),
          Paragraph("<b>[TARGET: 100%]</b>", table_cell),
          Paragraph("<b>[TARGET: <15 N]</b>", table_cell),
          Paragraph("<b>[TARGET: 0.0%]</b>", table_cell),
@@ -442,7 +442,7 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
         [Paragraph("Environmental Parameter", table_header),
          Paragraph("Tested Range", table_header),
          Paragraph("Baseline FARM Status", table_header),
-         Paragraph("Tac-Guard Filter Status", table_header)],
+         Paragraph("Tactile Filter Status", table_header)],
         [Paragraph("Surface Stiffness K_env", table_cell),
          Paragraph("10^2 to 10^5 N/m", table_cell),
          Paragraph("[TO BE EVAL: Chattering/Spikes]", table_cell),
@@ -473,14 +473,14 @@ def create_paper_pdf(output_path="D:/TactAI/tac_guard_research_paper.pdf"):
     story.append(Paragraph("VI. DISCUSSION & SIM-TO-REAL ROADMAP", sec_heading))
     story.append(Paragraph(
         "<b>Zero Sim-to-Real Domain Gap:</b> Unlike visual perception networks which suffer from photometric discrepancies between "
-        "renderers and physical cameras, Tac-Guard operates directly on physical SI units: force distribution fields (N/cm^2), "
+        "renderers and physical cameras, the supervisory safety filter operates directly on physical SI units: force distribution fields (N/cm^2), "
         "contact normals, and stick ratios. Consequently, the safety QP formulated in simulation transfers to real hardware with zero "
-        "retraining or domain randomization. Upon arrival at IAS TU Darmstadt in January 2027, Tac-Guard will be compiled into "
+        "retraining or domain randomization. Upon arrival at IAS TU Darmstadt in January 2027, the filter will be compiled into "
         "real-time C++ (using qpOASES / OSQP) and integrated into the Franka Control Interface (FCI / libfranka) at 1 kHz.",
         body_style
     ))
     story.append(Paragraph(
-        "<b>Conclusion:</b> Tac-Guard bridges the gap between deep robot learning and rigorous control theory. By providing "
+        "<b>Conclusion:</b> Our tactile safety filter bridges the gap between deep robot learning and rigorous control theory. By providing "
         "provable physical safety filters grounded in distributed tactile force fields, it unlocks reliable, damage-free "
         "deployment of foundation policies in real-world contact-rich automation.",
         body_style

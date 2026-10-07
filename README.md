@@ -1,4 +1,4 @@
-# Tac-Guard: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
+# TactAI: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
 
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/)
 [![MuJoCo 3.15](https://img.shields.io/badge/physics-MuJoCo%203.15-green.svg)](https://mujoco.org/)
@@ -15,7 +15,7 @@
 
 Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., ICRA 2026; ContactWorld, 2026) suffer from severe out-of-distribution (OOD) failure modes when executing high-precision contact tasks under geometric misalignment ($\pm 15^\circ$ tilt, $0.15\text{ mm}$ clearance). In stiff environments ($K_{\text{env}} \ge 10^4\text{ N/m}$), unconstrained neural policies push through obstacles, generating destructive contact forces ($>40\text{ N}$) within 30 milliseconds that cause two-point wedging, sensor delamination, and motor shutdown.
 
-**Tac-Guard** is a supervisory 1 kHz Control Barrier Function Quadratic Program (CBF-QP) and Energy Tank safety filter that wraps around unconstrained neural policies. By continuously extracting certified physical contact invariants from optical tactile sensors (GelSight Mini, FEATS continuous traction field), Tac-Guard mathematically guarantees:
+**TactAI** implements a supervisory 1 kHz Control Barrier Function Quadratic Program (CBF-QP) and Energy Tank safety filter that wraps around unconstrained neural policies. By continuously extracting certified physical contact invariants from optical tactile sensors (GelSight Mini, FEATS continuous traction field), the safety filter mathematically guarantees:
 1. **Bounded Normal Contact Forces:** Zero force spikes ($\|\mathbf{F}_c\| \le F_{\max}$).
 2. **Certified Anti-Jamming Decoupling:** Inversion of two-point force couples before wedging occurs.
 3. **Lyapunov Contact Passivity:** Strict dissipation bounds via an Energy Tank during non-smooth contact transitions, eliminating chattering without retraining the policy.
@@ -33,7 +33,7 @@ Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., 
                            Nominal Command u_pi
                                       v
 +-------------------------------------------------------------------------------+
-|                       TAC-GUARD SUPERVISORY FILTER                            |
+|                    TACTAI SUPERVISORY SAFETY FILTER                           |
 |             1 kHz Convex Optimization via OSQP (Claim 1, 2, 3)                |
 |                                                                               |
 |   min  (1/2) ||u - u_pi||_W^2                                                 |
@@ -77,7 +77,7 @@ Over sensor surface domain $\Omega \subset \mathbb{R}^2$ ($N \times N = 1024$ di
 
 4. **Dimensionless Jamming Index ($J_{\text{jam}}$):**
    $$J_{\text{jam}} = \frac{\|\mathbf{F}_{\text{insert}}\|_2 \cdot r_{\text{char}}}{\|\boldsymbol{\tau}_{\text{tilt}}\|_2 + \epsilon}$$
-   When $J_{\text{jam}} < 1 / \mu$, two-point wedging occurs. Tac-Guard triggers nullspace torque decoupling when $J_{\text{jam}} < 2.5$.
+   When $J_{\text{jam}} < 1 / \mu$, two-point wedging occurs. The safety filter triggers nullspace torque decoupling when $J_{\text{jam}} < 2.5$.
 
 ---
 
@@ -150,4 +150,4 @@ python scripts/run_phase1_validation.py
 ```bash
 python generate_paper_pdf.py
 ```
-*Compiles [`tac_guard_research_paper.pdf`](tac_guard_research_paper.pdf) with equations, theorems, and benchmark specifications.*
+*Compiles [`docs/research_paper.pdf`](docs/research_paper.pdf) with equations, theorems, and benchmark specifications.*

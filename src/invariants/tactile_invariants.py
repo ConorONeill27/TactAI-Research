@@ -8,7 +8,7 @@ Extracts mathematically invariant geometric properties from 3D tactile traction 
 - Jamming Invariant Index J_jam
 - Contact Mode Categorization
 
-Directly implements Equations (1)-(4) of the Tac-Guard Research Paper and Patent Claims 1-2.
+Directly implements Equations (1)-(4) of the Research Paper and Patent Claims 1-2.
 """
 
 from enum import Enum
