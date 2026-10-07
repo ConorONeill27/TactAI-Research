@@ -1,0 +1,11 @@
+# Tact AI — Core Research Dependencies
+# Phase 1: Environment, Tactile Perception & Invariant Engine
+
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+torch>=2.0.0
+mujoco>=3.1.0
+osqp>=0.6.3
+reportlab>=3.6.12
+pymupdf>=1.23.0

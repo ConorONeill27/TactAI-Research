@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "episode_id": "baseline_ood_tilt_10deg",
+    "controller_name": "unconstrained_baseline",
+    "seed": 42,
+    "timestamp_iso": "2026-10-07T16:07:17.065826+00:00",
+    "git_commit": "unknown",
+    "env_params": {
+      "slot_clearance_mm": 0.15,
+      "stiffness_env_npm": 10000.0,
+      "tilt_deg": 10.0
+    },
+    "extra_meta": {}
+  },
+  "kpis": {
+    "is_success": false,
+    "is_jammed": true,
+    "is_force_exceeded": false,
+    "total_steps": 33,
+    "cycle_time_s": 0.033,
+    "peak_force_n": 43.59750626368623,
+    "mean_contact_force_n": 29.293377181662066,
+    "final_insertion_depth_mm": 0.4494262642745564,
+    "min_stick_ratio": 0.0,
+    "min_jamming_index": 2.5,
+    "cumulative_reward": -219.19649586840234
+  },
+  "contact_mode_distribution": {
+    "FREE_SPACE": 0.8787878787878788,
+    "POINT_CONTACT": 0.0,
+    "LINE_CONTACT": 0.0,
+    "TWO_POINT_JAMMING": 0.0,
+    "GROSS_SLIP": 0.12121212121212122
+  }
+}

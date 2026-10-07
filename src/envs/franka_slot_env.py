@@ -1,0 +1,468 @@
+"""
+MuJoCo Simulation Environment for Franka Panda Peg-in-Slot Insertion.
+Models a 6-DoF compliant Cartesian end-effector holding a square peg (10x10x50 mm)
+between two GelSight Mini tactile sensor pads, inserting into a high-stiffness
+slot receptacle with 0.15 mm clearance per side.
+
+Provides:
+- Deterministic out-of-distribution (OOD) initial misalignment injection (tilt +-15 deg, lateral offsets)
+- High-frequency (1 kHz) simulation stepping with stiff contact mechanics (K_env = 10^4 N/m)
+- Integrated 3D continuous traction field generation on both GelSight pads
+- Real-time invariant extraction: Center of Pressure, Contact Constraint Tensor, Stick Ratio, Jamming Index
+"""
+
+from typing import Dict, Any, Tuple, Optional
+import numpy as np
+import mujoco
+
+from src.sensors.gelsight_sensor import GelSightSensor
+from src.invariants.tactile_invariants import TactileInvariantEngine, ContactMode
+
+
+class FrankaSlotEnv:
+    """
+    Sub-millimeter clearance peg-in-slot insertion environment with dual GelSight tactile sensing.
+    """
+
+    def __init__(
+        self,
+        slot_clearance: float = 0.00015,  # 0.15 mm clearance per side (10.3 mm slot for 10.0 mm peg)
+        peg_width: float = 0.010,         # 10.0 mm
+        peg_depth: float = 0.010,         # 10.0 mm
+        peg_length: float = 0.050,        # 50.0 mm
+        slot_depth: float = 0.025,        # 25.0 mm cavity depth
+        stiffness_env: float = 1.0e4,     # Environment stiffness in N/m
+        dt: float = 0.001,                # 1 kHz control timestep (1 ms)
+        max_steps: int = 1000,            # 1.0 s episode horizon at 1 kHz
+        grid_size: int = 32,              # GelSight pad resolution
+        noise_std_pa: float = 50.0,       # Tactile noise in Pascals
+        nominal_grip_force: float = 15.0, # Nominal normal grip load in N
+        seed: int = 42
+    ):
+        self.slot_clearance = slot_clearance
+        self.peg_width = peg_width
+        self.peg_depth = peg_depth
+        self.peg_length = peg_length
+        self.slot_depth = slot_depth
+        self.stiffness_env = stiffness_env
+        self.dt = dt
+        self.max_steps = max_steps
+        self.grid_size = grid_size
+        self.noise_std_pa = noise_std_pa
+        self.nominal_grip_force = nominal_grip_force
+        self.seed = seed
+
+        # Half dimensions
+        self.peg_half_w = self.peg_width / 2.0
+        self.peg_half_d = self.peg_depth / 2.0
+        self.peg_half_l = self.peg_length / 2.0
+        self.slot_half_w = self.peg_half_w + self.slot_clearance
+        self.slot_half_d = self.peg_half_d + self.slot_clearance
+
+        # Initialize tactile sensors (Left and Right pads)
+        self.sensor_left = GelSightSensor(
+            grid_h=self.grid_size,
+            grid_w=self.grid_size,
+            noise_std_pa=self.noise_std_pa
+        )
+        self.sensor_right = GelSightSensor(
+            grid_h=self.grid_size,
+            grid_w=self.grid_size,
+            noise_std_pa=self.noise_std_pa
+        )
+        self.invariant_engine = TactileInvariantEngine(
+            lx=self.sensor_left.lx,
+            ly=self.sensor_left.ly
+        )
+
+        # Build and load MuJoCo model
+        self.mjcf_xml = self._generate_mjcf()
+        self.model = mujoco.MjModel.from_xml_string(self.mjcf_xml)
+        self.data = mujoco.MjData(self.model)
+
+        # Cache geometry and body IDs
+        self.peg_geom_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, "peg_geom")
+        self.peg_body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "peg")
+        self.ee_body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "ee_base")
+
+        # Step counter and random number generator
+        self.np_random = np.random.RandomState(self.seed)
+        self.step_count = 0
+        self.peak_contact_force = 0.0
+
+    def _generate_mjcf(self) -> str:
+        """Procedurally generate the MJCF XML with slot walls, 6-DoF base, and compliant peg."""
+        wall_thick = 0.02
+        wall_h = self.slot_depth / 2.0
+        
+        xml = f"""
+<mujoco model='franka_slot_insertion'>
+  <compiler angle='radian' coordinate='local'/>
+  <option timestep='{self.dt}' gravity='0 0 -9.81' iterations='50' solver='Newton'/>
+  <default>
+    <geom friction='0.4 0.005 0.0001' solref='0.004 1' solimp='0.9 0.95 0.001'/>
+  </default>
+  <worldbody>
+    <light diffuse='.6 .6 .6' pos='0 0 2' dir='0 0 -1'/>
+    <!-- Table surface at z = 0 -->
+    <geom name='table' type='plane' size='0.2 0.2 0.01' pos='0 0 0' rgba='0.9 0.9 0.9 1'/>
+    
+    <!-- Slot Receptacle (Cavity width: {2.0 * self.slot_half_w * 1e3:.2f} mm, clearance: {self.slot_clearance * 1e3:.2f} mm) -->
+    <!-- Left wall -->
+    <geom name='wall_left' type='box' size='{wall_thick} {self.slot_depth} {wall_h}' 
+          pos='{-wall_thick - self.slot_half_w} 0 {wall_h}' rgba='0.45 0.45 0.55 1'/>
+    <!-- Right wall -->
+    <geom name='wall_right' type='box' size='{wall_thick} {self.slot_depth} {wall_h}' 
+          pos='{wall_thick + self.slot_half_w} 0 {wall_h}' rgba='0.45 0.45 0.55 1'/>
+    <!-- Back wall -->
+    <geom name='wall_back' type='box' size='{self.slot_half_w} {wall_thick} {wall_h}' 
+          pos='0 {-wall_thick - self.slot_half_d} {wall_h}' rgba='0.45 0.45 0.55 1'/>
+    <!-- Front wall -->
+    <geom name='wall_front' type='box' size='{self.slot_half_w} {wall_thick} {wall_h}' 
+          pos='0 {wall_thick + self.slot_half_d} {wall_h}' rgba='0.45 0.45 0.55 1'/>
+
+    <!-- 6-DoF End-Effector Base (Franka Panda wrist + gripper mass ~ 2.5 kg) -->
+    <body name='ee_base' pos='0 0 0.080'>
+      <joint name='slide_x' type='slide' axis='1 0 0' damping='15.0'/>
+      <joint name='slide_y' type='slide' axis='0 1 0' damping='15.0'/>
+      <joint name='slide_z' type='slide' axis='0 0 1' damping='15.0'/>
+      <joint name='hinge_rx' type='hinge' axis='1 0 0' damping='1.5'/>
+      <joint name='hinge_ry' type='hinge' axis='0 1 0' damping='1.5'/>
+      <joint name='hinge_rz' type='hinge' axis='0 0 1' damping='1.5'/>
+      <geom name='ee_gripper' type='box' size='0.018 0.018 0.008' mass='2.5' rgba='0.2 0.2 0.2 1'/>
+      
+      <!-- Peg compliantly held between tactile elastomer pads -->
+      <body name='peg' pos='0 0 -0.025'>
+        <joint name='peg_dx' type='slide' axis='1 0 0' stiffness='15000' damping='40'/>
+        <joint name='peg_dy' type='slide' axis='0 1 0' stiffness='15000' damping='40'/>
+        <joint name='peg_dz' type='slide' axis='0 0 1' stiffness='30000' damping='80'/>
+        <joint name='peg_drx' type='hinge' axis='1 0 0' stiffness='80' damping='1.5'/>
+        <joint name='peg_dry' type='hinge' axis='0 1 0' stiffness='80' damping='1.5'/>
+        <joint name='peg_drz' type='hinge' axis='0 0 1' stiffness='80' damping='1.5'/>
+        <geom name='peg_geom' type='box' size='{self.peg_half_w} {self.peg_half_d} {self.peg_half_l}' mass='0.08' rgba='0.85 0.3 0.2 1'/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name='act_fx' joint='slide_x' gear='1'/>
+    <motor name='act_fy' joint='slide_y' gear='1'/>
+    <motor name='act_fz' joint='slide_z' gear='1'/>
+    <motor name='act_tx' joint='hinge_rx' gear='1'/>
+    <motor name='act_ty' joint='hinge_ry' gear='1'/>
+    <motor name='act_tz' joint='hinge_rz' gear='1'/>
+  </actuator>
+</mujoco>
+"""
+        return xml
+
+    def reset(
+        self,
+        seed: Optional[int] = None,
+        ood_tilt_deg: Optional[Tuple[float, float]] = None,
+        ood_offset_mm: Optional[Tuple[float, float]] = None
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        Resets the environment with deterministic initial state and misalignment.
+        
+        Args:
+            seed: random seed for reproducibility
+            ood_tilt_deg: (tilt_rx_deg, tilt_ry_deg) in degrees. If None, zero nominal tilt.
+            ood_offset_mm: (offset_x_mm, offset_y_mm) in mm. If None, zero nominal offset.
+            
+        Returns:
+            (initial_observation, initial_info)
+        """
+        if seed is not None:
+            self.seed = seed
+            self.np_random = np.random.RandomState(seed)
+
+        mujoco.mj_resetData(self.model, self.data)
+        self.step_count = 0
+        self.peak_contact_force = 0.0
+
+        # Nominal start position: peg tip at z = 0.030 m (5 mm above slot rim at z = 0.025 m)
+        # ee_base pos = 0.055 m puts peg center at 0.030 m and peg bottom at 0.005 m if no offset
+        # Let's start with peg center at z = 0.035 m (bottom at 0.010 m, rim at 0.025 m):
+        # start EE at z = 0.060 m
+        z_start = 0.055
+
+        # Lateral offsets (convert mm to m)
+        dx = (ood_offset_mm[0] * 1e-3) if ood_offset_mm is not None else 0.0
+        dy = (ood_offset_mm[1] * 1e-3) if ood_offset_mm is not None else 0.0
+
+        # Angular tilts (convert deg to rad)
+        rx = np.deg2rad(ood_tilt_deg[0]) if ood_tilt_deg is not None else 0.0
+        ry = np.deg2rad(ood_tilt_deg[1]) if ood_tilt_deg is not None else 0.0
+
+        # Set 6-DoF end-effector initial qpos: [x, y, z, rx, ry, rz]
+        self.data.qpos[0] = dx
+        self.data.qpos[1] = dy
+        self.data.qpos[2] = 0.0  # relative to base pos in MJCF (0.055)
+        self.data.qpos[3] = rx
+        self.data.qpos[4] = ry
+        self.data.qpos[5] = 0.0
+
+        # Zero relative deflection of grasped peg
+        self.data.qpos[6:12] = 0.0
+        self.data.qvel[:] = 0.0
+        self.data.ctrl[:] = 0.0
+
+        mujoco.mj_forward(self.model, self.data)
+
+        obs = self._get_observation()
+        info = self._get_info()
+        return obs, info
+
+    def step(self, action: np.ndarray) -> Tuple[Dict[str, Any], float, bool, bool, Dict[str, Any]]:
+        """
+        Executes one control step at 1 kHz.
+        
+        Args:
+            action: (6,) array [Fx, Fy, Fz, tx, ty, tz] in N and N*m
+            
+        Returns:
+            (observation, reward, terminated, truncated, info)
+        """
+        action = np.asarray(action, dtype=np.float64)
+        assert action.shape == (6,), f"Action must be shape (6,), got {action.shape}"
+
+        # Apply control wrench to actuators
+        self.data.ctrl[:] = action
+
+        # Advance MuJoCo physics
+        mujoco.mj_step(self.model, self.data)
+        self.step_count += 1
+
+        obs = self._get_observation()
+        ext_force_mag = float(np.linalg.norm(obs["external_force"]))
+        self.peak_contact_force = max(self.peak_contact_force, ext_force_mag)
+
+        # Check task completion and constraints
+        peg_z_bottom = obs["peg_pos"][2] - self.peg_half_l
+        # Slot rim is at z = 0.025 m; slot table bottom is at z = 0.0 m
+        # Insertion depth: distance penetrated below the rim
+        insertion_depth = max(0.0, self.slot_depth - peg_z_bottom)
+
+        # Termination conditions:
+        # 1. Success: inserted >= 20 mm into slot with low force (< 20 N) and low tilt (< 2 deg)
+        tilt_deg = np.rad2deg(np.linalg.norm(obs["ee_rpy"][:2]))
+        is_success = (insertion_depth >= 0.020) and (ext_force_mag < 20.0) and (tilt_deg < 2.0)
+
+        # 2. Jammed: peak contact force exceeds 40 N or Jamming Index drops below 1.5 with high force
+        is_jammed = (ext_force_mag > 40.0) or (obs["tactile"]["jamming_index"] < 1.5 and ext_force_mag > 25.0)
+
+        # 3. Delamination / material failure: force exceeds 50 N
+        is_force_exceeded = ext_force_mag > 50.0
+
+        terminated = bool(is_success or is_jammed or is_force_exceeded)
+        truncated = bool(self.step_count >= self.max_steps)
+
+        # Reward formulation
+        reward = (
+            -0.005 * (ext_force_mag ** 2)
+            - 0.05 * (float(np.linalg.norm(obs["external_torque"])) ** 2)
+            + 100.0 * insertion_depth
+            + (500.0 if is_success else 0.0)
+            - (200.0 if is_jammed else 0.0)
+        )
+
+        info = self._get_info()
+        info.update({
+            "is_success": is_success,
+            "is_jammed": is_jammed,
+            "is_force_exceeded": is_force_exceeded,
+            "insertion_depth_m": insertion_depth,
+            "peak_force_n": self.peak_contact_force,
+            "current_force_n": ext_force_mag,
+            "tilt_deg": tilt_deg
+        })
+
+        return obs, reward, terminated, truncated, info
+
+    def _get_observation(self) -> Dict[str, Any]:
+        """Extracts kinematic, dynamic, and tactile perception states."""
+        # 6-DoF End-Effector state
+        ee_pos = self.data.qpos[0:3].copy()
+        ee_rpy = self.data.qpos[3:6].copy()
+        ee_linvel = self.data.qvel[0:3].copy()
+        ee_angvel = self.data.qvel[3:6].copy()
+
+        # Peg internal deflection relative to gripper
+        peg_deflection = self.data.qpos[6:12].copy()
+        peg_deflection_vel = self.data.qvel[6:12].copy()
+
+        # Peg global pose
+        peg_pos = self.data.geom_xpos[self.peg_geom_id].copy()
+
+        # Contact forces between peg and environment
+        ext_force, ext_torque = self._compute_external_contact_wrench()
+
+        # Generate tactile traction fields on Left and Right GelSight pads
+        tactile_data = self._compute_tactile_invariants(peg_deflection, peg_deflection_vel, ext_force, ext_torque)
+
+        return {
+            "step": self.step_count,
+            "time": self.step_count * self.dt,
+            "ee_pos": ee_pos,
+            "ee_rpy": ee_rpy,
+            "ee_linvel": ee_linvel,
+            "ee_angvel": ee_angvel,
+            "peg_pos": peg_pos,
+            "peg_deflection": peg_deflection,
+            "external_force": ext_force,
+            "external_torque": ext_torque,
+            "tactile": tactile_data
+        }
+
+    def _compute_external_contact_wrench(self) -> Tuple[np.ndarray, np.ndarray]:
+        """Queries MuJoCo contact engine for all active contacts involving the peg geom."""
+        net_force = np.zeros(3)
+        net_torque = np.zeros(3)
+        peg_pos = self.data.geom_xpos[self.peg_geom_id]
+        c_force = np.zeros(6)
+
+        for i in range(self.data.ncon):
+            con = self.data.contact[i]
+            if con.geom1 == self.peg_geom_id or con.geom2 == self.peg_geom_id:
+                # Contact force in contact frame: c_force[0] = normal, [1, 2] = friction
+                mujoco.mj_contactForce(self.model, self.data, i, c_force)
+                # Rotate contact wrench into world frame
+                R_con = con.frame.reshape(3, 3)
+                f_con_world = R_con.T @ c_force[:3]
+
+                # Sign convention: force acting ON the peg
+                if con.geom2 == self.peg_geom_id:
+                    f_con_world = -f_con_world
+
+                net_force += f_con_world
+                # Torque about peg center: r x F
+                r_arm = con.pos - peg_pos
+                net_torque += np.cross(r_arm, f_con_world)
+
+        return net_force, net_torque
+
+    def _compute_tactile_invariants(
+        self,
+        peg_deflection: np.ndarray,
+        peg_deflection_vel: np.ndarray,
+        ext_force: np.ndarray,
+        ext_torque: np.ndarray
+    ) -> Dict[str, Any]:
+        """
+        Synthesizes the continuous 3D traction fields on Left and Right GelSight pads
+        and extracts contact invariants.
+        """
+        peg_dx, peg_dy, peg_dz, peg_drx, peg_dry, peg_drz = peg_deflection
+        peg_vx, peg_vy, peg_vz, peg_wrx, peg_wry, peg_wrz = peg_deflection_vel
+
+        # Nominal pre-indentation delta_0 (0.5 mm) corresponding to 15 N grip
+        delta_0 = 0.0005
+        # Lateral shift increases compression on one pad and unloads the other
+        delta_left = max(1e-5, delta_0 - peg_dx)
+        delta_right = max(1e-5, delta_0 + peg_dx)
+
+        # Pad contact offset from tilt: offset_v = L * sin(peg_dry) / 2
+        offset_v_left = 0.008 * np.sin(peg_dry)
+        offset_v_right = -offset_v_left
+
+        # Generate traction fields for both pads
+        res_left = self.sensor_left.generate_traction_field(
+            contact_type="line_edge" if abs(peg_dry) > 0.02 else "flat_circle",
+            indentation_depth=delta_left,
+            offset=(0.0, offset_v_left),
+            rel_vel=(peg_vy, peg_vz),
+            rel_omega=peg_wrx,
+            aspect_ratio=2.5 if abs(peg_dry) > 0.02 else 1.0
+        )
+        res_right = self.sensor_right.generate_traction_field(
+            contact_type="line_edge" if abs(peg_dry) > 0.02 else "flat_circle",
+            indentation_depth=delta_right,
+            offset=(0.0, offset_v_right),
+            rel_vel=(-peg_vy, peg_vz),
+            rel_omega=-peg_wrx,
+            aspect_ratio=2.5 if abs(peg_dry) > 0.02 else 1.0
+        )
+
+        # Extract invariants for Left and Right pads
+        inv_left = self.invariant_engine.extract_invariants(
+            res_left["traction_field"],
+            self.sensor_left.du, self.sensor_left.dv,
+            self.sensor_left.U, self.sensor_left.V
+        )
+        inv_right = self.invariant_engine.extract_invariants(
+            res_right["traction_field"],
+            self.sensor_right.du, self.sensor_right.dv,
+            self.sensor_right.U, self.sensor_right.V
+        )
+
+        # Aggregate across pads:
+        # Min stick ratio indicates earliest slip onset
+        stick_ratio = min(inv_left["stick_ratio"], inv_right["stick_ratio"])
+        
+        # Center of pressure of dominant loaded pad
+        if inv_left["net_force"][2] >= inv_right["net_force"][2]:
+            cop = inv_left["center_of_pressure"]
+            eigenvalues = inv_left["eigenvalues"]
+            dominant_mode = inv_left["contact_mode"]
+            dominant_normal = inv_left["contact_normal"]
+        else:
+            cop = inv_right["center_of_pressure"]
+            eigenvalues = inv_right["eigenvalues"]
+            dominant_mode = inv_right["contact_mode"]
+            dominant_normal = inv_right["contact_normal"]
+
+        # Jamming index: ratio of insertion force to tilting torque
+        # Using Whitney's formulation: J_jam = (F_insert * r_char) / (tau_tilt + eps)
+        f_insert = max(0.01, abs(ext_force[2]))
+        tau_tilt = float(np.linalg.norm(ext_torque[:2]))
+        r_char = self.peg_half_l
+        jamming_index = float((f_insert * r_char) / (tau_tilt + 1e-4))
+
+        # Classify overall contact mode
+        if float(np.linalg.norm(ext_force)) < 0.1:
+            overall_mode = ContactMode.FREE_SPACE
+        elif stick_ratio < 0.10:
+            overall_mode = ContactMode.GROSS_SLIP
+        elif jamming_index < 2.0 and float(np.linalg.norm(ext_force)) > 15.0:
+            overall_mode = ContactMode.TWO_POINT_JAMMING
+        else:
+            overall_mode = dominant_mode
+
+        return {
+            "left_pad": inv_left,
+            "right_pad": inv_right,
+            "center_of_pressure": cop,
+            "eigenvalues": eigenvalues,
+            "contact_normal": dominant_normal,
+            "stick_ratio": stick_ratio,
+            "jamming_index": jamming_index,
+            "contact_mode": overall_mode
+        }
+
+    def _get_info(self) -> Dict[str, Any]:
+        """Diagnostics and environment metadata."""
+        peg_pos = self.data.geom_xpos[self.peg_geom_id]
+        peg_z_bottom = float(peg_pos[2] - self.peg_half_l)
+        insertion_depth = float(max(0.0, self.slot_depth - peg_z_bottom))
+        tilt_deg = float(np.rad2deg(np.linalg.norm(self.data.qpos[3:5])))
+        
+        ext_force, _ = self._compute_external_contact_wrench()
+        ext_force_mag = float(np.linalg.norm(ext_force))
+        
+        is_success = bool((insertion_depth >= 0.020) and (ext_force_mag < 20.0) and (tilt_deg < 2.0))
+        is_jammed = bool(ext_force_mag > 40.0)
+        is_force_exceeded = bool(ext_force_mag > 50.0)
+
+        return {
+            "step": self.step_count,
+            "dt": self.dt,
+            "slot_clearance": self.slot_clearance,
+            "stiffness_env": self.stiffness_env,
+            "peak_contact_force": float(self.peak_contact_force),
+            "current_force_n": ext_force_mag,
+            "insertion_depth_m": insertion_depth,
+            "tilt_deg": tilt_deg,
+            "is_success": is_success,
+            "is_jammed": is_jammed,
+            "is_force_exceeded": is_force_exceeded
+        }
