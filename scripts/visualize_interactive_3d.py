@@ -1,19 +1,20 @@
 """
 Interactive 3D Simulation Viewer for TactAI.
-Launches the native MuJoCo 3D viewer window on your desktop.
+Launches the native MuJoCo Simulate GUI on the main thread for full interactive 3D rendering.
 
 Controls:
-- Left Mouse Drag:  Rotate camera view
-- Right Mouse Drag: Zoom camera in/out
-- Scroll Wheel:     Zoom camera
-- Middle Mouse:     Pan camera
-- Spacebar:         Pause / resume simulation
-- ESC / Close:      Exit viewer
+- Left Mouse Drag:         Rotate 3D camera
+- Right Mouse Drag / Scroll: Zoom in/out
+- Middle Mouse Drag:       Pan camera
+- Double Click:            Select body
+- Ctrl + Right Drag:       Apply external 3D force directly on peg or gripper
+- Spacebar:                Pause / resume physics
+- Backspace:               Reset simulation
 """
 
 import os
 import sys
-import time
+import argparse
 import numpy as np
 import mujoco
 import mujoco.viewer
@@ -23,64 +24,49 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from src.envs.franka_slot_env import FrankaSlotEnv
 
 
-def run_interactive_viewer():
-    print("=" * 70)
-    print("  TACTAI: INTERACTIVE 3D MUJOCO VIEWER")
-    print("=" * 70)
-    print("Controls:")
-    print("  - Left click + drag:   Rotate 3D camera")
-    print("  - Right click + drag:  Zoom in / out")
-    print("  - Center click + drag: Pan camera")
-    print("  - Spacebar:            Pause / unpause")
-    print("=" * 70)
+def main():
+    parser = argparse.ArgumentParser(description="TactAI 3D Interactive Viewer")
+    parser.add_argument("--tilt", type=float, default=10.0, help="Initial tilt in degrees (default: 10.0 deg)")
+    parser.add_argument("--offset", type=float, default=0.0, help="Initial lateral offset in mm (default: 0.0 mm)")
+    parser.add_argument("--aligned", action="store_true", help="Launch in aligned mode (0 deg tilt)")
+    args = parser.parse_args()
+
+    tilt_deg = 0.0 if args.aligned else args.tilt
+    offset_mm = args.offset
 
     env = FrankaSlotEnv(seed=42)
+    obs, info = env.reset(ood_tilt_deg=(tilt_deg, 0.0), ood_offset_mm=(offset_mm, 0.0))
 
-    # Scenarios to cycle through
-    scenarios = [
-        {"name": "Scenario 1: Aligned Insertion (0° Tilt) — SUCCESS", "tilt": (0.0, 0.0), "offset": (0.0, 0.0)},
-        {"name": "Scenario 2: Tilted Push (+10° Tilt) — RIM WEDGING", "tilt": (10.0, 0.0), "offset": (0.0, 0.0)},
-        {"name": "Scenario 3: Lateral Offset (0.8 mm) — WALL JAMMING", "tilt": (0.0, 0.0), "offset": (0.8, 0.0)},
-    ]
+    print("=" * 70)
+    print("  TACTAI: INTERACTIVE 3D MUJOCO SIMULATE GUI")
+    print("=" * 70)
+    print(f"  Mode:       {'ALIGNED' if tilt_deg == 0.0 else f'MISALIGNED (+{tilt_deg}° Tilt)'}")
+    print(f"  Clearance:  {env.slot_clearance * 1e3:.2f} mm per side")
+    print(f"  Stiffness:  {env.stiffness_env:.0f} N/m")
+    print("=" * 70)
+    print("Controls:")
+    print("  - Left click + drag:         Rotate 3D camera")
+    print("  - Right click + drag:        Zoom in/out (or scroll wheel)")
+    print("  - Middle click + drag:       Pan camera")
+    print("  - Double click body:         Select body")
+    print("  - Ctrl + Right click + drag: Apply external 3D perturbation force")
+    print("  - Space:                     Pause / Play simulation")
+    print("  - Backspace:                 Reset simulation state")
+    print("=" * 70)
 
-    action_down = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
+    # Controller callback called at every physics step by the viewer
+    def controller(m, d):
+        # Downward push command on Z axis
+        d.ctrl[2] = -8.0
 
-    with mujoco.viewer.launch_passive(env.model, env.data) as viewer:
-        # Initial camera view centered on slot opening
-        viewer.cam.lookat = [0.0, 0.0, 0.030]
-        viewer.cam.distance = 0.22
-        viewer.cam.elevation = -22
-        viewer.cam.azimuth = 135
+    mujoco.set_mjcb_control(controller)
 
-        scenario_idx = 0
-        while viewer.is_running():
-            sc = scenarios[scenario_idx % len(scenarios)]
-            print(f"\n>>> Running {sc['name']}...")
-            obs, info = env.reset(ood_tilt_deg=sc["tilt"], ood_offset_mm=sc["offset"])
-            viewer.sync()
-            time.sleep(0.5)
-
-            step_count = 0
-            while viewer.is_running() and step_count < 300:
-                step_start = time.perf_counter()
-
-                obs, reward, terminated, truncated, info = env.step(action_down)
-                viewer.sync()
-                step_count += 1
-
-                if terminated or truncated:
-                    status = "SUCCESS" if info["is_success"] else ("JAMMED" if info["is_jammed"] else "STOPPED")
-                    print(f"    Result: {status} | Depth: {info['insertion_depth_m']*1e3:.2f} mm | Peak Force: {info['peak_force_n']:.1f} N")
-                    time.sleep(1.2)  # Pause to observe final contact state
-                    break
-
-                # Sleep to match real-time 60 FPS visual rate
-                elapsed = time.perf_counter() - step_start
-                if elapsed < env.dt:
-                    time.sleep(env.dt - elapsed)
-
-            scenario_idx += 1
+    # Launch full interactive Simulate GUI on main thread
+    try:
+        mujoco.viewer.launch(env.model, env.data)
+    finally:
+        mujoco.set_mjcb_control(None)
 
 
 if __name__ == "__main__":
-    run_interactive_viewer()
+    main()
