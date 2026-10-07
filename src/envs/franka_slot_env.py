@@ -90,6 +90,16 @@ class FrankaSlotEnv:
         self.peg_geom_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, "peg_geom")
         self.peg_body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "peg")
         self.ee_body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "ee_base")
+        self.hand_body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "hand")
+
+        # Franka arm kinematics tracking (7 kinematic joints)
+        self.arm_joint_ids = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, f"joint{i}") for i in range(1, 8)]
+        self.arm_qpos_indices = [self.model.jnt_qposadr[jid] for jid in self.arm_joint_ids]
+        self.arm_dof_indices = [self.model.jnt_dofadr[jid] for jid in self.arm_joint_ids]
+        self.q_arm_home = np.array([0.0, 0.6116, 0.0, -2.3137, 0.0, 2.9253, -0.7854], dtype=np.float64)
+        self.R_hand0 = np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]], dtype=np.float64)
+        self._jacp = np.zeros((3, self.model.nv))
+        self._jacr = np.zeros((3, self.model.nv))
 
         # Step counter and random number generator
         self.np_random = np.random.RandomState(self.seed)
@@ -176,52 +186,6 @@ class FrankaSlotEnv:
     <geom name='wall_front' type='box' size='{self.slot_half_w} {wall_thick} {wall_h}' 
           pos='0 {wall_thick + self.slot_half_d} {wall_h}' rgba='0.35 0.55 0.75 0.30'/>
 
-    <!-- Visual Franka Arm Base and Links 0 through 6 standing on table -->
-    <body name='vis_arm_base' pos='-0.55 0 0'>
-      <geom mesh='link0_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
-      <geom mesh='link0_1' material='black' type='mesh' contype='0' conaffinity='0'/>
-      <geom mesh='link0_2' material='off_white' type='mesh' contype='0' conaffinity='0'/>
-      <geom mesh='link0_7' material='white' type='mesh' contype='0' conaffinity='0'/>
-      <geom mesh='link0_8' material='white' type='mesh' contype='0' conaffinity='0'/>
-      
-      <!-- Link 1 (reaching up) -->
-      <body name='vis_link1' pos='0 0 0.333'>
-        <geom material='white' mesh='link1' type='mesh' contype='0' conaffinity='0'/>
-        
-        <!-- Link 2 (elbow flex) -->
-        <body name='vis_link2' quat='0.9689 -0.2474 0 0'>
-          <geom material='white' mesh='link2' type='mesh' contype='0' conaffinity='0'/>
-          
-          <!-- Link 3 -->
-          <body name='vis_link3' pos='0 -0.316 0' quat='0.7071 0.7071 0 0'>
-            <geom mesh='link3_0' material='white' type='mesh' contype='0' conaffinity='0'/>
-            <geom mesh='link3_1' material='white' type='mesh' contype='0' conaffinity='0'/>
-            <geom mesh='link3_3' material='black' type='mesh' contype='0' conaffinity='0'/>
-            
-            <!-- Link 4 -->
-            <body name='vis_link4' pos='0.0825 0 0' quat='0.6388 0.6388 -0.3090 -0.3090'>
-              <geom mesh='link4_0' material='white' type='mesh' contype='0' conaffinity='0'/>
-              <geom mesh='link4_1' material='white' type='mesh' contype='0' conaffinity='0'/>
-              <geom mesh='link4_2' material='black' type='mesh' contype='0' conaffinity='0'/>
-              
-              <!-- Link 5 -->
-              <body name='vis_link5' pos='-0.0825 0.384 0' quat='0.7071 -0.7071 0 0'>
-                <geom mesh='link5_0' material='black' type='mesh' contype='0' conaffinity='0'/>
-                <geom mesh='link5_1' material='white' type='mesh' contype='0' conaffinity='0'/>
-                
-                <!-- Link 6 -->
-                <body name='vis_link6' quat='0.2164 0.2164 0.6725 0.6725'>
-                  <geom mesh='link6_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
-                  <geom mesh='link6_1' material='white' type='mesh' contype='0' conaffinity='0'/>
-                  <geom mesh='link6_2' material='black' type='mesh' contype='0' conaffinity='0'/>
-                </body>
-              </body>
-            </body>
-          </body>
-        </body>
-      </body>
-    </body>
-
     <!-- 6-DoF End-Effector Base (Franka Panda wrist + gripper mass ~ 2.5 kg) -->
     <body name='ee_base' pos='0 0 0.080'>
       <joint name='slide_x' type='slide' axis='1 0 0' damping='15.0'/>
@@ -231,37 +195,8 @@ class FrankaSlotEnv:
       <joint name='hinge_ry' type='hinge' axis='0 1 0' damping='1.5'/>
       <joint name='hinge_rz' type='hinge' axis='0 0 1' damping='1.5'/>
       
-      <!-- Franka Hand meshes rotated so hand points downward (-Z) -->
-      <body name='franka_hand_body' pos='0 0 0.070' quat='0 0.7071 0.7071 0'>
-        <geom mesh='hand_0' material='off_white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        <geom mesh='hand_1' material='black' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        <geom mesh='hand_2' material='black' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        <geom mesh='hand_3' material='white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        <geom mesh='hand_4' material='off_white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        
-        <!-- Franka Wrist link7 directly above hand -->
-        <body name='vis_link7' pos='0 0 -0.107' quat='0.92388 0 0 0.38268'>
-          <geom mesh='link7_0' material='white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-          <geom mesh='link7_1' material='black' type='mesh' contype='0' conaffinity='0' mass='0'/>
-        </body>
-        
-        <!-- Franka gripper fingers holding peg -->
-        <body name='left_finger' pos='0 0.010 0.0584'>
-          <geom mesh='finger_0' material='off_white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-          <geom mesh='finger_1' material='black' type='mesh' contype='0' conaffinity='0' mass='0'/>
-          <!-- GelSight Mini Left Pad -->
-          <geom name='vis_gelsight_left' type='box' size='0.008 0.002 0.010' pos='0 -0.004 0.038' contype='0' conaffinity='0' rgba='0.15 0.80 0.90 0.95' mass='0'/>
-        </body>
-        <body name='right_finger' pos='0 -0.010 0.0584' quat='0 0 0 1'>
-          <geom mesh='finger_0' material='off_white' type='mesh' contype='0' conaffinity='0' mass='0'/>
-          <geom mesh='finger_1' material='black' type='mesh' contype='0' mass='0' conaffinity='0'/>
-          <!-- GelSight Mini Right Pad -->
-          <geom name='vis_gelsight_right' type='box' size='0.008 0.002 0.010' pos='0 -0.004 0.038' contype='0' conaffinity='0' rgba='0.15 0.80 0.90 0.95' mass='0'/>
-        </body>
-      </body>
-
       <!-- Base mass block ensuring 2.5 kg total end-effector mass with zero gravity torque -->
-      <geom name='ee_core' type='box' size='0.015 0.015 0.015' pos='0 0 0.020' mass='2.42' contype='0' conaffinity='0' rgba='0.2 0.22 0.26 0.05'/>
+      <geom name='ee_core' type='box' size='0.015 0.015 0.015' pos='0 0 0.020' mass='2.42' contype='0' conaffinity='0' rgba='0.2 0.22 0.26 0.0'/>
 
       <!-- Peg compliantly held between tactile elastomer pads -->
       <body name='peg' pos='0 0 -0.025'>
@@ -269,9 +204,109 @@ class FrankaSlotEnv:
         <joint name='peg_dy' type='slide' axis='0 1 0' stiffness='15000' damping='40'/>
         <joint name='peg_dz' type='slide' axis='0 0 1' stiffness='30000' damping='80'/>
         <joint name='peg_drx' type='hinge' axis='1 0 0' stiffness='80' damping='1.5'/>
-        <joint name='peg_dry' type='hinge' axis='0 1 0' stiffness='80' damping='1.5'/>
         <joint name='peg_drz' type='hinge' axis='0 0 1' stiffness='80' damping='1.5'/>
+        <joint name='peg_dry' type='hinge' axis='0 1 0' stiffness='80' damping='1.5'/>
         <geom name='peg_geom' type='box' size='{self.peg_half_w} {self.peg_half_d} {self.peg_half_l}' mass='0.08' rgba='0.92 0.38 0.22 1'/>
+      </body>
+    </body>
+
+    <!-- Official Franka Emika Panda 7-DoF Arm mounted to table at x = -0.50 m -->
+    <body name='link0' pos='-0.50 0 0'>
+      <geom mesh='link0_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_1' material='black' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_2' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_3' material='black' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_4' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_5' material='black' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_7' material='white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_8' material='white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_9' material='black' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_10' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+      <geom mesh='link0_11' material='white' type='mesh' contype='0' conaffinity='0'/>
+      
+      <body name='link1' pos='0 0 0.333'>
+        <joint name='joint1' type='hinge' axis='0 0 1' damping='2.0'/>
+        <geom material='white' mesh='link1' type='mesh' contype='0' conaffinity='0'/>
+        
+        <body name='link2' quat='1 -1 0 0'>
+          <joint name='joint2' type='hinge' axis='0 0 1' range='-1.7628 1.7628' damping='2.0'/>
+          <geom material='white' mesh='link2' type='mesh' contype='0' conaffinity='0'/>
+          
+          <body name='link3' pos='0 -0.316 0' quat='1 1 0 0'>
+            <joint name='joint3' type='hinge' axis='0 0 1' damping='2.0'/>
+            <geom mesh='link3_0' material='white' type='mesh' contype='0' conaffinity='0'/>
+            <geom mesh='link3_1' material='white' type='mesh' contype='0' conaffinity='0'/>
+            <geom mesh='link3_2' material='white' type='mesh' contype='0' conaffinity='0'/>
+            <geom mesh='link3_3' material='black' type='mesh' contype='0' conaffinity='0'/>
+            
+            <body name='link4' pos='0.0825 0 0' quat='1 1 0 0'>
+              <joint name='joint4' type='hinge' axis='0 0 1' range='-3.0718 -0.0698' damping='2.0'/>
+              <geom mesh='link4_0' material='white' type='mesh' contype='0' conaffinity='0'/>
+              <geom mesh='link4_1' material='white' type='mesh' contype='0' conaffinity='0'/>
+              <geom mesh='link4_2' material='black' type='mesh' contype='0' conaffinity='0'/>
+              <geom mesh='link4_3' material='white' type='mesh' contype='0' conaffinity='0'/>
+              
+              <body name='link5' pos='-0.0825 0.384 0' quat='1 -1 0 0'>
+                <joint name='joint5' type='hinge' axis='0 0 1' damping='2.0'/>
+                <geom mesh='link5_0' material='black' type='mesh' contype='0' conaffinity='0'/>
+                <geom mesh='link5_1' material='white' type='mesh' contype='0' conaffinity='0'/>
+                <geom mesh='link5_2' material='white' type='mesh' contype='0' conaffinity='0'/>
+                
+                <body name='link6' quat='1 1 0 0'>
+                  <joint name='joint6' type='hinge' axis='0 0 1' range='-0.0175 3.7525' damping='2.0'/>
+                  <geom mesh='link6_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_1' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_2' material='black' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_3' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_4' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_5' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_6' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_7' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_8' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_9' material='black' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_10' material='black' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_11' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_12' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_13' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_14' material='black' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_15' material='black' type='mesh' contype='0' conaffinity='0'/>
+                  <geom mesh='link6_16' material='white' type='mesh' contype='0' conaffinity='0'/>
+                  
+                  <body name='link7' pos='0.088 0 0' quat='1 1 0 0'>
+                    <joint name='joint7' type='hinge' axis='0 0 1' damping='2.0'/>
+                    <geom mesh='link7_0' material='white' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_1' material='black' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_2' material='white' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_3' material='black' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_4' material='white' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_5' material='black' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_6' material='white' type='mesh' contype='0' conaffinity='0'/>
+                    <geom mesh='link7_7' material='white' type='mesh' contype='0' conaffinity='0'/>
+                    
+                    <body name='hand' pos='0 0 0.107' quat='0.9238795 0 0 -0.3826834'>
+                      <geom mesh='hand_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+                      <geom mesh='hand_1' material='black' type='mesh' contype='0' conaffinity='0'/>
+                      <geom mesh='hand_2' material='black' type='mesh' contype='0' conaffinity='0'/>
+                      <geom mesh='hand_3' material='white' type='mesh' contype='0' conaffinity='0'/>
+                      <geom mesh='hand_4' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+                      
+                      <body name='left_finger' pos='0 0.010 0.0584'>
+                        <geom mesh='finger_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+                        <geom mesh='finger_1' material='black' type='mesh' contype='0' conaffinity='0'/>
+                        <geom name='vis_gelsight_left' type='box' size='0.008 0.002 0.010' pos='0 -0.004 0.038' contype='0' conaffinity='0' rgba='0.15 0.80 0.90 0.95'/>
+                      </body>
+                      <body name='right_finger' pos='0 -0.010 0.0584' quat='0 0 0 1'>
+                        <geom mesh='finger_0' material='off_white' type='mesh' contype='0' conaffinity='0'/>
+                        <geom mesh='finger_1' material='black' type='mesh' contype='0' mass='0' conaffinity='0'/>
+                        <geom name='vis_gelsight_right' type='box' size='0.008 0.002 0.010' pos='0 -0.004 0.038' contype='0' conaffinity='0' rgba='0.15 0.80 0.90 0.95'/>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
       </body>
     </body>
     
@@ -291,6 +326,36 @@ class FrankaSlotEnv:
 </mujoco>
 """
         return xml
+
+    def _update_arm_kinematics(self, n_iter: int = 4) -> None:
+        """
+        Updates kinematic Franka arm joints using warm-started Damped Least Squares IK
+        so that the articulated arm, hand, fingers, and GelSight pads seamlessly follow the end-effector.
+        """
+        target_pos = self.data.xpos[self.ee_body_id]
+        R_ee = self.data.xmat[self.ee_body_id].reshape(3, 3)
+        target_mat = R_ee @ self.R_hand0
+
+        for _ in range(n_iter):
+            mujoco.mj_forward(self.model, self.data)
+            curr_pos = self.data.xpos[self.hand_body_id]
+            curr_mat = self.data.xmat[self.hand_body_id].reshape(3, 3)
+            pos_err = target_pos - curr_pos
+            rot_err = 0.5 * (
+                np.cross(curr_mat[:, 0], target_mat[:, 0]) +
+                np.cross(curr_mat[:, 1], target_mat[:, 1]) +
+                np.cross(curr_mat[:, 2], target_mat[:, 2])
+            )
+            err = np.concatenate([pos_err, rot_err])
+            if np.linalg.norm(err) < 1e-4:
+                break
+            mujoco.mj_jacBody(self.model, self.data, self._jacp, self._jacr, self.hand_body_id)
+            J = np.vstack([self._jacp[:, self.arm_dof_indices], self._jacr[:, self.arm_dof_indices]])
+            dq = J.T @ np.linalg.solve(J @ J.T + 1e-3 * np.eye(6), err)
+            self.data.qpos[self.arm_qpos_indices] += dq
+
+        self.data.qvel[self.arm_dof_indices] = 0.0
+        mujoco.mj_forward(self.model, self.data)
 
     def reset(
         self,
@@ -344,7 +409,10 @@ class FrankaSlotEnv:
         self.data.qvel[:] = 0.0
         self.data.ctrl[:] = 0.0
 
+        # Initialize kinematic Franka arm and solve IK to track initial ee pose
+        self.data.qpos[self.arm_qpos_indices] = self.q_arm_home.copy()
         mujoco.mj_forward(self.model, self.data)
+        self._update_arm_kinematics(n_iter=10)
 
         obs = self._get_observation()
         info = self._get_info()
@@ -369,6 +437,9 @@ class FrankaSlotEnv:
         # Advance MuJoCo physics
         mujoco.mj_step(self.model, self.data)
         self.step_count += 1
+
+        # Synchronize articulated Franka robot arm kinematics
+        self._update_arm_kinematics(n_iter=3)
 
         obs = self._get_observation()
         ext_force_mag = float(np.linalg.norm(obs["external_force"]))
