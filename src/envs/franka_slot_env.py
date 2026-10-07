@@ -99,27 +99,34 @@ class FrankaSlotEnv:
 <mujoco model='franka_slot_insertion'>
   <compiler angle='radian' coordinate='local'/>
   <option timestep='{self.dt}' gravity='0 0 -9.81' iterations='50' solver='Newton'/>
+  <visual>
+    <global offwidth='1920' offheight='1080'/>
+    <quality shadowsize='2048'/>
+    <headlight ambient='0.4 0.4 0.4' diffuse='0.6 0.6 0.6' specular='0.2 0.2 0.2'/>
+  </visual>
   <default>
     <geom friction='0.4 0.005 0.0001' solref='0.004 1' solimp='0.9 0.95 0.001'/>
   </default>
   <worldbody>
-    <light diffuse='.6 .6 .6' pos='0 0 2' dir='0 0 -1'/>
+    <light diffuse='.8 .8 .8' pos='0.1 -0.2 0.4' dir='-0.2 0.3 -0.8' castshadow='true'/>
+    <light diffuse='.4 .4 .4' pos='-0.2 0.2 0.3' dir='0.3 -0.3 -0.6' castshadow='false'/>
+    
     <!-- Table surface at z = 0 -->
-    <geom name='table' type='plane' size='0.2 0.2 0.01' pos='0 0 0' rgba='0.9 0.9 0.9 1'/>
+    <geom name='table' type='plane' size='0.25 0.25 0.01' pos='0 0 0' rgba='0.92 0.93 0.95 1'/>
     
     <!-- Slot Receptacle (Cavity width: {2.0 * self.slot_half_w * 1e3:.2f} mm, clearance: {self.slot_clearance * 1e3:.2f} mm) -->
     <!-- Left wall -->
     <geom name='wall_left' type='box' size='{wall_thick} {self.slot_depth} {wall_h}' 
-          pos='{-wall_thick - self.slot_half_w} 0 {wall_h}' rgba='0.45 0.45 0.55 1'/>
+          pos='{-wall_thick - self.slot_half_w} 0 {wall_h}' rgba='0.35 0.4 0.48 1'/>
     <!-- Right wall -->
     <geom name='wall_right' type='box' size='{wall_thick} {self.slot_depth} {wall_h}' 
-          pos='{wall_thick + self.slot_half_w} 0 {wall_h}' rgba='0.45 0.45 0.55 1'/>
+          pos='{wall_thick + self.slot_half_w} 0 {wall_h}' rgba='0.35 0.4 0.48 1'/>
     <!-- Back wall -->
     <geom name='wall_back' type='box' size='{self.slot_half_w} {wall_thick} {wall_h}' 
-          pos='0 {-wall_thick - self.slot_half_d} {wall_h}' rgba='0.45 0.45 0.55 1'/>
+          pos='0 {-wall_thick - self.slot_half_d} {wall_h}' rgba='0.35 0.4 0.48 1'/>
     <!-- Front wall -->
     <geom name='wall_front' type='box' size='{self.slot_half_w} {wall_thick} {wall_h}' 
-          pos='0 {wall_thick + self.slot_half_d} {wall_h}' rgba='0.45 0.45 0.55 1'/>
+          pos='0 {wall_thick + self.slot_half_d} {wall_h}' rgba='0.35 0.4 0.48 1'/>
 
     <!-- 6-DoF End-Effector Base (Franka Panda wrist + gripper mass ~ 2.5 kg) -->
     <body name='ee_base' pos='0 0 0.080'>
@@ -129,8 +136,14 @@ class FrankaSlotEnv:
       <joint name='hinge_rx' type='hinge' axis='1 0 0' damping='1.5'/>
       <joint name='hinge_ry' type='hinge' axis='0 1 0' damping='1.5'/>
       <joint name='hinge_rz' type='hinge' axis='0 0 1' damping='1.5'/>
-      <geom name='ee_gripper' type='box' size='0.018 0.018 0.008' mass='2.5' rgba='0.2 0.2 0.2 1'/>
+      <geom name='ee_gripper' type='box' size='0.02 0.02 0.008' mass='2.5' rgba='0.2 0.22 0.26 1'/>
       
+      <!-- Visual Gripper Fingers & GelSight Mini Tactile Pads -->
+      <geom name='vis_finger_left' type='box' size='0.0025 0.009 0.012' pos='-0.008 0 -0.012' contype='0' conaffinity='0' rgba='0.25 0.28 0.32 1'/>
+      <geom name='vis_gelsight_left' type='box' size='0.001 0.0077 0.0093' pos='-0.0055 0 -0.012' contype='0' conaffinity='0' rgba='0.15 0.75 0.85 0.9'/>
+      <geom name='vis_finger_right' type='box' size='0.0025 0.009 0.012' pos='0.008 0 -0.012' contype='0' conaffinity='0' rgba='0.25 0.28 0.32 1'/>
+      <geom name='vis_gelsight_right' type='box' size='0.001 0.0077 0.0093' pos='0.0055 0 -0.012' contype='0' conaffinity='0' rgba='0.15 0.75 0.85 0.9'/>
+
       <!-- Peg compliantly held between tactile elastomer pads -->
       <body name='peg' pos='0 0 -0.025'>
         <joint name='peg_dx' type='slide' axis='1 0 0' stiffness='15000' damping='40'/>
@@ -139,7 +152,7 @@ class FrankaSlotEnv:
         <joint name='peg_drx' type='hinge' axis='1 0 0' stiffness='80' damping='1.5'/>
         <joint name='peg_dry' type='hinge' axis='0 1 0' stiffness='80' damping='1.5'/>
         <joint name='peg_drz' type='hinge' axis='0 0 1' stiffness='80' damping='1.5'/>
-        <geom name='peg_geom' type='box' size='{self.peg_half_w} {self.peg_half_d} {self.peg_half_l}' mass='0.08' rgba='0.85 0.3 0.2 1'/>
+        <geom name='peg_geom' type='box' size='{self.peg_half_w} {self.peg_half_d} {self.peg_half_l}' mass='0.08' rgba='0.92 0.38 0.22 1'/>
       </body>
     </body>
   </worldbody>
