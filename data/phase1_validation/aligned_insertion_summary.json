@@ -3,8 +3,8 @@
     "episode_id": "aligned_insertion",
     "controller_name": "aligned_baseline",
     "seed": 42,
-    "timestamp_iso": "2026-10-07T16:09:06.667282+00:00",
-    "git_commit": "60d71123e27aa3c7af417300bd8e51cd813ff467",
+    "timestamp_iso": "2026-10-07T22:06:30.663388+00:00",
+    "git_commit": "bb7269509e3dff2ec2d21926db9c2e04db281116",
     "env_params": {
       "slot_clearance_mm": 0.15,
       "stiffness_env_npm": 10000.0,
@@ -20,10 +20,10 @@
     "cycle_time_s": 0.067,
     "peak_force_n": 0.0,
     "mean_contact_force_n": 0.0,
-    "final_insertion_depth_mm": 20.134798299360348,
+    "final_insertion_depth_mm": 20.22866033307114,
     "min_stick_ratio": 0.0,
     "min_jamming_index": 2.5,
-    "cumulative_reward": 534.6931145747246
+    "cumulative_reward": 534.9349106153956
   },
   "contact_mode_distribution": {
     "FREE_SPACE": 1.0,
