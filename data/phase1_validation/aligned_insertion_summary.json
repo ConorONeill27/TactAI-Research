@@ -3,8 +3,8 @@
     "episode_id": "aligned_insertion",
     "controller_name": "aligned_baseline",
     "seed": 42,
-    "timestamp_iso": "2026-10-07T16:07:17.178912+00:00",
-    "git_commit": "unknown",
+    "timestamp_iso": "2026-10-07T16:09:06.667282+00:00",
+    "git_commit": "60d71123e27aa3c7af417300bd8e51cd813ff467",
     "env_params": {
       "slot_clearance_mm": 0.15,
       "stiffness_env_npm": 10000.0,
