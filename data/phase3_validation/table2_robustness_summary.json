@@ -1,0 +1,120 @@
+{
+  "stiffness_sweep": [
+    {
+      "stiffness_n_per_m": 100.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 40.26,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 23.86,
+      "tactai_success": true,
+      "tactai_peak_force_n": 2.85,
+      "tactai_min_tank_j": 0.768
+    },
+    {
+      "stiffness_n_per_m": 1000.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.94,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 33.19,
+      "tactai_success": true,
+      "tactai_peak_force_n": 7.11,
+      "tactai_min_tank_j": 0.769
+    },
+    {
+      "stiffness_n_per_m": 10000.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.7,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 35.55,
+      "tactai_success": true,
+      "tactai_peak_force_n": 12.04,
+      "tactai_min_tank_j": 0.77
+    },
+    {
+      "stiffness_n_per_m": 100000.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 41.15,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 31.62,
+      "tactai_success": true,
+      "tactai_peak_force_n": 12.89,
+      "tactai_min_tank_j": 0.772
+    }
+  ],
+  "friction_sweep": [
+    {
+      "friction_mu": 0.15,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.9,
+      "tactai_success": true,
+      "tactai_peak_force_n": 12.12,
+      "tactai_mean_stick_ratio": 0.595
+    },
+    {
+      "friction_mu": 0.3,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.81,
+      "tactai_success": true,
+      "tactai_peak_force_n": 12.08,
+      "tactai_mean_stick_ratio": 0.598
+    },
+    {
+      "friction_mu": 0.5,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.54,
+      "tactai_success": true,
+      "tactai_peak_force_n": 11.97,
+      "tactai_mean_stick_ratio": 0.59
+    },
+    {
+      "friction_mu": 0.85,
+      "baseline_success": false,
+      "baseline_peak_force_n": 42.43,
+      "tactai_success": true,
+      "tactai_peak_force_n": 11.54,
+      "tactai_mean_stick_ratio": 0.606
+    }
+  ],
+  "latency_sweep": [
+    {
+      "latency_ms": 10.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.7,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 41.7,
+      "tactai_success": true,
+      "tactai_peak_force_n": 14.38,
+      "tactai_min_tank_j": 0.761
+    },
+    {
+      "latency_ms": 20.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.7,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 40.97,
+      "tactai_success": true,
+      "tactai_peak_force_n": 14.43,
+      "tactai_min_tank_j": 0.762
+    },
+    {
+      "latency_ms": 35.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.7,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 42.69,
+      "tactai_success": true,
+      "tactai_peak_force_n": 14.5,
+      "tactai_min_tank_j": 0.766
+    },
+    {
+      "latency_ms": 50.0,
+      "baseline_success": false,
+      "baseline_peak_force_n": 43.7,
+      "wrist_ft_success": false,
+      "wrist_ft_peak_force_n": 40.54,
+      "tactai_success": true,
+      "tactai_peak_force_n": 14.57,
+      "tactai_min_tank_j": 0.776
+    }
+  ]
+}

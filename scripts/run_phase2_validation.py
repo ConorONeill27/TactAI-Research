@@ -118,12 +118,13 @@ def run_benchmark():
 
     # Subplot 1: Contact Force
     axes[0].plot(b_times, b_forces, "r-", linewidth=2.2, label="Unconstrained Baseline (Catastrophic Jamming)")
-    axes[0].plot(c_times, c_forces, "b-", linewidth=2.2, label="TactAI Closed-Loop Tactile Controller")
+    axes[0].plot(c_times, c_forces, "b-", linewidth=2.2, label="TactAI Closed-Loop Tactile Controller (CBF-QP)")
     axes[0].axhline(40.0, color="red", linestyle=":", linewidth=1.5, label="Jamming Failure Threshold (40 N)")
+    axes[0].axhline(controller.f_max, color="green", linestyle="--", linewidth=1.5, label=f"CBF Force Safety Limit ({controller.f_max:.0f} N)")
     axes[0].set_ylabel("Contact Force (N)", fontsize=11, fontweight="bold")
     axes[0].set_title("TactAI Phase 2 Validation: Closed-Loop Tactile Alignment vs. Jamming (+10° Misalignment)", fontsize=13, fontweight="bold")
     axes[0].grid(True, linestyle="--", alpha=0.6)
-    axes[0].legend(loc="upper left", framealpha=0.9)
+    axes[0].legend(loc="upper right", framealpha=0.9)
 
     # Subplot 2: Tilt Angle Correction
     axes[1].plot(b_times, b_tilts, "r-", linewidth=2.2, label="Unconstrained Baseline (Wedged at ~10°)")

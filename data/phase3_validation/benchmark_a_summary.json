@@ -1,0 +1,1818 @@
+{
+  "unconstrained_farm": {
+    "label": "Unconstrained Diffusion Policy (FARM)",
+    "num_trials": 20,
+    "success_rate_pct": 0.0,
+    "jamming_rate_pct": 100.0,
+    "mean_peak_force_n": 43.4,
+    "std_peak_force_n": 1.77,
+    "max_peak_force_n": 46.41,
+    "mean_cycle_time_s": 0.03,
+    "std_cycle_time_s": 0.0,
+    "mean_solve_time_ms": 0.0036,
+    "trials": [
+      {
+        "tilt_deg": [
+          5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.530362760856676,
+        "final_depth_mm": 0.7557107683968598,
+        "final_tilt_deg": 5.185354978077729,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0033125002119049896,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 43.4286748919506,
+        "final_depth_mm": 0.795288749935355,
+        "final_tilt_deg": 5.070583738844494,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0033156259178213077,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          5.0
+        ],
+        "offset_mm": [
+          0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 40.74697055475433,
+        "final_depth_mm": 0.7782575730567662,
+        "final_tilt_deg": 4.820987580950091,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0036343753890832886,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -5.0
+        ],
+        "offset_mm": [
+          -0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.900507222417,
+        "final_depth_mm": 0.8030197122918664,
+        "final_tilt_deg": 5.1542386800643865,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.004696875976151205,
+        "mean_stick_ratio": 0.03125,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 43.17448370880887,
+        "final_depth_mm": 0.6075384669803132,
+        "final_tilt_deg": 7.904652874182465,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0033906248972925823,
+        "mean_stick_ratio": 0.03125,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.779347632107566,
+        "final_depth_mm": 0.6077640683853358,
+        "final_tilt_deg": 7.904781693071022,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0034062506983900676,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          8.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.189681293913125,
+        "final_depth_mm": 0.6782673800990666,
+        "final_tilt_deg": 7.981559050202872,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.003350000497448491,
+        "mean_stick_ratio": 0.03125,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 41.257981796724046,
+        "final_depth_mm": 0.6045505969784273,
+        "final_tilt_deg": 8.169044528902395,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.004103124865650898,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 45.334567870904145,
+        "final_depth_mm": 0.5074922176876508,
+        "final_tilt_deg": 9.809463364742824,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.003346874791532173,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 43.25180108856543,
+        "final_depth_mm": 0.41479353250716694,
+        "final_tilt_deg": 10.163953209697656,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.003393749921087874,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          10.0
+        ],
+        "offset_mm": [
+          0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.96721976734547,
+        "final_depth_mm": 0.4911426726241855,
+        "final_tilt_deg": 9.99124938782172,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0034624990803422406,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -10.0
+        ],
+        "offset_mm": [
+          -0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 44.7901344141899,
+        "final_depth_mm": 0.5814526441621017,
+        "final_tilt_deg": 9.867049540016268,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0035843747809849447,
+        "mean_stick_ratio": 0.06087239583333333,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          -8.0
+        ],
+        "offset_mm": [
+          0.2,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 40.132037483044506,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.60861545204586,
+        "cycle_time_s": 0.031,
+        "steps": 31,
+        "mean_solve_time_ms": 0.003306450971942996,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 41.533168689535,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.799389463601395,
+        "cycle_time_s": 0.031,
+        "steps": 31,
+        "mean_solve_time_ms": 0.0030806458521363956,
+        "mean_stick_ratio": 0.03369175627240144,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 44.17973188532985,
+        "final_depth_mm": 0.26544941294461694,
+        "final_tilt_deg": 11.93530571906247,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0036874994293611962,
+        "mean_stick_ratio": 0.03125,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 46.4063258355349,
+        "final_depth_mm": 0.33090853152070027,
+        "final_tilt_deg": 12.094718952568845,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.003434374548305641,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          12.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 45.49449754120937,
+        "final_depth_mm": 0.3529613941335094,
+        "final_tilt_deg": 11.783877985518338,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.003640624754552846,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -12.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 42.93384120712537,
+        "final_depth_mm": 0.3189955334143846,
+        "final_tilt_deg": 11.90063133563972,
+        "cycle_time_s": 0.032,
+        "steps": 32,
+        "mean_solve_time_ms": 0.0035031257539230864,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 45.80182821301098,
+        "final_depth_mm": 0.3389452021331091,
+        "final_tilt_deg": 14.82878412077808,
+        "cycle_time_s": 0.033,
+        "steps": 33,
+        "mean_solve_time_ms": 0.004245455122806809,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 46.24953833698035,
+        "final_depth_mm": 0.3813863489330119,
+        "final_tilt_deg": 14.84946413108397,
+        "cycle_time_s": 0.033,
+        "steps": 33,
+        "mean_solve_time_ms": 0.0035363636649862833,
+        "mean_stick_ratio": 0.0,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      }
+    ]
+  },
+  "wrist_ft_admittance": {
+    "label": "Wrist F/T Admittance Filter",
+    "num_trials": 20,
+    "success_rate_pct": 20.0,
+    "jamming_rate_pct": 80.0,
+    "mean_peak_force_n": 33.03,
+    "std_peak_force_n": 5.35,
+    "max_peak_force_n": 37.21,
+    "mean_cycle_time_s": 0.43,
+    "std_cycle_time_s": 0.0,
+    "mean_solve_time_ms": 0.0304,
+    "trials": [
+      {
+        "tilt_deg": [
+          5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 22.217243188608435,
+        "final_depth_mm": 20.06178875652842,
+        "final_tilt_deg": 0.03468390284359815,
+        "cycle_time_s": 0.432,
+        "steps": 432,
+        "mean_solve_time_ms": 0.020632638906034926,
+        "mean_stick_ratio": 0.6307858791824765,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 22.4309920855051,
+        "final_depth_mm": 20.134616054533723,
+        "final_tilt_deg": 0.03627996400493808,
+        "cycle_time_s": 0.431,
+        "steps": 431,
+        "mean_solve_time_ms": 0.02019257521920723,
+        "mean_stick_ratio": 0.6300129955836401,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          5.0
+        ],
+        "offset_mm": [
+          0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 22.72376066462445,
+        "final_depth_mm": 20.117344617364584,
+        "final_tilt_deg": 0.03647746691188971,
+        "cycle_time_s": 0.442,
+        "steps": 442,
+        "mean_solve_time_ms": 0.01904615399581001,
+        "mean_stick_ratio": 0.7051868120123868,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -5.0
+        ],
+        "offset_mm": [
+          -0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 22.36785981212142,
+        "final_depth_mm": 20.21880187773306,
+        "final_tilt_deg": 0.041578257552252335,
+        "cycle_time_s": 0.431,
+        "steps": 431,
+        "mean_solve_time_ms": 0.019165893100021654,
+        "mean_stick_ratio": 0.704725229935911,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 36.185322999834774,
+        "final_depth_mm": 0.5195793147449446,
+        "final_tilt_deg": 7.425532663019784,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.021300181807336314,
+        "mean_stick_ratio": 0.09454545454545454,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 36.05958148554214,
+        "final_depth_mm": 0.521709511785512,
+        "final_tilt_deg": 7.413065974055642,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.0203420001542492,
+        "mean_stick_ratio": 0.09454545454545454,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          8.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 36.28471699823638,
+        "final_depth_mm": 0.3794309530224735,
+        "final_tilt_deg": 7.13397918596977,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.02123327296100218,
+        "mean_stick_ratio": 0.11173016934046347,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.92309999697518,
+        "final_depth_mm": 0.20713219606440653,
+        "final_tilt_deg": 7.559446802489897,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.026619636376959865,
+        "mean_stick_ratio": 0.12185606060606059,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 36.52070159488073,
+        "final_depth_mm": 0.023972416828998977,
+        "final_tilt_deg": 10.418858678777505,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.043670545498819345,
+        "mean_stick_ratio": 0.09272727272727273,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.937062862900746,
+        "final_depth_mm": 0.020516648451929242,
+        "final_tilt_deg": 10.424323921532352,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.04201927273904651,
+        "mean_stick_ratio": 0.13456876456876457,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          10.0
+        ],
+        "offset_mm": [
+          0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.760636518106715,
+        "final_depth_mm": 0.4678769112956907,
+        "final_tilt_deg": 9.840361466477631,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.031257091018646446,
+        "mean_stick_ratio": 0.09821969696969696,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -10.0
+        ],
+        "offset_mm": [
+          -0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 37.21156514145583,
+        "final_depth_mm": 0.3435321010697365,
+        "final_tilt_deg": 9.913752289537857,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.027433454630557786,
+        "mean_stick_ratio": 0.09469696969696968,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          -8.0
+        ],
+        "offset_mm": [
+          0.2,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 33.86969409251985,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 14.172141942542249,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.029305090826131742,
+        "mean_stick_ratio": 0.12334033631049537,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.729634751304644,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 14.118325654676953,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.034580909229010685,
+        "mean_stick_ratio": 0.09381536260217886,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 34.985667251865195,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.334965259281404,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.032286545412551444,
+        "mean_stick_ratio": 0.09454545454545454,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 34.84668577145808,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.332552933786921,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.028573454698992216,
+        "mean_stick_ratio": 0.09463869463869463,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          12.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.357148878295156,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.322352333162307,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.034615454245464534,
+        "mean_stick_ratio": 0.18983622994652405,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -12.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 34.810616312968634,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.321765824512104,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.04822909092498859,
+        "mean_stick_ratio": 0.09823529411764706,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 36.16796681405001,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 16.03367025273305,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.04512672731917436,
+        "mean_stick_ratio": 0.10727272727272727,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": true,
+        "peak_force_n": 35.26866129557525,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 16.021077405059778,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.04185945450444706,
+        "mean_stick_ratio": 0.09986013986013985,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      }
+    ]
+  },
+  "fixed_impedance_k200": {
+    "label": "Fixed Isotropic Impedance (K=200)",
+    "num_trials": 20,
+    "success_rate_pct": 0.0,
+    "jamming_rate_pct": 0.0,
+    "mean_peak_force_n": 10.36,
+    "std_peak_force_n": 0.19,
+    "max_peak_force_n": 10.51,
+    "mean_cycle_time_s": 0.55,
+    "std_cycle_time_s": 0.0,
+    "mean_solve_time_ms": 0.0205,
+    "trials": [
+      {
+        "tilt_deg": [
+          5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.50869418703247,
+        "final_depth_mm": 0.28039300111865756,
+        "final_tilt_deg": 5.412197562077724,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.02204690918336961,
+        "mean_stick_ratio": 0.5254545454545455,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.508694187032479,
+        "final_depth_mm": 0.2803930011186437,
+        "final_tilt_deg": 5.412197562077724,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.017678545409580693,
+        "mean_stick_ratio": 0.5254545454545455,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          5.0
+        ],
+        "offset_mm": [
+          0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.272905944101383,
+        "final_depth_mm": 0.30236147396174584,
+        "final_tilt_deg": 5.4140201560388554,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.01748472726004283,
+        "mean_stick_ratio": 0.5454545454545454,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -5.0
+        ],
+        "offset_mm": [
+          -0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.27290594410139,
+        "final_depth_mm": 0.30236147396174584,
+        "final_tilt_deg": 5.414020156038856,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.023760908833620222,
+        "mean_stick_ratio": 0.5454545454545454,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.415062863524039,
+        "final_depth_mm": 0.04134595676995312,
+        "final_tilt_deg": 8.630671072540867,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.026169272605329752,
+        "mean_stick_ratio": 0.5272727272727272,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.415062863524035,
+        "final_depth_mm": 0.04134595676995312,
+        "final_tilt_deg": 8.630671072540867,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.021714363657255573,
+        "mean_stick_ratio": 0.5272727272727272,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          8.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.453430363217706,
+        "final_depth_mm": 0.04837709944555818,
+        "final_tilt_deg": 8.641747275204535,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.01708854565301656,
+        "mean_stick_ratio": 0.5757007575757576,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.45343036321767,
+        "final_depth_mm": 0.04837709944555818,
+        "final_tilt_deg": 8.641747275204533,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.016874363566537133,
+        "mean_stick_ratio": 0.5757575757575758,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.468418069575801,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 10.781214230385668,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.017962545561286705,
+        "mean_stick_ratio": 0.5472727272727272,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.468418069575797,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 10.78121423038567,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.025690363664497538,
+        "mean_stick_ratio": 0.5472727272727272,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          10.0
+        ],
+        "offset_mm": [
+          0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.502331696533556,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 10.781475238646436,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.024107272739373995,
+        "mean_stick_ratio": 0.5436174242424242,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -10.0
+        ],
+        "offset_mm": [
+          -0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.502331696533558,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 10.781475238646438,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.02375690897513943,
+        "mean_stick_ratio": 0.5436363636363636,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          -8.0
+        ],
+        "offset_mm": [
+          0.2,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 9.84009125113575,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.785775900735574,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.02936381808302196,
+        "mean_stick_ratio": 0.5145661005661005,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 9.840091251135743,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 13.785775900735578,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.01858890929725021,
+        "mean_stick_ratio": 0.5146060606060605,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.322643394076374,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.95569373677078,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.018637454592284153,
+        "mean_stick_ratio": 0.5122610722610722,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.32264339407638,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.95569373677078,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.016967272663764146,
+        "mean_stick_ratio": 0.5122610722610722,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          12.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.32264339407638,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.95569373677078,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.016479818216546184,
+        "mean_stick_ratio": 0.5327462121212122,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -12.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.322643394076346,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 12.95569373677078,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.017731818145627833,
+        "mean_stick_ratio": 0.5327272727272727,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.45520944277907,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 16.19765584911094,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.019199999977982687,
+        "mean_stick_ratio": 0.5470862470862471,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      },
+      {
+        "tilt_deg": [
+          -15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": false,
+        "is_jammed": false,
+        "peak_force_n": 10.455209442779067,
+        "final_depth_mm": 0.0,
+        "final_tilt_deg": 16.19765584911094,
+        "cycle_time_s": 0.55,
+        "steps": 550,
+        "mean_solve_time_ms": 0.018847454511243002,
+        "mean_stick_ratio": 0.5470862470862471,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 1.0
+      }
+    ]
+  },
+  "tactile_safety_filter_ours": {
+    "label": "Tactile Safety Filter + FARM (Ours)",
+    "num_trials": 20,
+    "success_rate_pct": 100.0,
+    "jamming_rate_pct": 0.0,
+    "mean_peak_force_n": 11.69,
+    "std_peak_force_n": 0.37,
+    "max_peak_force_n": 12.23,
+    "mean_cycle_time_s": 0.45,
+    "std_cycle_time_s": 0.0,
+    "mean_solve_time_ms": 0.1403,
+    "trials": [
+      {
+        "tilt_deg": [
+          5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.225472905468662,
+        "final_depth_mm": 20.249471480230103,
+        "final_tilt_deg": 0.0162233360790244,
+        "cycle_time_s": 0.454,
+        "steps": 454,
+        "mean_solve_time_ms": 0.2063367842130685,
+        "mean_stick_ratio": 0.7222087341551416,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8442723590167694
+      },
+      {
+        "tilt_deg": [
+          -5.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.228627785745383,
+        "final_depth_mm": 20.248597302215565,
+        "final_tilt_deg": 0.016347910135844863,
+        "cycle_time_s": 0.454,
+        "steps": 454,
+        "mean_solve_time_ms": 0.1907028635715838,
+        "mean_stick_ratio": 0.7224692496404008,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8442730591026683
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          5.0
+        ],
+        "offset_mm": [
+          0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.080588741563732,
+        "final_depth_mm": 20.03772594080359,
+        "final_tilt_deg": 0.01794013344899647,
+        "cycle_time_s": 0.454,
+        "steps": 454,
+        "mean_solve_time_ms": 0.17381828179709113,
+        "mean_stick_ratio": 0.8255444544436725,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8437258727761419
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -5.0
+        ],
+        "offset_mm": [
+          -0.2,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 5.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.081336141191942,
+        "final_depth_mm": 20.037268464103256,
+        "final_tilt_deg": 0.01786863168422403,
+        "cycle_time_s": 0.454,
+        "steps": 454,
+        "mean_solve_time_ms": 0.14170242319886658,
+        "mean_stick_ratio": 0.8256236661622827,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8437258986315067
+      },
+      {
+        "tilt_deg": [
+          8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.546261682644092,
+        "final_depth_mm": 20.23428598977628,
+        "final_tilt_deg": 0.0038042747226292232,
+        "cycle_time_s": 0.456,
+        "steps": 456,
+        "mean_solve_time_ms": 0.15106842105875298,
+        "mean_stick_ratio": 0.6316671960842906,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8066105488671093
+      },
+      {
+        "tilt_deg": [
+          -8.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.545837693248782,
+        "final_depth_mm": 20.23450379313175,
+        "final_tilt_deg": 0.003784008709893124,
+        "cycle_time_s": 0.456,
+        "steps": 456,
+        "mean_solve_time_ms": 0.14073530698959458,
+        "mean_stick_ratio": 0.6321248250513055,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8066130206422881
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          8.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.082656545087488,
+        "final_depth_mm": 20.202082560980116,
+        "final_tilt_deg": 0.00859119454581323,
+        "cycle_time_s": 0.455,
+        "steps": 455,
+        "mean_solve_time_ms": 0.13136659324448044,
+        "mean_stick_ratio": 0.7909282254830569,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8057295750662563
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 8.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.082684354218447,
+        "final_depth_mm": 20.20206509018271,
+        "final_tilt_deg": 0.008672838434767646,
+        "cycle_time_s": 0.455,
+        "steps": 455,
+        "mean_solve_time_ms": 0.11905956084924432,
+        "mean_stick_ratio": 0.7906432479362233,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.8057278705796384
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.03489502170238,
+        "final_depth_mm": 20.116024165741557,
+        "final_tilt_deg": 0.0040341664003435435,
+        "cycle_time_s": 0.452,
+        "steps": 452,
+        "mean_solve_time_ms": 0.0990962388987583,
+        "mean_stick_ratio": 0.5948163896473411,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7703952213000611
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 12.035362568480611,
+        "final_depth_mm": 20.115721949285824,
+        "final_tilt_deg": 0.004015409202824547,
+        "cycle_time_s": 0.452,
+        "steps": 452,
+        "mean_solve_time_ms": 0.10209026575756601,
+        "mean_stick_ratio": 0.5959651967406698,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7703932953212422
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          10.0
+        ],
+        "offset_mm": [
+          0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.485090507150593,
+        "final_depth_mm": 20.148499741397693,
+        "final_tilt_deg": 0.004345326946666112,
+        "cycle_time_s": 0.456,
+        "steps": 456,
+        "mean_solve_time_ms": 0.11432807024360508,
+        "mean_stick_ratio": 0.7821549261455512,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7705932789364183
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -10.0
+        ],
+        "offset_mm": [
+          -0.4,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 10.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.48461019635886,
+        "final_depth_mm": 20.1486982843609,
+        "final_tilt_deg": 0.004381915141641788,
+        "cycle_time_s": 0.456,
+        "steps": 456,
+        "mean_solve_time_ms": 0.11030986833678694,
+        "mean_stick_ratio": 0.7824732724096839,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7705955490937776
+      },
+      {
+        "tilt_deg": [
+          10.0,
+          -8.0
+        ],
+        "offset_mm": [
+          0.2,
+          -0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.012790118160245,
+        "final_depth_mm": 20.154668553830685,
+        "final_tilt_deg": 0.004055859269312461,
+        "cycle_time_s": 0.45,
+        "steps": 450,
+        "mean_solve_time_ms": 0.15482199989492074,
+        "mean_stick_ratio": 0.5125095889772013,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7089126921577467
+      },
+      {
+        "tilt_deg": [
+          -10.0,
+          8.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.2
+        ],
+        "initial_tilt_norm_deg": 12.806248474865697,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.013629901165789,
+        "final_depth_mm": 20.153874143829825,
+        "final_tilt_deg": 0.003990638266445555,
+        "cycle_time_s": 0.45,
+        "steps": 450,
+        "mean_solve_time_ms": 0.19570444434066303,
+        "mean_stick_ratio": 0.5137205252435856,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7089157959401435
+      },
+      {
+        "tilt_deg": [
+          12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.39971065778001,
+        "final_depth_mm": 20.079773233168194,
+        "final_tilt_deg": 0.0012042390595469277,
+        "cycle_time_s": 0.453,
+        "steps": 453,
+        "mean_solve_time_ms": 0.18073951440468064,
+        "mean_stick_ratio": 0.5651448297459942,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.7292165929094047
+      },
+      {
+        "tilt_deg": [
+          -12.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          -0.3
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.39863570759851,
+        "final_depth_mm": 20.08032264016561,
+        "final_tilt_deg": 0.0012351698153287257,
+        "cycle_time_s": 0.453,
+        "steps": 453,
+        "mean_solve_time_ms": 0.11484547473606396,
+        "mean_stick_ratio": 0.570906704151404,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.72922243038741
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          12.0
+        ],
+        "offset_mm": [
+          0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.399458370078388,
+        "final_depth_mm": 20.070309455736773,
+        "final_tilt_deg": 0.00032424605001928395,
+        "cycle_time_s": 0.453,
+        "steps": 453,
+        "mean_solve_time_ms": 0.1012331124110647,
+        "mean_stick_ratio": 0.7842240692898176,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.728210566503724
+      },
+      {
+        "tilt_deg": [
+          0.0,
+          -12.0
+        ],
+        "offset_mm": [
+          -0.3,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 12.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.399453516921408,
+        "final_depth_mm": 20.070306079873646,
+        "final_tilt_deg": 0.000361234804579896,
+        "cycle_time_s": 0.453,
+        "steps": 453,
+        "mean_solve_time_ms": 0.11718344358006744,
+        "mean_stick_ratio": 0.7841198777208637,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.728216741962032
+      },
+      {
+        "tilt_deg": [
+          15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.681145984399881,
+        "final_depth_mm": 20.102824893272928,
+        "final_tilt_deg": 9.117591481659043e-05,
+        "cycle_time_s": 0.462,
+        "steps": 462,
+        "mean_solve_time_ms": 0.13346060618125224,
+        "mean_stick_ratio": 0.5346420308008145,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.6596010697834525
+      },
+      {
+        "tilt_deg": [
+          -15.0,
+          0.0
+        ],
+        "offset_mm": [
+          0.0,
+          0.0
+        ],
+        "initial_tilt_norm_deg": 15.0,
+        "is_success": true,
+        "is_jammed": false,
+        "peak_force_n": 11.681118572379225,
+        "final_depth_mm": 20.102874029353284,
+        "final_tilt_deg": 6.008830722969607e-05,
+        "cycle_time_s": 0.462,
+        "steps": 462,
+        "mean_solve_time_ms": 0.12780930726923495,
+        "mean_stick_ratio": 0.5342016357405138,
+        "min_stick_ratio": 0.0,
+        "min_tank_energy_j": 0.6595990050031815
+      }
+    ]
+  }
+}

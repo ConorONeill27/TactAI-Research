@@ -33,6 +33,7 @@ class FrankaSlotEnv:
         peg_length: float = 0.050,        # 50.0 mm
         slot_depth: float = 0.025,        # 25.0 mm cavity depth
         stiffness_env: float = 1.0e4,     # Environment stiffness in N/m
+        friction_env: float = 0.4,        # Environment / elastomer friction coefficient mu
         dt: float = 0.001,                # 1 kHz control timestep (1 ms)
         max_steps: int = 1000,            # 1.0 s episode horizon at 1 kHz
         grid_size: int = 32,              # GelSight pad resolution
@@ -46,6 +47,7 @@ class FrankaSlotEnv:
         self.peg_length = peg_length
         self.slot_depth = slot_depth
         self.stiffness_env = stiffness_env
+        self.friction_env = friction_env
         self.dt = dt
         self.max_steps = max_steps
         self.grid_size = grid_size
@@ -64,11 +66,13 @@ class FrankaSlotEnv:
         self.sensor_left = GelSightSensor(
             grid_h=self.grid_size,
             grid_w=self.grid_size,
+            friction_coeff=self.friction_env,
             noise_std_pa=self.noise_std_pa
         )
         self.sensor_right = GelSightSensor(
             grid_h=self.grid_size,
             grid_w=self.grid_size,
+            friction_coeff=self.friction_env,
             noise_std_pa=self.noise_std_pa
         )
         self.invariant_engine = TactileInvariantEngine(
@@ -110,6 +114,7 @@ class FrankaSlotEnv:
         """Procedurally generate the MJCF XML with Franka Panda robot workstation, slot walls, and compliant peg."""
         wall_thick = 0.02
         wall_h = self.slot_depth / 2.0
+        solref_tc = 0.004 if abs(self.stiffness_env - 1.0e4) < 1e-3 else float(np.clip(0.004 * np.sqrt(1.0e4 / max(10.0, self.stiffness_env)), 0.002, 0.040))
         
         xml = f"""
 <mujoco model='franka_slot_insertion'>
@@ -121,7 +126,7 @@ class FrankaSlotEnv:
     <headlight ambient='0.45 0.45 0.45' diffuse='0.60 0.60 0.60' specular='0.15 0.15 0.15'/>
   </visual>
   <default>
-    <geom friction='0.4 0.005 0.0001' solref='0.004 1' solimp='0.9 0.95 0.001'/>
+    <geom friction='{self.friction_env} 0.005 0.0001' solref='{solref_tc:.4f} 1' solimp='0.9 0.95 0.001'/>
   </default>
   
   <asset>
@@ -569,53 +574,70 @@ class FrankaSlotEnv:
         delta_left = max(1e-5, delta_0 - peg_dx)
         delta_right = max(1e-5, delta_0 + peg_dx)
 
-        # Pad contact offset from tilt: offset_v = L * sin(peg_dry) / 2
-        offset_v_left = 0.008 * np.sin(peg_dry)
+        # Pad contact offset and orientation from 2D peg tilt across tactile interface
+        eff_rx = float(self.data.qpos[3] + peg_drx)
+        eff_ry = float(self.data.qpos[4] + peg_dry)
+        tilt_mag = float(np.hypot(eff_rx, eff_ry))
+        tilt_orient = float(np.arctan2(eff_ry, eff_rx))
+        offset_u_left = 0.006 * np.sin(eff_rx)
+        offset_v_left = 0.006 * np.sin(eff_ry)
+        offset_u_right = -offset_u_left
         offset_v_right = -offset_v_left
+        is_line_contact = tilt_mag > 0.02
+        c_type = "line_edge" if is_line_contact else "flat_circle"
+        c_aspect = 2.5 if is_line_contact else 1.0
 
         # Generate traction fields for both pads
         res_left = self.sensor_left.generate_traction_field(
-            contact_type="line_edge" if abs(peg_dry) > 0.02 else "flat_circle",
+            contact_type=c_type,
             indentation_depth=delta_left,
-            offset=(0.0, offset_v_left),
+            offset=(offset_u_left, offset_v_left),
+            orientation_rad=tilt_orient,
             rel_vel=(peg_vy, peg_vz),
             rel_omega=peg_wrx,
-            aspect_ratio=2.5 if abs(peg_dry) > 0.02 else 1.0
+            aspect_ratio=c_aspect
         )
         res_right = self.sensor_right.generate_traction_field(
-            contact_type="line_edge" if abs(peg_dry) > 0.02 else "flat_circle",
+            contact_type=c_type,
             indentation_depth=delta_right,
-            offset=(0.0, offset_v_right),
+            offset=(offset_u_right, offset_v_right),
+            orientation_rad=tilt_orient,
             rel_vel=(-peg_vy, peg_vz),
             rel_omega=-peg_wrx,
-            aspect_ratio=2.5 if abs(peg_dry) > 0.02 else 1.0
+            aspect_ratio=c_aspect
         )
 
         # Extract invariants for Left and Right pads
         inv_left = self.invariant_engine.extract_invariants(
             res_left["traction_field"],
             self.sensor_left.du, self.sensor_left.dv,
-            self.sensor_left.U, self.sensor_left.V
+            self.sensor_left.U, self.sensor_left.V,
+            mu_nominal=self.friction_env
         )
         inv_right = self.invariant_engine.extract_invariants(
             res_right["traction_field"],
             self.sensor_right.du, self.sensor_right.dv,
-            self.sensor_right.U, self.sensor_right.V
+            self.sensor_right.U, self.sensor_right.V,
+            mu_nominal=self.friction_env
         )
 
         # Aggregate across pads:
         # Min stick ratio indicates earliest slip onset
         stick_ratio = min(inv_left["stick_ratio"], inv_right["stick_ratio"])
         
-        # Center of pressure of dominant loaded pad
+        # Center of pressure and constraint tensor of dominant loaded pad
         if inv_left["net_force"][2] >= inv_right["net_force"][2]:
             cop = inv_left["center_of_pressure"]
+            constraint_tensor = inv_left["constraint_tensor"]
             eigenvalues = inv_left["eigenvalues"]
+            principal_axis = inv_left["principal_axis"]
             dominant_mode = inv_left["contact_mode"]
             dominant_normal = inv_left["contact_normal"]
         else:
             cop = inv_right["center_of_pressure"]
+            constraint_tensor = inv_right["constraint_tensor"]
             eigenvalues = inv_right["eigenvalues"]
+            principal_axis = inv_right["principal_axis"]
             dominant_mode = inv_right["contact_mode"]
             dominant_normal = inv_right["contact_normal"]
 
@@ -640,7 +662,9 @@ class FrankaSlotEnv:
             "left_pad": inv_left,
             "right_pad": inv_right,
             "center_of_pressure": cop,
+            "constraint_tensor": constraint_tensor,
             "eigenvalues": eigenvalues,
+            "principal_axis": principal_axis,
             "contact_normal": dominant_normal,
             "stick_ratio": stick_ratio,
             "jamming_index": jamming_index,

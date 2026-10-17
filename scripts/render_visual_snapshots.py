@@ -73,7 +73,7 @@ def main():
     )["normal_pressure"] / 1e3 # in kPa
 
     # Create composite 2x2 dashboard
-    fig = plt.figure(figsize=(16, 12), dpi=150)
+    fig = plt.figure(figsize=(16, 12), dpi=200)
     fig.patch.set_facecolor("#0F172A")
 
     # Panel 1: 3D Environment Setup
@@ -82,7 +82,7 @@ def main():
     ax1.set_title("1. 3D Simulation Workbench (Franka Arm, GelSight Mini Pads, Slot)", color="#38BDF8", fontsize=13, weight="bold", pad=10)
     ax1.axis("off")
     # Annotations
-    ax1.text(0.04, 0.92, "Clearance: 0.15 mm per side\nStiffness: 10,000 N/m\nFrequency: 1,000 Hz",
+    ax1.text(0.04, 0.92, "Clearance: 0.15 mm per side\nStiffness: K_env = 10,000 N/m (10 N/mm)\nFrequency: 1,000 Hz",
              transform=ax1.transAxes, color="#F8FAFC", fontsize=10,
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#1E293B", edgecolor="#38BDF8", alpha=0.9))
 
@@ -110,13 +110,13 @@ def main():
     V_mm = env_tilted.sensor_left.V * 1e3
     cf = ax4.contourf(U_mm, V_mm, fz_pad, levels=30, cmap="viridis")
     cbar = fig.colorbar(cf, ax=ax4, fraction=0.046, pad=0.04)
-    cbar.set_label("Normal Pressure fz (kPa)", color="#F8FAFC", fontsize=10)
+    cbar.set_label("Normal Pressure $f_z(u,v)$ (kPa)", color="#F8FAFC", fontsize=10)
     cbar.ax.yaxis.set_tick_params(color="#F8FAFC")
     plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='#F8FAFC')
     ax4.set_facecolor("#1E293B")
-    ax4.set_title("4. GelSight Tactile Pad Pressure Field fz(u,v)", color="#FBBF24", fontsize=13, weight="bold", pad=10)
-    ax4.set_xlabel("Pad Width u (mm)", color="#F8FAFC", fontsize=10)
-    ax4.set_ylabel("Pad Height v (mm)", color="#F8FAFC", fontsize=10)
+    ax4.set_title("4. GelSight Tactile Pad Pressure Field $f_z(u,v)$", color="#FBBF24", fontsize=13, weight="bold", pad=10)
+    ax4.set_xlabel("Pad Width $u$ (mm)", color="#F8FAFC", fontsize=10)
+    ax4.set_ylabel("Pad Height $v$ (mm)", color="#F8FAFC", fontsize=10)
     ax4.tick_params(colors="#94A3B8")
     for spine in ax4.spines.values():
         spine.set_color("#475569")
@@ -128,7 +128,7 @@ def main():
 
     plt.tight_layout()
     dashboard_path = os.path.join(figures_dir, "simulation_3d_overview.png")
-    plt.savefig(dashboard_path, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
+    plt.savefig(dashboard_path, dpi=200, facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close()
 
     print(f"Saved 3D simulation dashboard to: {dashboard_path}")

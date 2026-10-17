@@ -3,8 +3,8 @@
     "episode_id": "baseline_tilt_10deg",
     "controller_name": "unconstrained_baseline",
     "seed": 42,
-    "timestamp_iso": "2026-10-07T22:09:00.919481+00:00",
-    "git_commit": "bb7269509e3dff2ec2d21926db9c2e04db281116",
+    "timestamp_iso": "2026-10-16T20:34:36.883249+00:00",
+    "git_commit": "232b0f7068356a867ba12dcb8243755932af59a9",
     "env_params": {
       "slot_clearance": 0.00015,
       "initial_tilt_deg": 10.0
@@ -15,20 +15,20 @@
     "is_success": false,
     "is_jammed": true,
     "is_force_exceeded": false,
-    "total_steps": 33,
-    "cycle_time_s": 0.033,
-    "peak_force_n": 44.05463093501275,
+    "total_steps": 32,
+    "cycle_time_s": 0.032,
+    "peak_force_n": 44.05463093501278,
     "mean_contact_force_n": 29.6385071887478,
     "final_insertion_depth_mm": 0.4799048726246147,
     "min_stick_ratio": 0.0,
     "min_jamming_index": 2.5,
-    "cumulative_reward": -219.63037108298283
+    "cumulative_reward": -219.63037108298286
   },
   "contact_mode_distribution": {
-    "FREE_SPACE": 0.8787878787878788,
+    "FREE_SPACE": 0.875,
     "POINT_CONTACT": 0.0,
     "LINE_CONTACT": 0.0,
     "TWO_POINT_JAMMING": 0.0,
-    "GROSS_SLIP": 0.12121212121212122
+    "GROSS_SLIP": 0.125
   }
 }

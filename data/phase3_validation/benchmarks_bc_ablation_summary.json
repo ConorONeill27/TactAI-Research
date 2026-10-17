@@ -1,0 +1,112 @@
+{
+  "benchmark_b_contour": {
+    "unconstrained_farm": {
+      "label": "Unconstrained Diffusion Policy (FARM)",
+      "success_rate_pct": 20.0,
+      "safe_rate_pct": 40.0,
+      "mean_peak_force_n": 18.1,
+      "mean_rmse_force_n": 4.94,
+      "mean_chatter_reversals": 0.0
+    },
+    "fixed_impedance_k200": {
+      "label": "Fixed Isotropic Impedance (K=200)",
+      "success_rate_pct": 70.0,
+      "safe_rate_pct": 70.0,
+      "mean_peak_force_n": 12.65,
+      "mean_rmse_force_n": 2.8,
+      "mean_chatter_reversals": 0.0
+    },
+    "wrist_ft_admittance": {
+      "label": "Wrist F/T Admittance Filter",
+      "success_rate_pct": 0.0,
+      "safe_rate_pct": 0.0,
+      "mean_peak_force_n": 91.12,
+      "mean_rmse_force_n": 21.96,
+      "mean_chatter_reversals": 2.4
+    },
+    "tactai_no_tank": {
+      "label": "Ablation: w/o Energy Tank T(t)",
+      "success_rate_pct": 0.0,
+      "safe_rate_pct": 0.0,
+      "mean_peak_force_n": 50.32,
+      "mean_rmse_force_n": 11.4,
+      "mean_chatter_reversals": 2.0
+    },
+    "tactai_ours": {
+      "label": "Tactile Safety Filter + FARM (Ours)",
+      "success_rate_pct": 90.0,
+      "safe_rate_pct": 90.0,
+      "mean_peak_force_n": 11.4,
+      "mean_rmse_force_n": 2.78,
+      "mean_chatter_reversals": 0.0
+    }
+  },
+  "benchmark_c_slip": {
+    "unconstrained_farm": {
+      "label": "Unconstrained Diffusion Policy (FARM)",
+      "success_rate_pct": 0.0,
+      "drop_rate_pct": 100.0,
+      "mean_slip_mm": 500.21,
+      "mean_peak_grip_n": 5.5,
+      "min_stick_ratio": 0.0
+    },
+    "fixed_impedance_k200": {
+      "label": "Fixed Isotropic Impedance (K=200)",
+      "success_rate_pct": 0.0,
+      "drop_rate_pct": 100.0,
+      "mean_slip_mm": 409.23,
+      "mean_peak_grip_n": 6.0,
+      "min_stick_ratio": 0.0
+    },
+    "wrist_ft_admittance": {
+      "label": "Wrist F/T Admittance Filter",
+      "success_rate_pct": 0.0,
+      "drop_rate_pct": 100.0,
+      "mean_slip_mm": 281.7,
+      "mean_peak_grip_n": 9.79,
+      "min_stick_ratio": 0.0
+    },
+    "tactai_no_slip_cbf": {
+      "label": "Ablation: w/o Incipient Slip CBF h_slip",
+      "success_rate_pct": 0.0,
+      "drop_rate_pct": 100.0,
+      "mean_slip_mm": 500.21,
+      "mean_peak_grip_n": 5.5,
+      "min_stick_ratio": 0.0
+    },
+    "tactai_ours": {
+      "label": "Tactile Safety Filter + FARM (Ours)",
+      "success_rate_pct": 90.0,
+      "drop_rate_pct": 10.0,
+      "mean_slip_mm": 0.64,
+      "mean_peak_grip_n": 14.59,
+      "min_stick_ratio": 0.0
+    }
+  },
+  "ablation_study": {
+    "full_tactai": {
+      "label": "Full TactAI Filter (All Claims Active)",
+      "insertion_success_pct": 100.0,
+      "peak_force_n": 14.15,
+      "jamming_rate_pct": 0.0
+    },
+    "no_tactile_rot": {
+      "label": "w/o Differential CoP & Tensor C (Claim 1/2)",
+      "insertion_success_pct": 0.0,
+      "peak_force_n": 14.15,
+      "jamming_rate_pct": 0.0
+    },
+    "no_unwedge_cbf": {
+      "label": "w/o Anti-Jamming Un-Wedging CBF (Claim 2)",
+      "insertion_success_pct": 0.0,
+      "peak_force_n": 35.96,
+      "jamming_rate_pct": 100.0
+    },
+    "no_energy_tank": {
+      "label": "w/o Energy Tank Passivity T(t) (Claim 3)",
+      "insertion_success_pct": 100.0,
+      "peak_force_n": 10.24,
+      "jamming_rate_pct": 0.0
+    }
+  }
+}
