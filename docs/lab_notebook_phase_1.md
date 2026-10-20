@@ -1,7 +1,6 @@
 # TACTAI — SCIENTIFIC LAB NOTEBOOK (PHASES 1, 2 & 3)
 **Project Title:** Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies  
-**Authors:** Alec Vysotski and Conor O'Neill  
-**Collaboration Target:** Institute for Intelligent Autonomous Systems (IAS), TU Darmstadt  
+**Authors:** Conor O'Neill\* and Alec Vysotski\* (*\*Equal contribution*)  
 **Date of Entry:** October 16, 2026  
 **Document Version:** 3.0.0-ARXIV-PREPRINT  
 

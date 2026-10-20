@@ -2,110 +2,138 @@
   "benchmark_b_contour": {
     "unconstrained_farm": {
       "label": "Unconstrained Diffusion Policy (FARM)",
-      "success_rate_pct": 20.0,
-      "safe_rate_pct": 40.0,
-      "mean_peak_force_n": 18.1,
-      "mean_rmse_force_n": 4.94,
+      "num_trials": 20,
+      "success_rate_pct": 15.0,
+      "safe_rate_pct": 15.0,
+      "mean_peak_force_n": 20.37,
+      "std_peak_force_n": 4.47,
+      "mean_rmse_force_n": 6.8,
       "mean_chatter_reversals": 0.0
     },
     "fixed_impedance_k200": {
       "label": "Fixed Isotropic Impedance (K=200)",
-      "success_rate_pct": 70.0,
-      "safe_rate_pct": 70.0,
-      "mean_peak_force_n": 12.65,
-      "mean_rmse_force_n": 2.8,
+      "num_trials": 20,
+      "success_rate_pct": 85.0,
+      "safe_rate_pct": 85.0,
+      "mean_peak_force_n": 12.43,
+      "std_peak_force_n": 2.26,
+      "mean_rmse_force_n": 2.53,
       "mean_chatter_reversals": 0.0
     },
     "wrist_ft_admittance": {
       "label": "Wrist F/T Admittance Filter",
+      "num_trials": 20,
       "success_rate_pct": 0.0,
       "safe_rate_pct": 0.0,
-      "mean_peak_force_n": 91.12,
-      "mean_rmse_force_n": 21.96,
-      "mean_chatter_reversals": 2.4
+      "mean_peak_force_n": 127.59,
+      "std_peak_force_n": 11.46,
+      "mean_rmse_force_n": 27.38,
+      "mean_chatter_reversals": 1.9
     },
     "tactai_no_tank": {
       "label": "Ablation: w/o Energy Tank T(t)",
+      "num_trials": 20,
       "success_rate_pct": 0.0,
       "safe_rate_pct": 0.0,
-      "mean_peak_force_n": 50.32,
-      "mean_rmse_force_n": 11.4,
-      "mean_chatter_reversals": 2.0
+      "mean_peak_force_n": 76.97,
+      "std_peak_force_n": 6.81,
+      "mean_rmse_force_n": 16.68,
+      "mean_chatter_reversals": 2.4
     },
     "tactai_ours": {
       "label": "Tactile Safety Filter + FARM (Ours)",
-      "success_rate_pct": 90.0,
-      "safe_rate_pct": 90.0,
-      "mean_peak_force_n": 11.4,
-      "mean_rmse_force_n": 2.78,
+      "num_trials": 20,
+      "success_rate_pct": 100.0,
+      "safe_rate_pct": 100.0,
+      "mean_peak_force_n": 10.64,
+      "std_peak_force_n": 1.36,
+      "mean_rmse_force_n": 2.06,
       "mean_chatter_reversals": 0.0
     }
   },
   "benchmark_c_slip": {
     "unconstrained_farm": {
       "label": "Unconstrained Diffusion Policy (FARM)",
+      "num_trials": 20,
       "success_rate_pct": 0.0,
       "drop_rate_pct": 100.0,
-      "mean_slip_mm": 500.21,
-      "mean_peak_grip_n": 5.5,
+      "mean_slip_mm": 148.77,
+      "std_slip_mm": 111.96,
+      "mean_peak_grip_n": 6.2,
       "min_stick_ratio": 0.0
     },
     "fixed_impedance_k200": {
       "label": "Fixed Isotropic Impedance (K=200)",
-      "success_rate_pct": 0.0,
-      "drop_rate_pct": 100.0,
-      "mean_slip_mm": 409.23,
-      "mean_peak_grip_n": 6.0,
+      "num_trials": 20,
+      "success_rate_pct": 15.0,
+      "drop_rate_pct": 85.0,
+      "mean_slip_mm": 104.84,
+      "std_slip_mm": 101.01,
+      "mean_peak_grip_n": 6.8,
       "min_stick_ratio": 0.0
     },
     "wrist_ft_admittance": {
       "label": "Wrist F/T Admittance Filter",
-      "success_rate_pct": 0.0,
-      "drop_rate_pct": 100.0,
-      "mean_slip_mm": 281.7,
-      "mean_peak_grip_n": 9.79,
+      "num_trials": 20,
+      "success_rate_pct": 15.0,
+      "drop_rate_pct": 85.0,
+      "mean_slip_mm": 43.99,
+      "std_slip_mm": 64.08,
+      "mean_peak_grip_n": 13.25,
       "min_stick_ratio": 0.0
     },
     "tactai_no_slip_cbf": {
       "label": "Ablation: w/o Incipient Slip CBF h_slip",
+      "num_trials": 20,
       "success_rate_pct": 0.0,
       "drop_rate_pct": 100.0,
-      "mean_slip_mm": 500.21,
-      "mean_peak_grip_n": 5.5,
+      "mean_slip_mm": 148.77,
+      "std_slip_mm": 111.96,
+      "mean_peak_grip_n": 6.2,
       "min_stick_ratio": 0.0
     },
     "tactai_ours": {
       "label": "Tactile Safety Filter + FARM (Ours)",
+      "num_trials": 20,
       "success_rate_pct": 90.0,
       "drop_rate_pct": 10.0,
-      "mean_slip_mm": 0.64,
-      "mean_peak_grip_n": 14.59,
+      "mean_slip_mm": 0.44,
+      "std_slip_mm": 1.48,
+      "mean_peak_grip_n": 14.6,
       "min_stick_ratio": 0.0
     }
   },
   "ablation_study": {
     "full_tactai": {
-      "label": "Full TactAI Filter (All Claims Active)",
+      "label": "Full TactAI Filter (All Modules Active)",
+      "num_trials": 20,
       "insertion_success_pct": 100.0,
-      "peak_force_n": 14.15,
+      "peak_force_n": 14.12,
+      "std_peak_force_n": 0.51,
       "jamming_rate_pct": 0.0
     },
     "no_tactile_rot": {
-      "label": "w/o Differential CoP & Tensor C (Claim 1/2)",
+      "label": "w/o Differential CoP & Tensor C",
+      "num_trials": 20,
       "insertion_success_pct": 0.0,
-      "peak_force_n": 14.15,
+      "peak_force_n": 14.21,
+      "std_peak_force_n": 0.46,
       "jamming_rate_pct": 0.0
     },
     "no_unwedge_cbf": {
-      "label": "w/o Anti-Jamming Un-Wedging CBF (Claim 2)",
+      "label": "w/o Stage 2 Anti-Jamming CBF h_jam",
+      "num_trials": 20,
       "insertion_success_pct": 0.0,
-      "peak_force_n": 35.96,
+      "peak_force_n": 36.71,
+      "std_peak_force_n": 1.39,
       "jamming_rate_pct": 100.0
     },
     "no_energy_tank": {
-      "label": "w/o Energy Tank Passivity T(t) (Claim 3)",
+      "label": "w/o Energy Tank Passivity T(t)",
+      "num_trials": 20,
       "insertion_success_pct": 100.0,
-      "peak_force_n": 10.24,
+      "peak_force_n": 14.12,
+      "std_peak_force_n": 0.51,
       "jamming_rate_pct": 0.0
     }
   }

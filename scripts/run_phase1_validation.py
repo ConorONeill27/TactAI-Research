@@ -26,7 +26,6 @@ from src.invariants.tactile_invariants import ContactMode
 def run_phase1_validation():
     print("=" * 80)
     print("  TACTAI: PHASE 1 SCIENTIFIC VALIDATION BENCHMARK")
-    print("  Target Destination: IAS, TU Darmstadt (Belousov & Peters)")
     print("=" * 80)
 
     log_dir = os.path.join("data", "phase1_validation")

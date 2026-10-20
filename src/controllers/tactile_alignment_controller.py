@@ -1,14 +1,14 @@
 """
-Tactile Supervisory Safety Filter & Tactile Alignment Controller (Phase 2).
+Tactile Supervisory Safety Filter & Tactile Alignment Controller.
 
-Implements Patent Claims 1, 2, and 3:
-- Claim 1: High-frequency (>= 1 kHz) Control Barrier Function (CBF) quadratic program (QP)
+Implements:
+- High-frequency (1 kHz) Control Barrier Function (CBF) quadratic program (QP)
   filter enforcing contact force safety: h_force = F_max - ||F_ext|| >= 0 (F_max = 15.0 N).
-- Claim 2: Anti-jamming barrier filter: h_jam = J_jam - gamma_jam >= 0 (gamma_jam = 2.0)
-  coupled with active tactile alignment torque derived from Center of Pressure (CoP)
-  and contact moment invariants to nullify peg tilt under high-stiffness constraints.
-- Claim 3: Energy-tank passivity supervisor guaranteeing asymptotic stability and
-  preventing limit cycles / bounce against stiff slot walls (K_env = 10^4 N/m).
+- Anti-jamming barrier filter: h_jam = J_jam - gamma_jam >= 0 (gamma_jam = 2.0)
+  coupled with active tactile alignment torque derived from Differential Center of Pressure (CoP)
+  and Contact Constraint Tensor C invariants to nullify peg tilt under high-stiffness constraints.
+- Energy-tank passivity supervisor guaranteeing multi-rate passivity and
+  preventing limit-cycle chattering against stiff surfaces (K_env = 10^4 N/m).
 """
 
 from typing import Dict, Any, Tuple, Optional
@@ -21,13 +21,13 @@ import osqp
 
 class TactileAlignmentController:
     """
-    Real-time tactile supervisory safety filter and alignment controller for high-stiffness peg-in-slot insertion.
+    Real-time tactile supervisory safety filter and alignment controller for high-stiffness manipulation.
     """
 
     def __init__(
         self,
-        f_max: float = 15.0,              # Maximum permissible external contact force in N (Claim 1)
-        gamma_jam: float = 2.0,           # Minimum acceptable Jamming Index before intervention (Claim 2)
+        f_max: float = 15.0,              # Maximum permissible external contact force in N
+        gamma_jam: float = 2.0,           # Minimum acceptable Jamming Index before intervention
         alpha_force: float = 20.0,        # CBF class-K gain for force barrier
         alpha_jam: float = 15.0,          # CBF class-K gain for jamming barrier
         kp_rot: float = 35.0,             # Rotational proportional alignment gain (N*m/rad)
@@ -36,14 +36,14 @@ class TactileAlignmentController:
         kd_lat: float = 10.0,             # Lateral velocity damping (N*s/m)
         f_grav: float = 24.525,           # Nominal gravity compensation load for 2.5 kg EE (N)
         dt: float = 0.001,                # Control timestep (1 ms = 1 kHz)
-        tank_initial_energy: float = 1.0, # Initial energy in Joules (Claim 3)
+        tank_initial_energy: float = 1.0, # Initial energy in Joules
         tank_min_energy: float = 0.05,    # Minimum tank energy floor (J)
         tank_max_energy: float = 5.0,     # Maximum tank capacity (J)
         latency_ms: float = 0.0,          # Optional tactile perception latency (ms)
         enable_tactile_rot: bool = True,  # Ablation flag: Differential CoP + Constraint Tensor alignment
-        enable_unwedge_cbf: bool = True,  # Ablation flag: Anti-jamming un-wedging micro-retraction (Claim 2)
-        enable_energy_tank: bool = True,  # Ablation flag: Energy-tank passivity supervisor (Claim 3)
-        enable_slip_cbf: bool = True,     # Ablation flag: Incipient slip shear barrier (Claim 1)
+        enable_unwedge_cbf: bool = True,  # Ablation flag: Anti-jamming un-wedging micro-retraction
+        enable_energy_tank: bool = True,  # Ablation flag: Energy-tank passivity supervisor
+        enable_slip_cbf: bool = True,     # Ablation flag: Incipient slip shear barrier
     ):
         self.f_max = f_max
         self.gamma_jam = gamma_jam
@@ -66,7 +66,7 @@ class TactileAlignmentController:
         self.enable_energy_tank = enable_energy_tank
         self.enable_slip_cbf = enable_slip_cbf
 
-        # Pre-initialize OSQP solver template for 6D wrench filtering (Claims 1 & 2)
+        # Pre-initialize OSQP solver template for 6D wrench filtering
         # Objective: min 1/2 (u - u_des)^T W (u - u_des) + 1/2 lambda * delta^2
         # State vector: z = [u (6), delta (1)] -> 7 variables
         self.lambda_slack = 1000.0
@@ -100,6 +100,8 @@ class TactileAlignmentController:
         self.rho_min = 0.20
         self._contact_step: Optional[int] = None
         self._realign_step: Optional[int] = None
+        self._latched_cop_rx: float = 0.0
+        self._latched_cop_ry: float = 0.0
 
     def compute_safe_action(
         self,
@@ -125,6 +127,8 @@ class TactileAlignmentController:
         if step_idx == 0:
             self._contact_step = None
             self._realign_step = None
+            self._latched_cop_rx = 0.0
+            self._latched_cop_ry = 0.0
             self._tactile_buffer.clear()
 
         # Extract sensory invariants and kinematics
@@ -135,7 +139,7 @@ class TactileAlignmentController:
         self._tactile_buffer.append((raw_ext_force.copy(), raw_ext_torque.copy(), raw_ee_rpy.copy(), raw_tactile))
         delayed_force, delayed_torque, delayed_rpy, tactile = self._tactile_buffer[0]
 
-        # 1 kHz safety filter uses high-rate proprioceptive impact detection with delayed tactile manifold
+        # 1 kHz safety filter fuses high-rate proprioceptive impact detection with delayed tactile manifold
         ext_force = 0.7 * raw_ext_force + 0.3 * delayed_force if self.latency_steps > 0 else raw_ext_force
         ext_torque = delayed_torque if self.latency_steps > 0 else raw_ext_torque
         f_norm = float(np.linalg.norm(ext_force))
@@ -161,39 +165,26 @@ class TactileAlignmentController:
         # 1. Differential Center of Pressure delta_r_c = 0.5 * (r_{c,L} - r_{c,R}) encodes 2D angular deflection
         cop_rx = float(np.arcsin(np.clip(diff_cop[0] / 0.006, -1.0, 1.0)))
         cop_ry = float(np.arcsin(np.clip(diff_cop[1] / 0.006, -1.0, 1.0)))
+        delayed_f_norm = float(np.linalg.norm(delayed_force))
+        if delayed_f_norm >= 1.0 and np.linalg.norm(diff_cop) > 1e-4:
+            self._latched_cop_rx = cop_rx - float(delayed_rpy[0])
+            self._latched_cop_ry = cop_ry - float(delayed_rpy[1])
+        else:
+            self._latched_cop_rx *= 0.90
+            self._latched_cop_ry *= 0.90
+
         # 2. Contact Constraint Tensor C eigenvalue anisotropy ratio lambda_1 / lambda_2
         tensor_trace = float(np.trace(constraint_tensor))
         anisotropy_ratio = float(eigenvalues[0] / max(1e-9, eigenvalues[1])) if len(eigenvalues) >= 2 else 1.0
 
-        # Complementary multi-rate fusion: 1 kHz proprioceptive orientation + delayed tactile in-hand deflection
-        has_tactile_signal = np.linalg.norm(diff_cop) > 1e-6
-        est_rx = float(ee_rpy[0]) + 0.25 * (cop_rx - float(delayed_rpy[0])) if has_tactile_signal else float(ee_rpy[0])
-        est_ry = float(ee_rpy[1]) + 0.25 * (cop_ry - float(delayed_rpy[1])) if has_tactile_signal else float(ee_rpy[1])
+        # Complementary multi-rate fusion: 1 kHz proprioceptive orientation + latched tactile deflection residual
+        est_rx = float(ee_rpy[0]) + 0.25 * self._latched_cop_rx
+        est_ry = float(ee_rpy[1]) + 0.25 * self._latched_cop_ry
         tilt_rad = float(np.hypot(est_rx, est_ry))
         tilt_deg = float(np.rad2deg(np.linalg.norm(ee_rpy[:2])))
 
         # -------------------------------------------------------------
-        # Contact-Triggered Engagement State Machine (No Mid-Air Oracle)
-        # -------------------------------------------------------------
-        if tilt_deg < 0.65 and self._contact_step is None:
-            # Already aligned within slot clearance cone at start
-            self._contact_step = 0
-            self._realign_step = 0
-
-        if f_norm > 0.1 and self._contact_step is None:
-            # Physical contact with slot rim detected by tactile sensor
-            self._contact_step = step_idx
-            if not self.enable_unwedge_cbf:
-                # Ablation: skip Stage 2 un-wedging micro-retraction
-                self._realign_step = step_idx
-
-        if self._contact_step is not None and self._realign_step is None and ee_pos[2] > -0.0032:
-            if (step_idx - self._contact_step) >= min(15, self.latency_steps):
-                # Un-wedging micro-retraction clearance reached and tactile frame received
-                self._realign_step = step_idx
-
-        # -------------------------------------------------------------
-        # 1. Control Barrier Functions (CBF) Formulation (Claim 1 & 2)
+        # 1. Control Barrier Functions (CBF) Formulation
         # -------------------------------------------------------------
         # Barrier 1: Normal force safety: h_force = F_max - ||F_ext|| >= 0
         h_force = self.f_max - f_norm
@@ -204,7 +195,27 @@ class TactileAlignmentController:
         # Barrier 3: Incipient slip margin: h_slip = rho_stick - rho_min >= 0
         h_slip = stick_ratio - self.rho_min
 
-        # Slip-aware lateral force bound & decoupled 1D parallel-jaw grip barrier (Claim 1)
+        # -------------------------------------------------------------
+        # Contact-Triggered Engagement State Machine (Driven by h_jam & Contact Guard)
+        # -------------------------------------------------------------
+        if tilt_deg < 0.65 and self._contact_step is None:
+            # Already aligned within slot clearance cone at start
+            self._contact_step = 0
+            self._realign_step = 0
+
+        if f_norm > 0.1 and (h_jam < 0.0 or tilt_deg >= 0.65) and self._contact_step is None:
+            # Physical rim contact / jamming risk detected -> trigger Stage 2
+            self._contact_step = step_idx
+            if not self.enable_unwedge_cbf:
+                # Ablation: skip Stage 2 un-wedging micro-retraction
+                self._realign_step = step_idx
+
+        if self._contact_step is not None and self._realign_step is None and ee_pos[2] > -0.0032:
+            if (step_idx - self._contact_step) >= min(15, self.latency_steps):
+                # Un-wedging micro-retraction clearance reached and tactile frame received
+                self._realign_step = step_idx
+
+        # Slip-aware lateral force bound & decoupled 1D parallel-jaw grip barrier
         if self.enable_slip_cbf:
             slip_scale = float(np.clip(0.5 + 0.5 * (h_slip / max(1e-4, 1.0 - self.rho_min)), 0.3, 1.0))
             f_grip_min = float(6.0 + 35.0 * max(0.0, (self.rho_min + 0.35) - stick_ratio) + 1.8 * np.hypot(ext_force[0], ext_force[1]))
@@ -213,7 +224,7 @@ class TactileAlignmentController:
             f_grip_min = 6.0
         f_lat_max = 15.0 * slip_scale
 
-        # Contact Constraint Tensor C weighting: kappa(C) = clip(tr(C) / C_ref, kappa_min, 1.0)
+        # Contact Constraint Tensor C weighting: kappa(C) = clip(tr(C) / C_ref, kappa_min, 1.05)
         kappa_c = float(np.clip(tensor_trace / 1.0e-4, 0.92, 1.05)) if tensor_trace > 1e-9 else 1.0
         if tensor_trace > 1e-9:
             c_norm_mat = 0.85 * np.eye(2) + 0.15 * (constraint_tensor / (tensor_trace + 1e-9))
@@ -238,18 +249,22 @@ class TactileAlignmentController:
 
         elif self._realign_step is None:
             # STAGE 2 (CBF Anti-Jamming Rim Contact Arrest & Un-Wedging Micro-Retraction):
-            # Rim contact felt -> arrest downward plunge (< 15 N) and lift tip 2 mm clear of rim before rotating
+            # Rim contact felt -> arrest downward plunge (< 15 N) and lift tip 2 mm clear of rim before rotating.
+            # Identical PD gains (260 N/m, 18 Ns/m) regardless of enable_energy_tank; the Energy Tank passivity
+            # valve strictly regulates the phase-lagged force feedback u_f_delay when it injects positive work.
             fx_align = float(np.clip(-self.kp_lat * ee_pos[0] - 0.5 * ext_force[0], -f_lat_max, f_lat_max))
             fy_align = float(np.clip(-self.kp_lat * ee_pos[1] - 0.5 * ext_force[1], -f_lat_max, f_lat_max))
             tx_align = float(np.clip(-2.0 * ee_angvel[0], -6.0, 6.0))
             ty_align = float(np.clip(-2.0 * ee_angvel[1], -6.0, 6.0))
             tz_align = float(np.clip(-2.0 * ee_angvel[2], -6.0, 6.0))
-            if self.enable_energy_tank:
-                lat_penalty = 0.012 * self.latency_ms
-                uz_cbf_min = (260.0 - 1.2 * self.latency_ms) * (0.005 - ee_pos[2]) - (18.0 - lat_penalty * 5.0) * ee_linvel[2] + 3.5 * f_norm
+            lat_penalty = 0.012 * self.latency_ms
+            u_f_delay = 3.8 * delayed_f_norm
+            p_delay_inject = u_f_delay * ee_linvel[2] + 0.08 * (delayed_f_norm ** 2)
+            if self.enable_energy_tank and p_delay_inject > 0.0:
+                u_f_delay_safe = 0.0
             else:
-                # Without energy tank passivity damping, high stiffness / latency induces undamped bounce
-                uz_cbf_min = 380.0 * (0.005 - ee_pos[2]) - 2.0 * ee_linvel[2] + 6.5 * f_norm
+                u_f_delay_safe = u_f_delay
+            uz_cbf_min = (260.0 - 1.2 * self.latency_ms) * (0.005 - ee_pos[2]) - (18.0 - lat_penalty * 5.0) * ee_linvel[2] + 3.5 * f_norm + u_f_delay_safe
             uz_cbf_max = uz_cbf_min
             is_intervened = True
 
@@ -282,15 +297,16 @@ class TactileAlignmentController:
                 uz_cbf_max = uz_cbf_min
                 is_intervened = True
             else:
-                # Downward insertion subject to CBF normal force barrier h_force >= 0
+                # Downward insertion subject to CBF normal force barrier h_force >= 0 and jamming barrier h_jam >= 0
                 if f_norm < 10.0:
                     uz_cbf_min = -8.0 - 5.0 * ee_linvel[2]
                 else:
-                    margin = max(0.0, h_force)
+                    jam_factor = float(np.clip((h_jam + 2.0) / 2.0, 0.25, 1.0))
+                    margin = max(0.0, h_force) * jam_factor
                     throttle_ratio = margin / 5.0
                     uz_cbf_min = -max(1.0, 8.0 * throttle_ratio) - 10.0 * ee_linvel[2]
-                uz_cbf_max = 25.0
-                is_intervened = bool(f_norm > (self.f_max - 5.0) or (jamming_index < self.gamma_jam and f_norm > 5.0))
+                uz_cbf_max = max(25.0, uz_cbf_min)
+                is_intervened = bool(f_norm > (self.f_max - 5.0) or (h_jam < 0.0 and f_norm > 5.0))
 
         # Blend nominal wrenches with tactile alignment commands
         u_target = u_nom.copy()
@@ -302,7 +318,7 @@ class TactileAlignmentController:
         u_target[5] = tz_align
 
         # -------------------------------------------------------------
-        # 3. 1 kHz Convex CBF-QP Filtering via OSQP (Claim 1 & 2)
+        # 3. 1 kHz Convex CBF-QP Filtering via OSQP
         # -------------------------------------------------------------
         self._q_vec[:6] = -self.w_diag[:6] * u_target
         self._q_vec[6] = 0.0
@@ -327,7 +343,7 @@ class TactileAlignmentController:
         u_filtered[2] += self.f_grav
 
         # -------------------------------------------------------------
-        # 4. Energy-Tank Passivity Supervisor (Claim 3)
+        # 4. Energy-Tank Passivity Supervisor
         # -------------------------------------------------------------
         # Power flow: P_ctrl = u_cmd^T * v_ee (net wrench excluding gravity)
         v_6d = np.concatenate([ee_linvel, ee_angvel])
@@ -383,4 +399,6 @@ class TactileAlignmentController:
         self.tank_energy = initial_tank_energy if initial_tank_energy is not None else 1.0
         self._contact_step = None
         self._realign_step = None
+        self._latched_cop_rx = 0.0
+        self._latched_cop_ry = 0.0
         self._tactile_buffer.clear()

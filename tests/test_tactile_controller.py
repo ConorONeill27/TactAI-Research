@@ -2,10 +2,10 @@
 Unit tests for TactileAlignmentController (Phase 2).
 Verifies:
 - Control Barrier Function (CBF) normal force barrier enforcement (h_force >= 0, F_max = 15 N)
-- Anti-jamming barrier intervention (Claim 2)
+- Anti-jamming barrier intervention (h_jam >= 0)
 - Tactile reorientation from out-of-distribution initial tilt (+-10 deg to 0 deg)
 - Full closed-loop sub-millimeter insertion success (depth >= 20 mm, peak force < 15 N)
-- Energy-tank passivity supervisor (Claim 3)
+- Energy-tank passivity supervisor
 - Real-time solve frequency >= 1 kHz (< 1.0 ms solve time)
 """
 
@@ -29,7 +29,7 @@ class TestTactileAlignmentController(unittest.TestCase):
         )
 
     def test_controller_initialization(self):
-        """Verify default parameters match Patent Claims 1, 2, 3."""
+        """Verify default controller and energy-tank parameters."""
         self.assertEqual(self.controller.f_max, 15.0)
         self.assertEqual(self.controller.gamma_jam, 2.0)
         self.assertEqual(self.controller.dt, 0.001)
@@ -37,7 +37,7 @@ class TestTactileAlignmentController(unittest.TestCase):
         self.assertEqual(self.controller.tank_min_energy, 0.05)
 
     def test_high_frequency_solve_time(self):
-        """Verify that controller execution latency is well under 1.0 ms (Claim 1 requirement >= 1 kHz)."""
+        """Verify that controller execution latency is well under 1.0 ms (>= 1 kHz requirement)."""
         obs, _ = self.env.reset()
         u_nom = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
 
@@ -55,7 +55,7 @@ class TestTactileAlignmentController(unittest.TestCase):
         self.assertLess(max_latency, 1.0, f"Max latency {max_latency:.3f} ms exceeds 1.0 ms (1 kHz) limit.")
 
     def test_energy_tank_passivity_preservation(self):
-        """Verify that energy tank maintains positive energy and enforces passivity bounds (Claim 3)."""
+        """Verify that energy tank maintains positive energy and enforces passivity bounds."""
         obs, _ = self.env.reset()
         u_nom = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
 

@@ -44,3 +44,7 @@ test_reportlab.pdf
 test.pdf
 *.tmp
 MUJOCO_LOG.TXT
+
+# Private patent documents
+private_patent/
+

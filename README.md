@@ -1,24 +1,20 @@
-# TactAI: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
+# Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies
 
+**Authors:** Conor O'Neill\* and Alec Vysotski\* (*\*Equal contribution*)  
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/)
 [![MuJoCo 3.15](https://img.shields.io/badge/physics-MuJoCo%203.15-green.svg)](https://mujoco.org/)
-[![License: Confidential Research](https://img.shields.io/badge/license-Confidential%20Invention%20Disclosure-red.svg)](docs/patent_disclosure_draft.md)
-[![Target: IAS TU Darmstadt](https://img.shields.io/badge/target-IAS%20TU%20Darmstadt%20(Jan%202027)-purple.svg)](https://www.ias.informatik.tu-darmstadt.de/)
-
-> **CONFIDENTIAL RESEARCH PROVENANCE & INVENTION RECORD**  
-> **Destination:** Institute for Intelligent Autonomous Systems (IAS), TU Darmstadt (Prof. Jan Peters, Dr. Boris Belousov).  
-> **Filing Target:** USPTO Provisional Patent Application (Claims 1, 2, and 3).  
+[![Preprint: arXiv](https://img.shields.io/badge/preprint-arXiv%20(cs.RO%20%2F%20eess.SY)-b31b1b.svg)](docs/research_paper.pdf)
 
 ---
 
 ## 1. Executive Summary
 
-Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., ICRA 2026; ContactWorld, 2026) suffer from severe out-of-distribution (OOD) failure modes when executing high-precision contact tasks under geometric misalignment ($\pm 15^\circ$ tilt, $0.15\text{ mm}$ clearance). In stiff environments ($K_{\text{env}} \ge 10^4\text{ N/m}$), unconstrained neural policies push through obstacles, generating destructive contact forces ($>40\text{ N}$) within 30 milliseconds that cause two-point wedging, sensor delamination, and motor shutdown.
+Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., ICRA 2026) suffer from severe out-of-distribution (OOD) failure modes when executing high-precision contact tasks under geometric misalignment ($\pm 15^\circ$ tilt, $0.15\text{ mm}$ clearance). In stiff environments ($K_{\text{env}} \ge 10^4\text{ N/m}$), unconstrained neural policies push through obstacles, generating destructive contact forces ($>40\text{ N}$) within 30 milliseconds that cause two-point wedging, sensor delamination, and motor shutdown.
 
-**TactAI** implements a supervisory 1 kHz Control Barrier Function Quadratic Program (CBF-QP) and Energy Tank safety filter that wraps around unconstrained neural policies. By continuously extracting certified physical contact invariants from optical tactile sensors (GelSight Mini, FEATS continuous traction field), the safety filter mathematically guarantees:
-1. **Bounded Normal Contact Forces:** Zero force spikes ($\|\mathbf{F}_c\| \le F_{\max}$).
-2. **Certified Anti-Jamming Decoupling:** Inversion of two-point force couples before wedging occurs.
-3. **Lyapunov Contact Passivity:** Strict dissipation bounds via an Energy Tank during non-smooth contact transitions, eliminating chattering without retraining the policy.
+This repository implements a supervisory 1 kHz Control Barrier Function Quadratic Program (CBF-QP) and Energy Tank safety filter that wraps around pre-trained action-chunking manipulation policies. By fusing 1 kHz robot proprioception with low-dimensional physical contact invariants extracted from dual optical tactile sensors (GelSight Mini / FEATS continuous traction fields), the safety filter enforces:
+1. **Bounded Normal Contact Forces:** Strict normal force capping ($\|\mathbf{F}_c\| \le F_{\max} = 15.0\text{ N}$).
+2. **Contact-Triggered Anti-Jamming & Alignment:** Micro-retraction and rotational alignment driven by Differential Center of Pressure ($\Delta \mathbf{r}_c$) and the Contact Constraint Tensor ($\mathbf{C}$).
+3. **Multi-Rate Contact Passivity:** Discrete-time Energy Tank dissipation bounds during delayed (10–50 ms) tactile updates, eliminating contact chattering without retraining the policy.
 
 ---
 
@@ -27,20 +23,19 @@ Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., 
 ```
 +-------------------------------------------------------------------------------+
 |                        HIGH-LEVEL POLICY / DEMO                                |
-|        (e.g., FARM Diffusion Policy / ContactWorld Actor @ 20-50 Hz)           |
+|             (20 Hz Action-Chunking Diffusion Policy, H = 50 steps)             |
 +-------------------------------------------------------------------------------+
                                       |
                            Nominal Command u_pi
                                       v
 +-------------------------------------------------------------------------------+
-|                    TACTAI SUPERVISORY SAFETY FILTER                           |
-|             1 kHz Convex Optimization via OSQP (Claim 1, 2, 3)                |
+|                    TACTILE SUPERVISORY SAFETY FILTER                          |
+|                1 kHz Convex Optimization via OSQP + Energy Tank                |
 |                                                                               |
-|   min  (1/2) ||u - u_pi||_W^2                                                 |
-|   s.t. L_f h_force(x) + L_g h_force(x) u + alpha_1(h_force) >= 0             |
-|        L_f h_jam(x)   + L_g h_jam(x)   u + alpha_2(h_jam)   >= 0             |
-|        L_f h_slip(x)  + L_g h_slip(x)  u + alpha_3(h_slip)  >= 0             |
-|        (1/2) q_dot^T K_dot q_dot <= P_tank,available                          |
+|   min  (1/2) ||u - u_target(delta_r_c, C, u_pi)||_W^2 + (1/2) lambda delta^2  |
+|   s.t. L_f h_force(x) + L_g h_force(x) u_z + alpha_f h_force(x) >= -delta     |
+|        |u_x|, |u_y| <= F_lat,max(h_slip),  F_grip >= F_grip,min(h_slip)       |
+|        E_{k+1} = E_k + dt * (0.8 * P_diss - u_net^T v_ee) >= E_min            |
 +-------------------------------------------------------------------------------+
                                       |
                             Safe Command u*
@@ -50,46 +45,41 @@ Modern robotic imitation and diffusion policies (e.g., **FARM**, Helmut et al., 
 |           Franka Emika Panda Compliant Manipulator (MuJoCo 3.15)              |
 +-------------------------------------------------------------------------------+
                                       |
-                       Elastomeric Contact Traction f(u,v)
+                       Elastomeric Contact Traction f_p(u,v)
                                       v
 +-------------------------------------------------------------------------------+
 |                    TACTILE INVARIANT EXTRACTION ENGINE                        |
-|   - Contact Normal n_c and Total Force F_c                                    |
-|   - Traction Center of Pressure (CoP) r_c in R^2                              |
+|   - Differential Center of Pressure (CoP) delta_r_c in R^2                    |
 |   - Contact Constraint Tensor C in R^(2x2) (lambda_1, lambda_2)              |
 |   - Incipient Stick Ratio rho_stick in [0, 1]                                 |
 |   - Whitney Jamming Index J_jam = (F_insert * r_char) / (tau_tilt + eps)     |
 +-------------------------------------------------------------------------------+
 ```
 
-### 2.1 Tactile Invariants (FEATS Formulation)
-Over sensor surface domain $\Omega \subset \mathbb{R}^2$ ($N \times N = 1024$ discrete cells):
+### 2.1 Tactile Invariants
+Over sensor surface domain $\Omega \subset \mathbb{R}^2$ ($32 \times 32 = 1024$ discrete cells per pad $p \in \{L, R\}$):
 
-1. **Center of Pressure (CoP):**
-   $$\mathbf{r}_c = \frac{\iint_\Omega [u, v]^T f_z(u, v) \, du \, dv}{\iint_\Omega f_z(u, v) \, du \, dv + \epsilon} \in \mathbb{R}^2$$
+1. **Differential Center of Pressure ($\Delta \mathbf{r}_c$):**
+   $$\Delta \mathbf{r}_c = \frac{1}{2}\left(\mathbf{r}_{c,L} - \mathbf{r}_{c,R}\right), \quad \mathbf{r}_{c,p} = \frac{\iint_\Omega [u, v]^T f_{z,p}(u, v) \, du \, dv}{\iint_\Omega f_{z,p}(u, v) \, du \, dv + \epsilon} \in \mathbb{R}^2$$
 
-2. **Contact Constraint Tensor ($\mathbf{C}$):**
-   $$\mathbf{C} = \iint_\Omega \left( [u, v]^T - \mathbf{r}_c \right) \left( [u, v]^T - \mathbf{r}_c \right)^T f_z(u, v) \, du \, dv \succeq 0$$
-   Eigenvalues $\lambda_1 \ge \lambda_2 \ge 0$ define the geometric boundary manifold. For edge/chamfer contacts, $\lambda_1 / \lambda_2 > 2.5$.
+2. **Contact Constraint Tensor ($\mathbf{C}_p$):**
+   $$\mathbf{C}_p = \iint_\Omega \left( [u, v]^T - \mathbf{r}_{c,p} \right) \left( [u, v]^T - \mathbf{r}_{c,p} \right)^T f_{z,p}(u, v) \, du \, dv \succeq 0$$
 
 3. **Incipient Stick Ratio ($\rho_{\text{stick}}$):**
-   $$\rho_{\text{stick}} = \frac{\iint_\Omega \mathbb{I}(\|\mathbf{q}(u, v)\| < \mu f_z(u, v) \cdot (1 - \epsilon_{\text{stick}})) \, du \, dv}{\iint_\Omega \mathbb{I}(f_z > 0) \, du \, dv} \in [0, 1]$$
+   $$\rho_{\text{stick}} = \frac{\iint_\Omega \mathbb{I}(\|\mathbf{f}_{xy}(u, v)\| < \mu f_z(u, v)) \, du \, dv}{\iint_\Omega \mathbb{I}(f_z > 0) \, du \, dv} \in [0, 1]$$
 
 4. **Dimensionless Jamming Index ($J_{\text{jam}}$):**
    $$J_{\text{jam}} = \frac{\|\mathbf{F}_{\text{insert}}\|_2 \cdot r_{\text{char}}}{\|\boldsymbol{\tau}_{\text{tilt}}\|_2 + \epsilon}$$
-   When $J_{\text{jam}} < 1 / \mu$, two-point wedging occurs. The safety filter triggers nullspace torque decoupling when $J_{\text{jam}} < 2.5$.
 
 ---
 
-## 3. Patent Claims Mapping
+## 3. Core Architectural Modules
 
-The code in this repository directly implements and demonstrates the three independent patent claims drafted in [`docs/patent_disclosure_draft.md`](docs/patent_disclosure_draft.md):
-
-| Claim | Type | Core Concept | Implementation Location |
-|---|---|---|---|
-| **Claim 1** | Independent Method | 500+ Hz CBF-QP filtering using Contact Constraint Tensor $\mathbf{C}$ and Incipient Slip $\rho_{\text{stick}}$ | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py), [`src/invariants/tactile_invariants.py`](src/invariants/tactile_invariants.py) |
-| **Claim 2** | Independent System | Real-time inversion of two-point wedging force couples via Jamming Index $J_{\text{jam}}$ projection | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py), [`src/invariants/tactile_invariants.py`](src/invariants/tactile_invariants.py) |
-| **Claim 3** | Independent Apparatus | Multi-rate Energy-Tank passivity observer bounding latency-induced perceptual energy injection | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py), [`docs/patent_disclosure_draft.md`](docs/patent_disclosure_draft.md) |
+| Module | Function | Implementation Location |
+|---|---|---|
+| **Multi-Rate Invariant Observer & CBF-QP** | 1 kHz OSQP wrench filtering using Differential CoP $\Delta \mathbf{r}_c$, Tensor $\mathbf{C}$, and Stick Ratio $\rho_{\text{stick}}$ | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py), [`src/invariants/tactile_invariants.py`](src/invariants/tactile_invariants.py) |
+| **3-Stage Anti-Jamming State Machine** | Contact-triggered rim arrest, $2\text{ mm}$ un-wedging micro-retraction, and tensor-weighted alignment | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py) |
+| **Energy-Tank Passivity Supervisor** | Multi-rate passivity observer bounding latency-induced perceptual energy injection | [`src/controllers/tactile_alignment_controller.py`](src/controllers/tactile_alignment_controller.py) |
 
 ---
 
@@ -98,10 +88,9 @@ The code in this repository directly implements and demonstrates the three indep
 ```
 TactAI-Research/
 ├── docs/
-│   ├── figures/                      # 3D MuJoCo renders and Phase 2 telemetry plots
-│   ├── lab_notebook_phase_1.md       # Traceable lab notebook recording all experimental hypotheses
-│   ├── patent_disclosure_draft.md    # Formal USPTO Invention Disclosure Record (Claims 1-3)
-│   └── research_paper.pdf            # 4-page IEEE/RSS conference paper draft
+│   ├── figures/                      # 3D MuJoCo renders and benchmark telemetry plots
+│   ├── lab_notebook_phase_1.md       # Traceable lab notebook recording experimental hypotheses
+│   └── research_paper.pdf            # 6-page arXiv preprint (PDF)
 ├── src/
 │   ├── controllers/
 │   │   ├── tactile_alignment_controller.py # 1 kHz OSQP CBF-QP safety filter, differential CoP & Energy Tank
@@ -155,30 +144,30 @@ python scripts/run_phase2_validation.py
 python scripts/run_phase3_validation.py
 ```
 
-#### Table I: Benchmark A Summary (20 OOD Trials, $\pm 5^\circ$ to $\pm 15^\circ$ Tilt, $0.15\text{ mm}$ Clearance, 20 Hz Action-Chunking Policy)
+#### Table I: Benchmark A Summary ($N = 50$ OOD Trials, $\pm 0.5^\circ$ to $\pm 15^\circ$ Tilt, $0.15\text{ mm}$ Clearance, 20 Hz Action-Chunking Policy)
 
 | Controller / Policy Architecture | Success Rate (%) | Peak Force (N) | Jamming Rate (%) | Cycle Time (s) |
 |---|---|---|---|---|
-| Unconstrained Diffusion Policy (FARM) | `0.0%` (`0/20`) | `43.40 ± 1.77 N` (Max `46.41 N`) | `100.0%` | Jammed (`0.03 s`) |
-| Wrist F/T Admittance Filter (6-Axis) | `20.0%` (`4/20`) | `33.03 ± 5.35 N` (Max `37.21 N`) | `80.0%` | `0.43 s` (Mild Tilt) |
-| Fixed Isotropic Impedance ($K=200\text{ N/m}$) | `0.0%` (Rim Stall) | `10.36 ± 0.19 N` (Max `10.51 N`) | `0.0%` (Stalled) | `>0.55 s` (Timeout) |
-| **Tactile Safety Filter + FARM (Ours)** | **`100.0%` (`20/20`)** | **`11.69 ± 0.37 N` (Max `12.23 N`)** | **`0.0%`** | **`0.45 ± 0.01 s`** |
+| Unconstrained Diffusion Policy (FARM) | `6.0%` (`3/50`) | `41.87 ± 7.43 N` (Max `46.35 N`) | `94.0%` | `0.07 ± 0.05 s` |
+| Wrist F/T Admittance Filter (6-Axis) | `20.0%` (`10/50`) | `32.80 ± 6.00 N` (Max `37.07 N`) | `80.0%` | `0.43 ± 0.02 s` |
+| Fixed Isotropic Impedance ($K=200\text{ N/m}$) | `0.0%` (Rim Stall) | `10.31 ± 0.21 N` (Max `10.68 N`) | `0.0%` (Stalled) | `0.55 s` (Timeout) |
+| **Tactile Safety Filter + FARM (Ours)** | **`94.0%` (`47/50`)** | **`10.86 ± 0.34 N` (In-Basin)** | **`0.0%` (In-Basin)** | **`0.43 ± 0.03 s`** |
 
-#### Table II: Benchmarks B & C Summary (Non-Planar Stiff Contour Wiping & Incipient-Slip Tool Manipulation)
+#### Table II: Benchmarks B & C Summary ($N = 20$ Trials Each — Non-Planar Stiff Contour Wiping & Incipient-Slip Tool Manipulation)
 
 | Controller / Policy Architecture | Bench B: Safe Track (%) | Bench B: Peak / RMSE (N) | Bench C: Drop Rate (%) | Bench C: Mean Slip / Grip |
 |---|---|---|---|---|
-| Unconstrained Diffusion Policy (FARM) | `20.0%` | `18.10 N / 4.94 N` | `100.0%` (Dropped) | `500.2 mm / 5.50 N` |
-| Fixed Isotropic Impedance ($K=200\text{ N/m}$) | `70.0%` | `12.65 N / 2.80 N` | `100.0%` (Dropped) | `409.2 mm / 6.00 N` |
-| Wrist F/T Admittance Filter (6-Axis) | `0.0%` (Chatter) | `91.12 N / 21.96 N` | `100.0%` (Reactive) | `281.7 mm / 9.79 N` |
-| **Tactile Safety Filter + FARM (Ours)** | **`90.0%` (`100%` $\le 15\text{ N}$)** | **`11.40 N / 2.78 N`** | **`10.0%` (`90%` Succ.)** | **`0.64 mm / 14.59 N`** |
+| Unconstrained Diffusion Policy (FARM) | `15.0%` (`3/20`) | `20.37 ± 4.47 N / 6.80 N` | `100.0%` (`0%` Succ.) | `148.8 mm / 6.20 N` |
+| Fixed Isotropic Impedance ($K=200\text{ N/m}$) | `85.0%` (`17/20`) | `12.43 ± 2.26 N / 2.53 N` | `85.0%` (`15%` Succ.) | `104.8 mm / 6.80 N` |
+| Wrist F/T Admittance Filter (6-Axis) | `0.0%` (Chatter) | `127.59 ± 11.46 N / 27.38 N` | `85.0%` (`15%` Succ.) | `44.0 mm / 13.25 N` |
+| **Tactile Safety Filter + FARM (Ours)** | **`100.0%` (`20/20` $\le 15\text{ N}$)** | **`10.64 ± 1.36 N / 2.06 N`** | **`10.0%` (`90%` Succ.)** | **`0.44 mm / 14.60 N`** |
 
-#### Table III: Component Ablation & Environmental Robustness Summary
-- **Ablation 1 (w/o Differential CoP $\Delta \mathbf{r}_c$ & Tensor $\mathbf{C}$):** Insertion success drops from `100.0%` to `0.0%` (stalls safely on rim at `14.15 N`).
-- **Ablation 2 (w/o Anti-Jamming Un-Wedging CBF $h_{\text{jam}}$):** Insertion success drops from `100.0%` to `0.0%` (`35.51 N` rim camming spike).
-- **Ablation 3 (w/o Energy Tank $T(t)$ / w/o Slip CBF $h_{\text{slip}}$):** Contour tracking suffers `50.32 N` chattering spikes; tool manipulation suffers `100.0%` drop rate.
-- **Surface Stiffness $K_{\text{env}} \in [10^2, 10^5]\text{ N/m}$:** `100%` insertion success across 4 orders of magnitude (`3.26 N` to `12.89 N` peak force, minimum tank energy $E_{\text{tank}} \ge 0.76\text{ J}$).
-- **Friction $\mu \in [0.15, 0.85]$ & Latency $\tau_{\text{delay}} \in [10, 50]\text{ ms}$:** `100%` insertion success and strict passivity (`11.54–14.57 N < 15.0 N` safety bound).
+#### Table III: Component Ablation ($N = 20$) & Multi-Seed Environmental Robustness ($N = 5$ Seeds/Point)
+- **Ablation 1 (w/o Differential CoP $\Delta \mathbf{r}_c$ & Tensor $\mathbf{C}$):** Insertion success drops from `100.0%` to `0.0%` (stalls safely on rim at `14.21 ± 0.46 N`).
+- **Ablation 2 (w/o Anti-Jamming Un-Wedging CBF $h_{\text{jam}}$):** Insertion success drops from `100.0%` to `0.0%` (`36.71 ± 1.39 N` rim camming spike).
+- **Ablation 3 (w/o Energy Tank $T(t)$ / w/o Slip CBF $h_{\text{slip}}$):** Contour tracking suffers `76.97 ± 6.81 N` chattering spikes; tool manipulation suffers `100.0%` drop rate.
+- **Surface Stiffness $K_{\text{env}} \in [10^2, 10^5]\text{ N/m}$ ($N=5$ seeds):** `100%` insertion success across 4 orders of magnitude (`2.85 ± 0.18 N` to `12.39 ± 0.54 N` peak force).
+- **Friction $\mu \in [0.15, 0.85]$ & Latency $\tau_{\text{delay}} \in [10, 50]\text{ ms}$ ($N=5$ seeds):** `100%` insertion success and strict passivity (`10.33 ± 0.43 N` to `14.21 ± 0.43 N < 15.0 N` safety bound).
 
 ### 5.4 Re-Generate Research Paper PDF
 ```bash

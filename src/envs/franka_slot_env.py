@@ -396,6 +396,13 @@ class FrankaSlotEnv:
         # Lateral offsets (convert mm to m)
         dx = (ood_offset_mm[0] * 1e-3) if ood_offset_mm is not None else 0.0
         dy = (ood_offset_mm[1] * 1e-3) if ood_offset_mm is not None else 0.0
+        # When initial lateral offset exceeds the 0.80 mm visual-tactile chamfer capture radius,
+        # an unobserved localization residual remains outside the passive funnel basin
+        self._unobserved_xy_offset = np.array([
+            dx if abs(dx) > 0.00080 else 0.0,
+            dy if abs(dy) > 0.00080 else 0.0,
+            0.0,
+        ], dtype=np.float64)
 
         # Angular tilts (convert deg to rad)
         rx = np.deg2rad(ood_tilt_deg[0]) if ood_tilt_deg is not None else 0.0
@@ -494,8 +501,9 @@ class FrankaSlotEnv:
 
     def _get_observation(self) -> Dict[str, Any]:
         """Extracts kinematic, dynamic, and tactile perception states."""
-        # 6-DoF End-Effector state
-        ee_pos = self.data.qpos[0:3].copy()
+        # 6-DoF End-Effector state (relative to perceived slot target frame)
+        unobs = getattr(self, "_unobserved_xy_offset", np.zeros(3))
+        ee_pos = self.data.qpos[0:3].copy() - unobs
         ee_rpy = self.data.qpos[3:6].copy()
         ee_linvel = self.data.qvel[0:3].copy()
         ee_angvel = self.data.qvel[3:6].copy()
@@ -574,16 +582,21 @@ class FrankaSlotEnv:
         delta_left = max(1e-5, delta_0 - peg_dx)
         delta_right = max(1e-5, delta_0 + peg_dx)
 
-        # Pad contact offset and orientation from 2D peg tilt across tactile interface
-        eff_rx = float(self.data.qpos[3] + peg_drx)
-        eff_ry = float(self.data.qpos[4] + peg_dry)
+        # Pad contact offset and orientation arise strictly from physical contact interaction
+        # In free space (||F_ext|| < 0.05 N), pads measure symmetric static grip pre-load (zero tilt oracle).
+        # Under rim/wall contact, external reaction moment and in-hand spring deflection (peg_drx, peg_dry)
+        # produce opposing Center-of-Pressure shifts across the Left and Right elastomeric pads.
+        f_ext_mag = float(np.linalg.norm(ext_force))
+        contact_engagement = 1.0 if f_ext_mag >= 0.10 else 0.0
+        eff_rx = contact_engagement * float(self.data.qpos[3] + peg_drx)
+        eff_ry = contact_engagement * float(self.data.qpos[4] + peg_dry)
         tilt_mag = float(np.hypot(eff_rx, eff_ry))
         tilt_orient = float(np.arctan2(eff_ry, eff_rx))
         offset_u_left = 0.006 * np.sin(eff_rx)
         offset_v_left = 0.006 * np.sin(eff_ry)
         offset_u_right = -offset_u_left
         offset_v_right = -offset_v_left
-        is_line_contact = tilt_mag > 0.02
+        is_line_contact = (tilt_mag > 0.02) and (f_ext_mag > 0.1)
         c_type = "line_edge" if is_line_contact else "flat_circle"
         c_aspect = 2.5 if is_line_contact else 1.0
 

@@ -2,22 +2,22 @@
 Phase 3 Comprehensive Benchmark, Ablation & Robustness Validation Suite (arXiv Edition).
 
 Executes the complete empirical protocol for the TactAI peer-reviewed paper:
-1. Benchmark A (Table I): 20-trial Out-of-Distribution (OOD) angular misalignment
-   (+-5 deg to +-15 deg) and lateral offset sweep in 0.15 mm clearance slot insertion,
-   wrapping a 20 Hz StochasticActionChunkingPolicy (FARM proxy) across:
+1. Benchmark A (Table I): 50-trial Out-of-Distribution (OOD) angular misalignment
+   (+-3 deg to +-15 deg) and lateral offset (0.0 to 0.90 mm) sweep in 0.15 mm clearance
+   slot insertion, wrapping a 20 Hz StochasticActionChunkingPolicy (FARM proxy) across:
    - Unconstrained Diffusion Policy (FARM Baseline)
    - Fixed Isotropic Impedance (K = 200 N/m)
    - 6-Axis Wrist F/T Admittance Filter
    - Tactile Safety Filter + FARM (Ours, 1 kHz OSQP CBF-QP + Energy Tank)
-2. Benchmarks B & C (Table II):
+2. Benchmarks B & C (Table II, N = 20 trials each):
    - Benchmark B: Non-Planar Stiff Contour Tracking (K_env = 10^4 N/m, v = 0.05 m/s, 25 ms delay)
-   - Benchmark C: Dynamic Tool Manipulation under Incipient Slip (mu in [0.22, 0.55])
-3. Component Ablation Study & Environmental Robustness Sweep (Table III):
+   - Benchmark C: Dynamic Tool Manipulation under Incipient Slip (mu in [0.22, 0.58])
+3. Component Ablation Study & Multi-Seed Environmental Robustness Sweep (Table III):
    - Ablations of Differential CoP / Constraint Tensor C, Anti-Jamming CBF h_jam,
-     Energy Tank Passivity T(t), and Incipient Slip CBF h_slip
-   - Surface Stiffness K_env in {10^2, 10^3, 10^4, 10^5} N/m
-   - Friction Coefficient mu in {0.15, 0.30, 0.50, 0.85}
-   - Tactile Perception Latency in {10, 20, 35, 50} ms
+     Energy Tank Passivity T(t), and Incipient Slip CBF h_slip (N = 20 trials)
+   - Surface Stiffness K_env in {10^2, 10^3, 10^4, 10^5} N/m (N = 5 seeds per point)
+   - Friction Coefficient mu in {0.15, 0.30, 0.50, 0.85} (N = 5 seeds per point)
+   - Tactile Perception Latency in {10, 20, 35, 50} ms (N = 5 seeds per point)
 
 Outputs:
 - data/phase3_validation/benchmark_a_summary.json
@@ -51,31 +51,66 @@ from src.controllers.baseline_controllers import (
 from src.controllers.nominal_policies import StochasticActionChunkingPolicy
 
 
+# 50 deterministic Out-of-Distribution (OOD) misalignment scenarios:
+# Spans +-3 deg to +-15 deg angular tilt and 0.0 to 0.90 mm lateral offset
+# (up to 6x the 0.15 mm radial slot clearance).
 OOD_SCENARIOS: List[Tuple[Tuple[float, float], Tuple[float, float]]] = [
-    # Mild OOD tilts (+-5 deg)
+    # Group 1 (Trials 0..9): Mild boundary & OOD tilts (+-0.5 deg to +-5 deg)
+    ((0.5, 0.0), (0.0, 0.0)),
+    ((-0.5, 0.0), (0.0, 0.0)),
+    ((0.6, 0.0), (0.05, 0.0)),
+    ((3.0, 0.0), (0.0, 0.0)),
+    ((-3.0, 0.0), (0.0, 0.0)),
     ((5.0, 0.0), (0.0, 0.0)),
     ((-5.0, 0.0), (0.0, 0.0)),
-    ((0.0, 5.0), (0.2, 0.0)),
-    ((0.0, -5.0), (-0.2, 0.0)),
-    # Moderate OOD tilts (+-8 deg)
-    ((8.0, 0.0), (0.0, 0.2)),
-    ((-8.0, 0.0), (0.0, -0.2)),
-    ((0.0, 8.0), (0.3, 0.0)),
-    ((0.0, -8.0), (-0.3, 0.0)),
-    # Severe OOD tilts (+-10 deg, 1D & 2D compound)
+    ((0.0, 5.0), (0.20, 0.0)),
+    ((0.0, -5.0), (-0.20, 0.0)),
+    ((4.0, 3.0), (0.15, -0.10)),
+    # Group 2 (Trials 10..21): Moderate OOD tilts (+-6 deg to +-8 deg)
+    ((6.0, 0.0), (0.0, 0.15)),
+    ((-6.0, 0.0), (0.0, -0.15)),
+    ((0.0, 6.0), (0.20, 0.0)),
+    ((0.0, -6.0), (-0.20, 0.0)),
+    ((7.0, 0.0), (0.15, 0.15)),
+    ((-7.0, 0.0), (-0.15, -0.15)),
+    ((8.0, 0.0), (0.0, 0.20)),
+    ((-8.0, 0.0), (0.0, -0.20)),
+    ((0.0, 8.0), (0.30, 0.0)),
+    ((0.0, -8.0), (-0.30, 0.0)),
+    ((6.0, -5.0), (0.20, -0.15)),
+    ((-6.0, 5.0), (-0.20, 0.15)),
+    # Group 3 (Trials 22..35): Severe OOD tilts (+-9 deg to +-11 deg, 1D & 2D compound)
+    ((9.0, 0.0), (0.0, 0.25)),
+    ((-9.0, 0.0), (0.0, -0.25)),
     ((10.0, 0.0), (0.0, 0.0)),
     ((-10.0, 0.0), (0.0, 0.0)),
-    ((0.0, 10.0), (0.4, 0.0)),
-    ((0.0, -10.0), (-0.4, 0.0)),
-    ((10.0, -8.0), (0.2, -0.2)),
-    ((-10.0, 8.0), (-0.3, 0.2)),
-    # Extreme OOD tilts (+-12 deg to +-15 deg)
-    ((12.0, 0.0), (0.0, 0.3)),
-    ((-12.0, 0.0), (0.0, -0.3)),
-    ((0.0, 12.0), (0.3, 0.0)),
-    ((0.0, -12.0), (-0.3, 0.0)),
+    ((0.0, 10.0), (0.40, 0.0)),
+    ((0.0, -10.0), (-0.40, 0.0)),
+    ((10.0, -6.0), (0.20, -0.20)),
+    ((-10.0, 6.0), (-0.25, 0.20)),
+    ((8.0, 8.0), (0.25, 0.25)),
+    ((-8.0, -8.0), (-0.25, -0.25)),
+    ((11.0, 0.0), (0.0, 0.30)),
+    ((-11.0, 0.0), (0.0, -0.30)),
+    ((0.0, 11.0), (0.35, 0.0)),
+    ((0.0, -11.0), (-0.35, 0.0)),
+    # Group 4 (Trials 36..46): Extreme OOD tilts (+-12 deg to +-15 deg within capture cone)
+    ((12.0, 0.0), (0.0, 0.30)),
+    ((-12.0, 0.0), (0.0, -0.30)),
+    ((0.0, 12.0), (0.30, 0.0)),
+    ((0.0, -12.0), (-0.30, 0.0)),
+    ((13.0, 0.0), (0.0, 0.20)),
+    ((-13.0, 0.0), (0.0, -0.20)),
+    ((14.0, 0.0), (0.0, 0.15)),
+    ((-14.0, 0.0), (0.0, -0.15)),
     ((15.0, 0.0), (0.0, 0.0)),
     ((-15.0, 0.0), (0.0, 0.0)),
+    ((0.0, 14.0), (0.20, 0.0)),
+    # Group 5 (Trials 47..49): Extreme boundary cases with large lateral offset (> 5.5x clearance)
+    # where rim capture cone is exceeded (tests safe force-bounded timeout without jamming)
+    ((14.0, -11.0), (0.88, -0.82)),
+    ((-14.5, 11.5), (-0.90, 0.85)),
+    ((15.0, 12.0), (0.92, 0.88)),
 ]
 
 
@@ -132,6 +167,7 @@ def run_single_episode(
         "initial_tilt_norm_deg": float(np.hypot(tilt_deg[0], tilt_deg[1])),
         "is_success": is_success,
         "is_jammed": is_jammed_or_wedged,
+        "is_safe_force": bool(peak_force <= 15.0),
         "peak_force_n": peak_force,
         "final_depth_mm": final_depth,
         "final_tilt_deg": float(tilts[-1]) if tilts else 0.0,
@@ -147,9 +183,9 @@ def run_single_episode(
 
 
 def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
-    """Executes Table I: 20-trial OOD sweep across all 4 controllers."""
+    """Executes Table I: 50-trial OOD sweep across all 4 controllers."""
     print("=" * 84)
-    print("  BENCHMARK A (TABLE I): 20-TRIAL OOD MISALIGNMENT SWEEP (+-5° to +-15°)")
+    print(f"  BENCHMARK A (TABLE I): {len(OOD_SCENARIOS)}-TRIAL OOD MISALIGNMENT SWEEP (+-3° to +-15°)")
     print("=" * 84)
 
     env = FrankaSlotEnv(seed=42)
@@ -183,12 +219,13 @@ def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
                 env, ctrl, tilt, offset, max_steps=550, use_action_chunk_policy=True, trial_seed=42 + idx
             )
             episodes.append(ep)
-            if idx == 8:
+            if idx == 24:  # (+10.0, 0.0) trial
                 npz_payload[f"{key}_force_10deg"] = ep["forces_trace"]
                 npz_payload[f"{key}_depth_10deg"] = ep["depths_trace"]
 
         succ_rate = 100.0 * float(np.mean([e["is_success"] for e in episodes]))
         jam_rate = 100.0 * float(np.mean([e["is_jammed"] for e in episodes]))
+        safe_rate = 100.0 * float(np.mean([e["is_safe_force"] for e in episodes]))
         peak_forces = [e["peak_force_n"] for e in episodes]
         cycle_times = [e["cycle_time_s"] for e in episodes]
         succ_cycle_times = [e["cycle_time_s"] for e in episodes if e["is_success"]]
@@ -205,6 +242,7 @@ def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
             "num_trials": len(episodes),
             "success_rate_pct": round(succ_rate, 1),
             "jamming_rate_pct": round(jam_rate, 1),
+            "safe_force_rate_pct": round(safe_rate, 1),
             "mean_peak_force_n": round(mean_pf, 2),
             "std_peak_force_n": round(std_pf, 2),
             "max_peak_force_n": round(max_pf, 2),
@@ -221,7 +259,7 @@ def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
         npz_payload[f"{key}_tilts"] = np.array([e["initial_tilt_norm_deg"] for e in episodes], dtype=np.float32)
 
         print(
-            f"  [SUMMARY] Success: {succ_rate:5.1f}% | "
+            f"  [SUMMARY] Success: {succ_rate:5.1f}% | Safe (<=15N): {safe_rate:5.1f}% | "
             f"Peak Force: {mean_pf:5.2f} ± {std_pf:4.2f} N (Max {max_pf:5.2f} N) | "
             f"Jamming: {jam_rate:5.1f}% | Cycle Time: {mean_ct:4.2f}s"
         )
@@ -236,14 +274,14 @@ def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
 
 
 def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
-    """Executes Benchmarks B & C and the Component Ablation Study."""
+    """Executes Benchmarks B & C (N = 20 trials each) and the Component Ablation Study (N = 20 trials)."""
     print("\n" + "=" * 84)
-    print("  BENCHMARKS B & C + COMPONENT ABLATION STUDY (TABLE II & TABLE III)")
+    print("  BENCHMARKS B & C (N=20 EACH) + COMPONENT ABLATION STUDY (TABLE II & TABLE III)")
     print("=" * 84)
 
-    # 1. Benchmark B: Non-Planar Stiff Contour Tracking (10 phase-shifted trials)
+    # 1. Benchmark B: Non-Planar Stiff Contour Tracking (20 phase-shifted trials in MuJoCo)
     contour_env = NonPlanarContourEnv(stiffness_env=1.0e4, seed=42)
-    phases = np.linspace(0.0, np.pi, 10)
+    phases = np.linspace(0.0, 2.0 * np.pi, 20, endpoint=False)
     modes_b = [
         ("unconstrained_farm", "Unconstrained Diffusion Policy (FARM)"),
         ("fixed_impedance_k200", "Fixed Isotropic Impedance (K=200)"),
@@ -253,28 +291,30 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     ]
     bench_b_summary: Dict[str, Any] = {}
     bench_b_traces: Dict[str, np.ndarray] = {}
-    print("\n>>> [Benchmark B] Non-Planar Stiff Contour Tracking (K_env = 10^4 N/m, v = 0.05 m/s, 25 ms delay):")
+    print("\n>>> [Benchmark B] Non-Planar Stiff Contour Tracking (N=20, K_env = 10^4 N/m, v = 0.05 m/s, 25 ms delay):")
     for mode_key, label in modes_b:
         trials_b = [contour_env.run_trial(controller_mode=mode_key, phase_shift=float(ph), latency_ms=25.0) for ph in phases]
         bench_b_traces[mode_key] = trials_b[0]["forces_trace"]
         bench_b_summary[mode_key] = {
             "label": label,
+            "num_trials": len(trials_b),
             "success_rate_pct": round(100.0 * float(np.mean([t["is_success"] for t in trials_b])), 1),
             "safe_rate_pct": round(100.0 * float(np.mean([t["is_safe"] for t in trials_b])), 1),
             "mean_peak_force_n": round(float(np.mean([t["peak_force_n"] for t in trials_b])), 2),
+            "std_peak_force_n": round(float(np.std([t["peak_force_n"] for t in trials_b])), 2),
             "mean_rmse_force_n": round(float(np.mean([t["rmse_force_n"] for t in trials_b])), 2),
             "mean_chatter_reversals": round(float(np.mean([t["chatter_reversals"] for t in trials_b])), 1),
         }
         r = bench_b_summary[mode_key]
         print(
             f"  {label:<38} | Succ: {r['success_rate_pct']:5.1f}% | "
-            f"Peak Force: {r['mean_peak_force_n']:5.2f} N | Force RMSE: {r['mean_rmse_force_n']:4.2f} N | "
-            f"Chatter: {r['mean_chatter_reversals']:4.1f}"
+            f"Peak Force: {r['mean_peak_force_n']:5.2f} ± {r['std_peak_force_n']:4.2f} N | "
+            f"Force RMSE: {r['mean_rmse_force_n']:4.2f} N | Chatter: {r['mean_chatter_reversals']:4.1f}"
         )
 
-    # 2. Benchmark C: Dynamic Extrinsic Manipulation under Incipient Slip (10 friction/load trials)
+    # 2. Benchmark C: Dynamic Extrinsic Manipulation under Incipient Slip (20 friction trials in MuJoCo)
     slip_env = IncipientSlipManipulationEnv(seed=42)
-    mu_list = [0.22, 0.24, 0.26, 0.28, 0.30, 0.32, 0.35, 0.38, 0.42, 0.48]
+    mu_list = np.linspace(0.22, 0.58, 20)
     modes_c = [
         ("unconstrained_farm", "Unconstrained Diffusion Policy (FARM)"),
         ("fixed_impedance_k200", "Fixed Isotropic Impedance (K=200)"),
@@ -284,50 +324,57 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     ]
     bench_c_summary: Dict[str, Any] = {}
     bench_c_traces: Dict[str, np.ndarray] = {}
-    print("\n>>> [Benchmark C] Dynamic Tool Manipulation under Incipient Slip (mu in [0.22, 0.48]):")
+    print("\n>>> [Benchmark C] Dynamic Tool Manipulation under Incipient Slip (N=20, mu in [0.22, 0.58]):")
     for mode_key, label in modes_c:
         trials_c = [slip_env.run_trial(controller_mode=mode_key, mu_friction=float(m), peak_disturbance_n=3.1) for m in mu_list]
         bench_c_traces[f"{mode_key}_slip"] = np.mean([t["slip_trace_mm"] for t in trials_c], axis=0)
         bench_c_traces[f"{mode_key}_grip"] = np.mean([t["grip_trace_n"] for t in trials_c], axis=0)
         bench_c_summary[mode_key] = {
             "label": label,
+            "num_trials": len(trials_c),
             "success_rate_pct": round(100.0 * float(np.mean([t["is_success"] for t in trials_c])), 1),
             "drop_rate_pct": round(100.0 * float(np.mean([t["is_dropped"] for t in trials_c])), 1),
             "mean_slip_mm": round(float(np.mean([t["total_slip_mm"] for t in trials_c])), 2),
+            "std_slip_mm": round(float(np.std([t["total_slip_mm"] for t in trials_c])), 2),
             "mean_peak_grip_n": round(float(np.mean([t["peak_grip_force_n"] for t in trials_c])), 2),
             "min_stick_ratio": round(float(np.min([t["min_stick_ratio"] for t in trials_c])), 2),
         }
         r = bench_c_summary[mode_key]
         print(
             f"  {label:<38} | Succ: {r['success_rate_pct']:5.1f}% | "
-            f"Drop Rate: {r['drop_rate_pct']:5.1f}% | Mean Slip: {r['mean_slip_mm']:5.2f} mm | "
+            f"Drop Rate: {r['drop_rate_pct']:5.1f}% | Mean Slip: {r['mean_slip_mm']:5.2f} ± {r['std_slip_mm']:4.2f} mm | "
             f"Peak Grip: {r['mean_peak_grip_n']:5.2f} N"
         )
 
-    # 3. Component Ablation Study on Benchmark A (+10 deg OOD Insertion)
-    print("\n>>> [Ablation Study] Evaluating Component Ablations on Benchmark A (+10° Tilt):")
+    # 3. Component Ablation Study on Benchmark A (N = 20 OOD Insertion Trials, 6 deg to 11 deg)
+    print("\n>>> [Ablation Study] Evaluating Component Ablations on Benchmark A (N=20 OOD Trials):")
     env_a = FrankaSlotEnv(seed=42)
     ablation_configs = [
-        ("full_tactai", "Full TactAI Filter (All Claims Active)", dict(enable_tactile_rot=True, enable_unwedge_cbf=True, enable_energy_tank=True, enable_slip_cbf=True)),
-        ("no_tactile_rot", "w/o Differential CoP & Tensor C (Claim 1/2)", dict(enable_tactile_rot=False, enable_unwedge_cbf=True, enable_energy_tank=True, enable_slip_cbf=True)),
-        ("no_unwedge_cbf", "w/o Anti-Jamming Un-Wedging CBF (Claim 2)", dict(enable_tactile_rot=True, enable_unwedge_cbf=False, enable_energy_tank=True, enable_slip_cbf=True)),
-        ("no_energy_tank", "w/o Energy Tank Passivity T(t) (Claim 3)", dict(enable_tactile_rot=True, enable_unwedge_cbf=True, enable_energy_tank=False, enable_slip_cbf=True)),
+        ("full_tactai", "Full TactAI Filter (All Modules Active)", dict(enable_tactile_rot=True, enable_unwedge_cbf=True, enable_energy_tank=True, enable_slip_cbf=True)),
+        ("no_tactile_rot", "w/o Differential CoP & Tensor C", dict(enable_tactile_rot=False, enable_unwedge_cbf=True, enable_energy_tank=True, enable_slip_cbf=True)),
+        ("no_unwedge_cbf", "w/o Stage 2 Anti-Jamming CBF h_jam", dict(enable_tactile_rot=True, enable_unwedge_cbf=False, enable_energy_tank=True, enable_slip_cbf=True)),
+        ("no_energy_tank", "w/o Energy Tank Passivity T(t)", dict(enable_tactile_rot=True, enable_unwedge_cbf=True, enable_energy_tank=False, enable_slip_cbf=True)),
     ]
     ablation_summary: Dict[str, Any] = {}
-    subset_ood = OOD_SCENARIOS[4:12]  # 8 representative moderate-to-severe OOD tilts (8 deg to 10 deg)
+    subset_ood = OOD_SCENARIOS[10:30]  # 20 moderate-to-severe OOD tilts (6 deg to 10 deg)
     for ab_key, ab_label, kwargs in ablation_configs:
-        ctrl_ab = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_a.dt, latency_ms=20.0, **kwargs)
-        eps_ab = [run_single_episode(env_a, ctrl_ab, t, o, max_steps=520, use_action_chunk_policy=True) for (t, o) in subset_ood]
+        ctrl_ab = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_a.dt, latency_ms=25.0, **kwargs)
+        eps_ab = [
+            run_single_episode(env_a, ctrl_ab, t, o, max_steps=520, use_action_chunk_policy=True, trial_seed=100 + i)
+            for i, (t, o) in enumerate(subset_ood)
+        ]
         ablation_summary[ab_key] = {
             "label": ab_label,
+            "num_trials": len(eps_ab),
             "insertion_success_pct": round(100.0 * float(np.mean([e["is_success"] for e in eps_ab])), 1),
             "peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_ab])), 2),
+            "std_peak_force_n": round(float(np.std([e["peak_force_n"] for e in eps_ab])), 2),
             "jamming_rate_pct": round(100.0 * float(np.mean([e["is_jammed"] for e in eps_ab])), 1),
         }
         r = ablation_summary[ab_key]
         print(
             f"  {ab_label:<44} | Insertion Succ: {r['insertion_success_pct']:5.1f}% | "
-            f"Peak Force: {r['peak_force_n']:5.2f} N"
+            f"Peak Force: {r['peak_force_n']:5.2f} ± {r['std_peak_force_n']:4.2f} N"
         )
 
     payload = {
@@ -345,98 +392,111 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
 
 
 def run_table2_robustness(out_dir: str) -> Dict[str, Any]:
-    """Executes Environmental Robustness across Stiffness K_env, Friction mu, and Latency."""
+    """Executes Multi-Seed (N=5 per point) Environmental Robustness across Stiffness, Friction, and Latency."""
     print("\n" + "=" * 84)
-    print("  ENVIRONMENTAL & LATENCY ROBUSTNESS SWEEP (STIFFNESS, FRICTION & LATENCY)")
+    print("  MULTI-SEED ENVIRONMENTAL & LATENCY ROBUSTNESS SWEEP (N=5 SEEDS PER POINT)")
     print("=" * 84)
 
-    tilt_test = (10.0, 0.0)
-    offset_test = (0.0, 0.0)
+    sweep_scenarios = [
+        ((10.0, 0.0), (0.0, 0.0)),
+        ((-10.0, 0.0), (0.0, 0.0)),
+        ((0.0, 10.0), (0.2, 0.0)),
+        ((0.0, -10.0), (-0.2, 0.0)),
+        ((9.0, -6.0), (0.15, -0.15)),
+    ]
 
     # 1. Surface Stiffness Sweep: K_env in {10^2, 10^3, 10^4, 10^5} N/m
     stiffnesses = [1.0e2, 1.0e3, 1.0e4, 1.0e5]
     stiffness_results = []
-    print("\n>>> [Robustness 1] Surface Stiffness Sweep K_env in [10^2, 10^5] N/m:")
+    print("\n>>> [Robustness 1] Surface Stiffness Sweep K_env in [10^2, 10^5] N/m (N=5 seeds):")
     for k_env in stiffnesses:
         env_k = FrankaSlotEnv(stiffness_env=k_env, seed=42)
         b_ctrl = UnconstrainedPolicyBaseline(dt=env_k.dt)
         w_ctrl = WristFTAdmittanceController(dt=env_k.dt)
         t_ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_k.dt)
 
-        ep_b = run_single_episode(env_k, b_ctrl, tilt_test, offset_test)
-        ep_w = run_single_episode(env_k, w_ctrl, tilt_test, offset_test)
-        ep_t = run_single_episode(env_k, t_ctrl, tilt_test, offset_test)
+        eps_b = [run_single_episode(env_k, b_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
+        eps_w = [run_single_episode(env_k, w_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
+        eps_t = [run_single_episode(env_k, t_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
 
         row = {
             "stiffness_n_per_m": float(k_env),
-            "baseline_success": ep_b["is_success"],
-            "baseline_peak_force_n": round(ep_b["peak_force_n"], 2),
-            "wrist_ft_success": ep_w["is_success"],
-            "wrist_ft_peak_force_n": round(ep_w["peak_force_n"], 2),
-            "tactai_success": ep_t["is_success"],
-            "tactai_peak_force_n": round(ep_t["peak_force_n"], 2),
-            "tactai_min_tank_j": round(ep_t["min_tank_energy_j"], 3),
+            "baseline_success": bool(np.mean([e["is_success"] for e in eps_b]) >= 0.5),
+            "baseline_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_b])), 2),
+            "baseline_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_b])), 2),
+            "wrist_ft_success": bool(np.mean([e["is_success"] for e in eps_w]) >= 0.5),
+            "wrist_ft_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_w])), 2),
+            "wrist_ft_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_w])), 2),
+            "tactai_success": bool(np.mean([e["is_success"] for e in eps_t]) >= 0.8),
+            "tactai_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_min_tank_j": round(float(np.min([e["min_tank_energy_j"] for e in eps_t])), 3),
         }
         stiffness_results.append(row)
         print(
-            f"  K_env = {k_env:7.0f} N/m -> Baseline Peak: {row['baseline_peak_force_n']:5.2f} N (Succ={row['baseline_success']}) | "
-            f"TactAI Peak: {row['tactai_peak_force_n']:5.2f} N (Succ={row['tactai_success']}, TankMin={row['tactai_min_tank_j']:.2f} J)"
+            f"  K_env = {k_env:7.0f} N/m -> Baseline: {row['baseline_peak_force_n']:5.2f}±{row['baseline_std_force_n']:4.2f} N | "
+            f"TactAI: {row['tactai_peak_force_n']:5.2f}±{row['tactai_std_force_n']:4.2f} N (Succ={row['tactai_success']})"
         )
 
     # 2. Friction Coefficient Sweep: mu in {0.15, 0.30, 0.50, 0.85}
     frictions = [0.15, 0.30, 0.50, 0.85]
     friction_results = []
-    print("\n>>> [Robustness 2] Friction Coefficient Sweep mu in [0.15, 0.85]:")
+    print("\n>>> [Robustness 2] Friction Coefficient Sweep mu in [0.15, 0.85] (N=5 seeds):")
     for mu in frictions:
         env_mu = FrankaSlotEnv(friction_env=mu, seed=42)
         b_ctrl = UnconstrainedPolicyBaseline(dt=env_mu.dt)
         t_ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_mu.dt)
 
-        ep_b = run_single_episode(env_mu, b_ctrl, tilt_test, offset_test)
-        ep_t = run_single_episode(env_mu, t_ctrl, tilt_test, offset_test)
+        eps_b = [run_single_episode(env_mu, b_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
+        eps_t = [run_single_episode(env_mu, t_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
 
         row = {
             "friction_mu": float(mu),
-            "baseline_success": ep_b["is_success"],
-            "baseline_peak_force_n": round(ep_b["peak_force_n"], 2),
-            "tactai_success": ep_t["is_success"],
-            "tactai_peak_force_n": round(ep_t["peak_force_n"], 2),
-            "tactai_mean_stick_ratio": round(ep_t["mean_stick_ratio"], 3),
+            "baseline_success": bool(np.mean([e["is_success"] for e in eps_b]) >= 0.5),
+            "baseline_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_b])), 2),
+            "baseline_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_b])), 2),
+            "tactai_success": bool(np.mean([e["is_success"] for e in eps_t]) >= 0.8),
+            "tactai_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_mean_stick_ratio": round(float(np.mean([e["mean_stick_ratio"] for e in eps_t])), 3),
         }
         friction_results.append(row)
         print(
-            f"  mu = {mu:4.2f} -> Baseline Peak: {row['baseline_peak_force_n']:5.2f} N (Succ={row['baseline_success']}) | "
-            f"TactAI Peak: {row['tactai_peak_force_n']:5.2f} N (Succ={row['tactai_success']}, StickRatio={row['tactai_mean_stick_ratio']:.2f})"
+            f"  mu = {mu:4.2f} -> Baseline: {row['baseline_peak_force_n']:5.2f}±{row['baseline_std_force_n']:4.2f} N | "
+            f"TactAI: {row['tactai_peak_force_n']:5.2f}±{row['tactai_std_force_n']:4.2f} N (StickRatio={row['tactai_mean_stick_ratio']:.2f})"
         )
 
     # 3. Perception Latency Sweep: latency_ms in {10, 20, 35, 50} ms
     latencies = [10.0, 20.0, 35.0, 50.0]
     latency_results = []
-    print("\n>>> [Robustness 3] Tactile Perception Latency Sweep in [10, 50] ms:")
+    print("\n>>> [Robustness 3] Tactile Perception Latency Sweep in [10, 50] ms (N=5 seeds):")
     env_lat = FrankaSlotEnv(seed=42)
     for lat_ms in latencies:
         b_ctrl = UnconstrainedPolicyBaseline(dt=env_lat.dt, latency_ms=lat_ms)
         w_ctrl = WristFTAdmittanceController(dt=env_lat.dt, latency_ms=lat_ms)
         t_ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_lat.dt, latency_ms=lat_ms)
 
-        ep_b = run_single_episode(env_lat, b_ctrl, tilt_test, offset_test)
-        ep_w = run_single_episode(env_lat, w_ctrl, tilt_test, offset_test)
-        ep_t = run_single_episode(env_lat, t_ctrl, tilt_test, offset_test)
+        eps_b = [run_single_episode(env_lat, b_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
+        eps_w = [run_single_episode(env_lat, w_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
+        eps_t = [run_single_episode(env_lat, t_ctrl, t, o, trial_seed=42 + s) for s, (t, o) in enumerate(sweep_scenarios)]
 
         row = {
             "latency_ms": float(lat_ms),
-            "baseline_success": ep_b["is_success"],
-            "baseline_peak_force_n": round(ep_b["peak_force_n"], 2),
-            "wrist_ft_success": ep_w["is_success"],
-            "wrist_ft_peak_force_n": round(ep_w["peak_force_n"], 2),
-            "tactai_success": ep_t["is_success"],
-            "tactai_peak_force_n": round(ep_t["peak_force_n"], 2),
-            "tactai_min_tank_j": round(ep_t["min_tank_energy_j"], 3),
+            "baseline_success": bool(np.mean([e["is_success"] for e in eps_b]) >= 0.5),
+            "baseline_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_b])), 2),
+            "baseline_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_b])), 2),
+            "wrist_ft_success": bool(np.mean([e["is_success"] for e in eps_w]) >= 0.5),
+            "wrist_ft_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_w])), 2),
+            "wrist_ft_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_w])), 2),
+            "tactai_success": bool(np.mean([e["is_success"] for e in eps_t]) >= 0.8),
+            "tactai_peak_force_n": round(float(np.mean([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_std_force_n": round(float(np.std([e["peak_force_n"] for e in eps_t])), 2),
+            "tactai_min_tank_j": round(float(np.min([e["min_tank_energy_j"] for e in eps_t])), 3),
         }
         latency_results.append(row)
         print(
-            f"  Latency = {lat_ms:4.1f} ms -> Baseline Peak: {row['baseline_peak_force_n']:5.2f} N (Succ={row['baseline_success']}) | "
-            f"TactAI Peak: {row['tactai_peak_force_n']:5.2f} N (Succ={row['tactai_success']}, TankMin={row['tactai_min_tank_j']:.2f} J)"
+            f"  Latency = {lat_ms:4.1f} ms -> Baseline: {row['baseline_peak_force_n']:5.2f}±{row['baseline_std_force_n']:4.2f} N | "
+            f"TactAI: {row['tactai_peak_force_n']:5.2f}±{row['tactai_std_force_n']:4.2f} N (Succ={row['tactai_success']})"
         )
 
     robustness_summary = {
@@ -457,7 +517,7 @@ def generate_phase3_figure(
     table2: Dict[str, Any],
     fig_path: str
 ) -> None:
-    """Generates Figure 1: Benchmark A OOD Insertion & Environmental Robustness."""
+    """Generates Figure 1: Benchmark A OOD Insertion (N=50) & Multi-Seed Robustness with +-1 sigma bands."""
     fig, axes = plt.subplots(2, 2, figsize=(13, 9), dpi=220)
     plt.subplots_adjust(hspace=0.34, wspace=0.26)
 
@@ -487,15 +547,15 @@ def generate_phase3_figure(
     ax.set_xticklabels(short_labels, fontsize=8.5, fontweight="bold")
     ax.set_ylabel("Rate (%)", fontsize=9.5, fontweight="bold")
     ax.set_ylim(0, 118)
-    ax.set_title("(A) Benchmark A: Success vs. Jamming Rate ($N=20$ OOD Trials)", fontsize=10, fontweight="bold")
+    ax.set_title("(A) Benchmark A: Success vs. Jamming Rate ($N=50$ OOD Trials)", fontsize=10, fontweight="bold")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
     ax.legend(loc="upper center", ncol=2, fontsize=8)
     for b in bars1:
-        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.0f}%", ha="center", fontsize=8, fontweight="bold", color="#065F46")
+        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#065F46")
     for b in bars2:
-        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.0f}%", ha="center", fontsize=8, fontweight="bold", color="#991B1B")
+        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#991B1B")
 
-    # Panel B: Peak Contact Force across OOD Tilt Angles
+    # Panel B: Peak Contact Force across OOD Tilt Angles (with +-1 sigma error bands)
     ax = axes[0, 1]
     colors_map = {
         "unconstrained_farm": ("#DC2626", "o-", "Unconstrained Policy (FARM)"),
@@ -505,64 +565,81 @@ def generate_phase3_figure(
     }
     for k in keys:
         trials = bench_a[k]["trials"]
-        tilt_bins = sorted(list({round(t["initial_tilt_norm_deg"], 1) for t in trials}))
-        mean_f_by_tilt = [
-            np.mean([t["peak_force_n"] for t in trials if round(t["initial_tilt_norm_deg"], 1) == tb])
+        tilt_bins = sorted(list({int(round(t["initial_tilt_norm_deg"])) for t in trials}))
+        mean_f = np.array([
+            np.mean([t["peak_force_n"] for t in trials if int(round(t["initial_tilt_norm_deg"])) == tb])
             for tb in tilt_bins
-        ]
+        ])
+        std_f = np.array([
+            np.std([t["peak_force_n"] for t in trials if int(round(t["initial_tilt_norm_deg"])) == tb])
+            for tb in tilt_bins
+        ])
         col, style, lbl = colors_map[k]
-        ax.plot(tilt_bins, mean_f_by_tilt, style, color=col, linewidth=2.0, markersize=5.5, label=lbl)
+        ax.plot(tilt_bins, mean_f, style, color=col, linewidth=2.0, markersize=5.0, label=lbl)
+        ax.fill_between(tilt_bins, mean_f - std_f, mean_f + std_f, color=col, alpha=0.14)
 
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
     ax.axhline(40.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Jamming Failure (40 N)")
     ax.set_xlabel(r"Initial OOD Angular Misalignment $\|\theta_0\|$ (deg)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title("(B) Peak Contact Force vs. OOD Misalignment Angle", fontsize=10, fontweight="bold")
-    ax.set_ylim(0, 52)
+    ax.set_title(r"(B) Peak Contact Force vs. OOD Misalignment ($\mu \pm 1\sigma$)", fontsize=10, fontweight="bold")
+    ax.set_ylim(0, 54)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper left", fontsize=7.5)
 
-    # Panel C: Environmental Stiffness Robustness
+    # Panel C: Environmental Stiffness Robustness (with +-1 sigma error bands)
     ax = axes[1, 0]
     stiff_rows = table2["stiffness_sweep"]
-    k_vals = [r["stiffness_n_per_m"] for r in stiff_rows]
-    b_k_forces = [r["baseline_peak_force_n"] for r in stiff_rows]
-    w_k_forces = [r["wrist_ft_peak_force_n"] for r in stiff_rows]
-    t_k_forces = [r["tactai_peak_force_n"] for r in stiff_rows]
+    k_vals = np.array([r["stiffness_n_per_m"] for r in stiff_rows])
+    b_k = np.array([r["baseline_peak_force_n"] for r in stiff_rows])
+    b_k_std = np.array([r["baseline_std_force_n"] for r in stiff_rows])
+    w_k = np.array([r["wrist_ft_peak_force_n"] for r in stiff_rows])
+    w_k_std = np.array([r["wrist_ft_std_force_n"] for r in stiff_rows])
+    t_k = np.array([r["tactai_peak_force_n"] for r in stiff_rows])
+    t_k_std = np.array([r["tactai_std_force_n"] for r in stiff_rows])
 
-    ax.plot(k_vals, b_k_forces, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy (Jammed)")
-    ax.plot(k_vals, w_k_forces, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
-    ax.plot(k_vals, t_k_forces, "D-", color="#059669", linewidth=2.2, label="TactAI Filter (100% Passive/Safe)")
+    ax.plot(k_vals, b_k, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy (Jammed)")
+    ax.fill_between(k_vals, b_k - b_k_std, b_k + b_k_std, color="#DC2626", alpha=0.15)
+    ax.plot(k_vals, w_k, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
+    ax.fill_between(k_vals, w_k - w_k_std, w_k + w_k_std, color="#2563EB", alpha=0.15)
+    ax.plot(k_vals, t_k, "D-", color="#059669", linewidth=2.2, label="TactAI Filter (100% Safe)")
+    ax.fill_between(k_vals, t_k - t_k_std, t_k + t_k_std, color="#059669", alpha=0.18)
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Force Limit (15 N)")
     ax.set_xscale("log")
     ax.set_xlabel(r"Environment Stiffness $K_{\mathrm{env}}$ (N/m)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title(r"(C) Stiffness Robustness ($10^2$ to $10^5$ N/m)", fontsize=10, fontweight="bold")
-    ax.set_ylim(0, 52)
+    ax.set_title(r"(C) Stiffness Robustness ($10^2$ to $10^5$ N/m, $N=5$ Seeds)", fontsize=10, fontweight="bold")
+    ax.set_ylim(0, 54)
     ax.grid(True, which="both", linestyle=":", alpha=0.6)
     ax.legend(loc="center right", fontsize=8)
 
-    # Panel D: Tactile Perception Latency Sweep (10 ms to 50 ms)
+    # Panel D: Tactile Perception Latency Sweep (10 ms to 50 ms, with +-1 sigma error bands)
     ax = axes[1, 1]
     lat_rows = table2["latency_sweep"]
-    lat_vals = [r["latency_ms"] for r in lat_rows]
-    b_l_forces = [r["baseline_peak_force_n"] for r in lat_rows]
-    w_l_forces = [r["wrist_ft_peak_force_n"] for r in lat_rows]
-    t_l_forces = [r["tactai_peak_force_n"] for r in lat_rows]
+    lat_vals = np.array([r["latency_ms"] for r in lat_rows])
+    b_l = np.array([r["baseline_peak_force_n"] for r in lat_rows])
+    b_l_std = np.array([r["baseline_std_force_n"] for r in lat_rows])
+    w_l = np.array([r["wrist_ft_peak_force_n"] for r in lat_rows])
+    w_l_std = np.array([r["wrist_ft_std_force_n"] for r in lat_rows])
+    t_l = np.array([r["tactai_peak_force_n"] for r in lat_rows])
+    t_l_std = np.array([r["tactai_std_force_n"] for r in lat_rows])
 
-    ax.plot(lat_vals, b_l_forces, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy")
-    ax.plot(lat_vals, w_l_forces, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
-    ax.plot(lat_vals, t_l_forces, "D-", color="#059669", linewidth=2.2, label="TactAI Filter + Energy Tank (Ours)")
+    ax.plot(lat_vals, b_l, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy")
+    ax.fill_between(lat_vals, b_l - b_l_std, b_l + b_l_std, color="#DC2626", alpha=0.15)
+    ax.plot(lat_vals, w_l, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
+    ax.fill_between(lat_vals, w_l - w_l_std, w_l + w_l_std, color="#2563EB", alpha=0.15)
+    ax.plot(lat_vals, t_l, "D-", color="#059669", linewidth=2.2, label="TactAI Filter + Energy Tank (Ours)")
+    ax.fill_between(lat_vals, t_l - t_l_std, t_l + t_l_std, color="#059669", alpha=0.18)
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
     ax.set_xlabel(r"Perception Latency $\tau_{\mathrm{delay}}$ (ms)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title("(D) Perception Latency Robustness (10–50 ms)", fontsize=10, fontweight="bold")
+    ax.set_title(r"(D) Perception Latency Robustness (10–50 ms, $N=5$ Seeds)", fontsize=10, fontweight="bold")
     ax.set_ylim(0, 58)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="center right", fontsize=8)
 
     fig.suptitle(
-        "TactAI Benchmark A & Robustness: Multi-Controller OOD Slot Insertion (20 Hz Action-Chunk Policy)",
+        "TactAI Benchmark A & Multi-Seed Robustness: OOD Slot Insertion ($N=50$, 20 Hz Action-Chunk Policy)",
         fontsize=12,
         fontweight="bold",
         y=0.98,
@@ -583,37 +660,39 @@ def generate_bc_ablation_figure(
     traces_b = bc_ablation["_traces_b"]
     traces_c = bc_ablation["_traces_c"]
     ablation = bc_ablation["ablation_study"]
+    b_sum = bc_ablation["benchmark_b_contour"]
+    c_sum = bc_ablation["benchmark_c_slip"]
 
-    # Panel A: Benchmark B Contour Tracking Force Trace (unclipped y-axis up to 98 N)
+    # Panel A: Benchmark B Contour Tracking Force Trace
     ax = axes[0]
     t_b = np.arange(len(traces_b["tactai_ours"]))
-    ax.plot(t_b, traces_b["unconstrained_farm"], color="#DC2626", linewidth=1.6, alpha=0.85, label="Unconstrained Policy (18.10 N)")
-    ax.plot(t_b, traces_b["wrist_ft_admittance"], color="#2563EB", linewidth=1.4, linestyle="-.", alpha=0.80, label="Wrist F/T Admittance (91.12 N Chatter)")
-    ax.plot(t_b, traces_b["tactai_no_tank"], color="#D97706", linewidth=1.5, linestyle="--", label=r"Ablation: w/o Energy Tank (50.32 N)")
-    ax.plot(t_b, traces_b["tactai_ours"], color="#059669", linewidth=2.2, label="TactAI Filter + Tank (Ours: 11.40 N)")
+    ax.plot(t_b, traces_b["unconstrained_farm"], color="#DC2626", linewidth=1.6, alpha=0.85, label=f"Unconstrained Policy ({b_sum['unconstrained_farm']['mean_peak_force_n']:.1f} N)")
+    ax.plot(t_b, traces_b["wrist_ft_admittance"], color="#2563EB", linewidth=1.4, linestyle="-.", alpha=0.80, label=f"Wrist F/T Admittance ({b_sum['wrist_ft_admittance']['mean_peak_force_n']:.1f} N Chatter)")
+    ax.plot(t_b, traces_b["tactai_no_tank"], color="#D97706", linewidth=1.5, linestyle="--", label=f"Ablation: w/o Energy Tank ({b_sum['tactai_no_tank']['mean_peak_force_n']:.1f} N)")
+    ax.plot(t_b, traces_b["tactai_ours"], color="#059669", linewidth=2.2, label=f"TactAI Filter + Tank (Ours: {b_sum['tactai_ours']['mean_peak_force_n']:.1f} N)")
     ax.axhline(15.0, color="#059669", linestyle=":", linewidth=1.3, label="CBF Safety Bound (15 N)")
     ax.axhline(8.0, color="#475569", linestyle="--", linewidth=1.0, label="Target Force (8 N)")
     ax.set_xlabel("Time (ms)", fontsize=9, fontweight="bold")
     ax.set_ylabel(r"Normal Contact Force $F_n$ (N)", fontsize=9, fontweight="bold")
-    ax.set_title("(A) Benchmark B: Non-Planar Stiff Contour Tracking", fontsize=9.5, fontweight="bold")
-    ax.set_ylim(0, 98)
+    ax.set_title("(A) Benchmark B: Non-Planar Stiff Contour ($N=20$)", fontsize=9.5, fontweight="bold")
+    ax.set_ylim(0, max(58.0, float(np.max(traces_b["wrist_ft_admittance"])) * 1.15))
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper right", fontsize=6.8)
 
-    # Panel B: Benchmark C Mean Cumulative Slip Trajectory across mu in [0.22, 0.48]
+    # Panel B: Benchmark C Mean Cumulative Slip Trajectory across mu in [0.22, 0.58]
     ax = axes[1]
     t_c = np.arange(len(traces_c["tactai_ours_slip"]))
-    ax.plot(t_c, traces_c["unconstrained_farm_slip"], color="#DC2626", linewidth=2.0, label="Unconstrained Policy (Dropped)")
-    ax.plot(t_c, traces_c["wrist_ft_admittance_slip"], color="#2563EB", linewidth=1.8, linestyle="-.", label="Wrist F/T (Reactive Slip)")
-    ax.plot(t_c, traces_c["tactai_no_slip_cbf_slip"], color="#D97706", linewidth=1.8, linestyle="--", label=r"Ablation: w/o Slip CBF $h_{\mathrm{slip}}$")
-    ax.plot(t_c, traces_c["tactai_ours_slip"], color="#059669", linewidth=2.3, label="TactAI Slip-CBF (Ours: 0.64 mm Mean)")
+    ax.plot(t_c, traces_c["unconstrained_farm_slip"], color="#DC2626", linewidth=2.0, label=f"Unconstrained Policy ({c_sum['unconstrained_farm']['mean_slip_mm']:.2f} mm)")
+    ax.plot(t_c, traces_c["wrist_ft_admittance_slip"], color="#2563EB", linewidth=1.8, linestyle="-.", label=f"Wrist F/T ({c_sum['wrist_ft_admittance']['mean_slip_mm']:.2f} mm)")
+    ax.plot(t_c, traces_c["tactai_no_slip_cbf_slip"], color="#D97706", linewidth=1.8, linestyle="--", label=f"w/o Slip CBF ({c_sum['tactai_no_slip_cbf']['mean_slip_mm']:.2f} mm)")
+    ax.plot(t_c, traces_c["tactai_ours_slip"], color="#059669", linewidth=2.3, label=f"TactAI Slip-CBF (Ours: {c_sum['tactai_ours']['mean_slip_mm']:.2f} mm)")
     ax.axhline(2.0, color="#DC2626", linestyle=":", linewidth=1.3, label="Gross Slip / Drop Limit (2.0 mm)")
     ax.set_xlabel("Time (ms)", fontsize=9, fontweight="bold")
     ax.set_ylabel("Mean Cumulative Tool Slip (mm)", fontsize=9, fontweight="bold")
-    ax.set_title("(B) Benchmark C: Extrinsic Shear Manipulation", fontsize=9.5, fontweight="bold")
-    ax.set_ylim(-0.2, 8.5)
+    ax.set_title("(B) Benchmark C: Extrinsic Shear Slip ($N=20$)", fontsize=9.5, fontweight="bold")
+    ax.set_ylim(-0.2, max(6.5, float(np.max(traces_c["unconstrained_farm_slip"])) * 1.15))
     ax.grid(True, linestyle=":", alpha=0.6)
-    ax.legend(loc="upper left", fontsize=7.0)
+    ax.legend(loc="upper left", fontsize=6.8)
 
     # Panel C: Component Ablation Study Bar Chart
     ax = axes[2]
@@ -638,7 +717,7 @@ def generate_bc_ablation_figure(
     ax2.set_ylabel("Peak Force (N)", fontsize=9, fontweight="bold", color="#1D4ED8")
     ax.set_ylim(0, 118)
     ax2.set_ylim(0, 42)
-    ax.set_title("(C) Component Ablation Study (+8° to +10° OOD)", fontsize=9.5, fontweight="bold")
+    ax.set_title("(C) Component Ablation Study ($N=20$ OOD Trials)", fontsize=9.5, fontweight="bold")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
     for b in b1:
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.0f}%", ha="center", fontsize=7.2, fontweight="bold", color="#065F46")
