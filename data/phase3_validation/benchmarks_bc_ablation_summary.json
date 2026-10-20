@@ -108,32 +108,32 @@
       "label": "Full TactAI Filter (All Modules Active)",
       "num_trials": 20,
       "insertion_success_pct": 100.0,
-      "peak_force_n": 14.12,
-      "std_peak_force_n": 0.51,
+      "peak_force_n": 11.79,
+      "std_peak_force_n": 0.52,
       "jamming_rate_pct": 0.0
     },
     "no_tactile_rot": {
       "label": "w/o Differential CoP & Tensor C",
       "num_trials": 20,
       "insertion_success_pct": 0.0,
-      "peak_force_n": 14.21,
-      "std_peak_force_n": 0.46,
+      "peak_force_n": 11.79,
+      "std_peak_force_n": 0.52,
       "jamming_rate_pct": 0.0
     },
     "no_unwedge_cbf": {
       "label": "w/o Stage 2 Anti-Jamming CBF h_jam",
       "num_trials": 20,
       "insertion_success_pct": 0.0,
-      "peak_force_n": 36.71,
-      "std_peak_force_n": 1.39,
+      "peak_force_n": 30.22,
+      "std_peak_force_n": 2.02,
       "jamming_rate_pct": 100.0
     },
     "no_energy_tank": {
       "label": "w/o Energy Tank Passivity T(t)",
       "num_trials": 20,
-      "insertion_success_pct": 100.0,
-      "peak_force_n": 14.12,
-      "std_peak_force_n": 0.51,
+      "insertion_success_pct": 35.0,
+      "peak_force_n": 11.96,
+      "std_peak_force_n": 0.47,
       "jamming_rate_pct": 0.0
     }
   }

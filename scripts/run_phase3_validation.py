@@ -580,9 +580,9 @@ def generate_phase3_figure(
 
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
     ax.axhline(40.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Jamming Failure (40 N)")
-    ax.set_xlabel(r"Initial OOD Angular Misalignment $\|\theta_0\|$ (deg)", fontsize=9.5, fontweight="bold")
+    ax.set_xlabel(r"Initial 2-Axis OOD Tilt Norm $\|\theta_0\|_2$ (deg)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title(r"(B) Peak Contact Force vs. OOD Misalignment ($\mu \pm 1\sigma$)", fontsize=10, fontweight="bold")
+    ax.set_title(r"(B) Peak Contact Force vs. 2-Axis OOD Tilt Norm ($\mu \pm 1\sigma$)", fontsize=10, fontweight="bold")
     ax.set_ylim(0, 54)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper left", fontsize=7.5)
@@ -644,9 +644,11 @@ def generate_phase3_figure(
         fontweight="bold",
         y=0.98,
     )
-    plt.savefig(fig_path, dpi=220, bbox_inches="tight")
+    plt.savefig(fig_path, dpi=300, bbox_inches="tight")
+    pdf_path = os.path.splitext(fig_path)[0] + ".pdf"
+    plt.savefig(pdf_path, format="pdf", bbox_inches="tight")
     plt.close(fig)
-    print(f"\n>>> Saved Benchmark A & Robustness figure to: {fig_path}")
+    print(f"\n>>> Saved Benchmark A & Robustness figure to: {fig_path} and {pdf_path}")
 
 
 def generate_bc_ablation_figure(
@@ -654,7 +656,7 @@ def generate_bc_ablation_figure(
     fig_path: str
 ) -> None:
     """Generates a 3-panel publication figure for Benchmark B, Benchmark C, and Ablation Study."""
-    fig, axes = plt.subplots(1, 3, figsize=(15.5, 4.8), dpi=220)
+    fig, axes = plt.subplots(1, 3, figsize=(15.8, 4.9), dpi=300)
     plt.subplots_adjust(wspace=0.33)
 
     traces_b = bc_ablation["_traces_b"]
@@ -663,28 +665,28 @@ def generate_bc_ablation_figure(
     b_sum = bc_ablation["benchmark_b_contour"]
     c_sum = bc_ablation["benchmark_c_slip"]
 
-    # Panel A: Benchmark B Contour Tracking Force Trace
+    # Panel A: Benchmark B Contour Tracking Force Trace (generous headroom above traces for legend clarity)
     ax = axes[0]
     t_b = np.arange(len(traces_b["tactai_ours"]))
-    ax.plot(t_b, traces_b["unconstrained_farm"], color="#DC2626", linewidth=1.6, alpha=0.85, label=f"Unconstrained Policy ({b_sum['unconstrained_farm']['mean_peak_force_n']:.1f} N)")
-    ax.plot(t_b, traces_b["wrist_ft_admittance"], color="#2563EB", linewidth=1.4, linestyle="-.", alpha=0.80, label=f"Wrist F/T Admittance ({b_sum['wrist_ft_admittance']['mean_peak_force_n']:.1f} N Chatter)")
-    ax.plot(t_b, traces_b["tactai_no_tank"], color="#D97706", linewidth=1.5, linestyle="--", label=f"Ablation: w/o Energy Tank ({b_sum['tactai_no_tank']['mean_peak_force_n']:.1f} N)")
-    ax.plot(t_b, traces_b["tactai_ours"], color="#059669", linewidth=2.2, label=f"TactAI Filter + Tank (Ours: {b_sum['tactai_ours']['mean_peak_force_n']:.1f} N)")
-    ax.axhline(15.0, color="#059669", linestyle=":", linewidth=1.3, label="CBF Safety Bound (15 N)")
-    ax.axhline(8.0, color="#475569", linestyle="--", linewidth=1.0, label="Target Force (8 N)")
+    ax.plot(t_b, traces_b["unconstrained_farm"], color="#DC2626", linewidth=1.6, alpha=0.85, label=f"Unconstrained Policy (Peak: {b_sum['unconstrained_farm']['mean_peak_force_n']:.1f} N)")
+    ax.plot(t_b, traces_b["wrist_ft_admittance"], color="#2563EB", linewidth=1.4, linestyle="-.", alpha=0.80, label=f"Wrist F/T Admittance (Chatter: {b_sum['wrist_ft_admittance']['mean_peak_force_n']:.1f} N)")
+    ax.plot(t_b, traces_b["tactai_no_tank"], color="#D97706", linewidth=1.5, linestyle="--", label=f"Ablation: w/o Energy Tank (Peak: {b_sum['tactai_no_tank']['mean_peak_force_n']:.1f} N)")
+    ax.plot(t_b, traces_b["tactai_ours"], color="#059669", linewidth=2.2, label=f"TactAI + Tank (Ours, Peak: {b_sum['tactai_ours']['mean_peak_force_n']:.2f} N)")
+    ax.axhline(15.0, color="#059669", linestyle=":", linewidth=1.3, label="CBF Safety Bound (15.0 N)")
+    ax.axhline(8.0, color="#475569", linestyle="--", linewidth=1.0, label="Target Force (8.0 N)")
     ax.set_xlabel("Time (ms)", fontsize=9, fontweight="bold")
     ax.set_ylabel(r"Normal Contact Force $F_n$ (N)", fontsize=9, fontweight="bold")
     ax.set_title("(A) Benchmark B: Non-Planar Stiff Contour ($N=20$)", fontsize=9.5, fontweight="bold")
-    ax.set_ylim(0, max(58.0, float(np.max(traces_b["wrist_ft_admittance"])) * 1.15))
+    ax.set_ylim(0, max(168.0, float(np.max(traces_b["wrist_ft_admittance"])) * 1.28))
     ax.grid(True, linestyle=":", alpha=0.6)
-    ax.legend(loc="upper right", fontsize=6.8)
+    ax.legend(loc="upper right", fontsize=6.9, framealpha=0.94, edgecolor="#CBD5E1")
 
     # Panel B: Benchmark C Mean Cumulative Slip Trajectory across mu in [0.22, 0.58]
     ax = axes[1]
     t_c = np.arange(len(traces_c["tactai_ours_slip"]))
-    ax.plot(t_c, traces_c["unconstrained_farm_slip"], color="#DC2626", linewidth=2.0, label=f"Unconstrained Policy ({c_sum['unconstrained_farm']['mean_slip_mm']:.2f} mm)")
-    ax.plot(t_c, traces_c["wrist_ft_admittance_slip"], color="#2563EB", linewidth=1.8, linestyle="-.", label=f"Wrist F/T ({c_sum['wrist_ft_admittance']['mean_slip_mm']:.2f} mm)")
-    ax.plot(t_c, traces_c["tactai_no_slip_cbf_slip"], color="#D97706", linewidth=1.8, linestyle="--", label=f"w/o Slip CBF ({c_sum['tactai_no_slip_cbf']['mean_slip_mm']:.2f} mm)")
+    ax.plot(t_c, traces_c["unconstrained_farm_slip"], color="#DC2626", linewidth=2.0, label=f"Unconstrained Policy ({c_sum['unconstrained_farm']['mean_slip_mm']:.1f} mm)")
+    ax.plot(t_c, traces_c["wrist_ft_admittance_slip"], color="#2563EB", linewidth=1.8, linestyle="-.", label=f"Wrist F/T ({c_sum['wrist_ft_admittance']['mean_slip_mm']:.1f} mm)")
+    ax.plot(t_c, traces_c["tactai_no_slip_cbf_slip"], color="#D97706", linewidth=1.8, linestyle="--", label=f"w/o Slip CBF ({c_sum['tactai_no_slip_cbf']['mean_slip_mm']:.1f} mm)")
     ax.plot(t_c, traces_c["tactai_ours_slip"], color="#059669", linewidth=2.3, label=f"TactAI Slip-CBF (Ours: {c_sum['tactai_ours']['mean_slip_mm']:.2f} mm)")
     ax.axhline(2.0, color="#DC2626", linestyle=":", linewidth=1.3, label="Gross Slip / Drop Limit (2.0 mm)")
     ax.set_xlabel("Time (ms)", fontsize=9, fontweight="bold")
@@ -692,7 +694,7 @@ def generate_bc_ablation_figure(
     ax.set_title("(B) Benchmark C: Extrinsic Shear Slip ($N=20$)", fontsize=9.5, fontweight="bold")
     ax.set_ylim(-0.2, max(6.5, float(np.max(traces_c["unconstrained_farm_slip"])) * 1.15))
     ax.grid(True, linestyle=":", alpha=0.6)
-    ax.legend(loc="upper left", fontsize=6.8)
+    ax.legend(loc="upper left", fontsize=6.9, framealpha=0.94, edgecolor="#CBD5E1")
 
     # Panel C: Component Ablation Study Bar Chart
     ax = axes[2]
@@ -724,9 +726,11 @@ def generate_bc_ablation_figure(
     for b in b2:
         ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.6, f"{b.get_height():.1f}N", ha="center", fontsize=7.2, fontweight="bold", color="#1D4ED8")
 
-    plt.savefig(fig_path, dpi=220, bbox_inches="tight")
+    plt.savefig(fig_path, dpi=300, bbox_inches="tight")
+    pdf_path = os.path.splitext(fig_path)[0] + ".pdf"
+    plt.savefig(pdf_path, format="pdf", bbox_inches="tight")
     plt.close(fig)
-    print(f">>> Saved Benchmarks B/C & Ablation figure to: {fig_path}")
+    print(f">>> Saved Benchmarks B/C & Ablation figure to: {fig_path} and {pdf_path}")
 
 
 def main():
@@ -736,9 +740,60 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(fig_dir, exist_ok=True)
 
-    bench_a = run_benchmark_a(out_dir)
-    bc_ablation = run_benchmarks_bc_and_ablations(out_dir)
-    table2 = run_table2_robustness(out_dir)
+    if "--fast-update" in sys.argv and os.path.exists(os.path.join(out_dir, "benchmark_a_summary.json")):
+        with open(os.path.join(out_dir, "benchmark_a_summary.json"), "r", encoding="utf-8") as f:
+            bench_a = json.load(f)
+        env = FrankaSlotEnv(seed=42)
+        ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env.dt)
+        episodes = [
+            run_single_episode(env, ctrl, tilt, offset, max_steps=550, use_action_chunk_policy=True, trial_seed=42 + idx)
+            for idx, (tilt, offset) in enumerate(OOD_SCENARIOS)
+        ]
+        succ_rate = 100.0 * float(np.mean([e["is_success"] for e in episodes]))
+        jam_rate = 100.0 * float(np.mean([e["is_jammed"] for e in episodes]))
+        safe_rate = 100.0 * float(np.mean([e["is_safe_force"] for e in episodes]))
+        peak_forces = [e["peak_force_n"] for e in episodes]
+        succ_ct = [e["cycle_time_s"] for e in episodes if e["is_success"]]
+        bench_a["tactile_safety_filter_ours"] = {
+            "label": "Tactile Safety Filter + FARM (Ours)",
+            "num_trials": len(episodes),
+            "success_rate_pct": round(succ_rate, 1),
+            "jamming_rate_pct": round(jam_rate, 1),
+            "safe_force_rate_pct": round(safe_rate, 1),
+            "mean_peak_force_n": round(float(np.mean(peak_forces)), 2),
+            "std_peak_force_n": round(float(np.std(peak_forces)), 2),
+            "max_peak_force_n": round(float(np.max(peak_forces)), 2),
+            "mean_cycle_time_s": round(float(np.mean(succ_ct)), 2),
+            "std_cycle_time_s": round(float(np.std(succ_ct)), 2),
+            "mean_solve_time_ms": round(float(np.mean([e["mean_solve_time_ms"] for e in episodes])), 4),
+            "trials": [{k: v for k, v in e.items() if not k.endswith("_trace")} for e in episodes],
+        }
+        with open(os.path.join(out_dir, "benchmark_a_summary.json"), "w", encoding="utf-8") as f:
+            json.dump(bench_a, f, indent=2)
+        r = bench_a["tactile_safety_filter_ours"]
+        print(f"  [UPDATED OURS] Succ: {r['success_rate_pct']}% | Safe (<=15N): {r['safe_force_rate_pct']}% | Peak: {r['mean_peak_force_n']} +- {r['std_peak_force_n']} N (Max {r['max_peak_force_n']} N) | Jam: {r['jamming_rate_pct']}%")
+
+        with open(os.path.join(out_dir, "benchmarks_bc_ablation_summary.json"), "r", encoding="utf-8") as f:
+            bc_ablation = json.load(f)
+        contour_env = NonPlanarContourEnv(stiffness_env=1.0e4, seed=42)
+        bc_ablation["_traces_b"] = {
+            m: contour_env.run_trial(controller_mode=m, phase_shift=0.0, latency_ms=25.0)["forces_trace"]
+            for m in ["unconstrained_farm", "fixed_impedance_k200", "wrist_ft_admittance", "tactai_no_tank", "tactai_ours"]
+        }
+        slip_env = IncipientSlipManipulationEnv(seed=42)
+        mu_list = np.linspace(0.22, 0.58, 20)
+        bc_ablation["_traces_c"] = {}
+        for m in ["unconstrained_farm", "fixed_impedance_k200", "wrist_ft_admittance", "tactai_no_slip_cbf", "tactai_ours"]:
+            tc = [slip_env.run_trial(controller_mode=m, mu_friction=float(mu), peak_disturbance_n=3.1) for mu in mu_list]
+            bc_ablation["_traces_c"][f"{m}_slip"] = np.mean([t["slip_trace_mm"] for t in tc], axis=0)
+            bc_ablation["_traces_c"][f"{m}_grip"] = np.mean([t["grip_trace_n"] for t in tc], axis=0)
+
+        with open(os.path.join(out_dir, "table2_robustness_summary.json"), "r", encoding="utf-8") as f:
+            table2 = json.load(f)
+    else:
+        bench_a = run_benchmark_a(out_dir)
+        bc_ablation = run_benchmarks_bc_and_ablations(out_dir)
+        table2 = run_table2_robustness(out_dir)
 
     fig1_path = os.path.join(fig_dir, "phase3_benchmark_comparison.png")
     fig2_path = os.path.join(fig_dir, "phase3_benchmarks_bc_ablation.png")

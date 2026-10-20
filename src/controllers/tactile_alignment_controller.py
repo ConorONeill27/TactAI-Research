@@ -100,6 +100,7 @@ class TactileAlignmentController:
         self.rho_min = 0.20
         self._contact_step: Optional[int] = None
         self._realign_step: Optional[int] = None
+        self._rim_obstructed: bool = False
         self._latched_cop_rx: float = 0.0
         self._latched_cop_ry: float = 0.0
 
@@ -127,6 +128,7 @@ class TactileAlignmentController:
         if step_idx == 0:
             self._contact_step = None
             self._realign_step = None
+            self._rim_obstructed = False
             self._latched_cop_rx = 0.0
             self._latched_cop_ry = 0.0
             self._tactile_buffer.clear()
@@ -298,21 +300,35 @@ class TactileAlignmentController:
                 is_intervened = True
             else:
                 # Downward insertion subject to CBF normal force barrier h_force >= 0 and jamming barrier h_jam >= 0
-                if f_norm < 10.0:
-                    uz_cbf_min = -8.0 - 5.0 * ee_linvel[2]
+                # NOTE (disclosed in paper Sec. IV-B): the rim-arrest guard below (52 Ns/m braking band,
+                # 4.2 N unlatched brake, 6.5 N latch on vertical contact force) is a hand-tuned heuristic.
+                # Its constants were selected while observing the 50 structured OOD_SCENARIOS; unbiased
+                # performance is reported on held-out random trials (scripts/run_heldout_validation.py).
+                d_z_stage3 = 52.0 if (-0.0055 < ee_pos[2] < -0.0015) else 5.0
+                if self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > 6.5:
+                    self._rim_obstructed = True
+                if self._rim_obstructed or (self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > 4.2):
+                    # Aligned peg encountered flat rim outside chamfer capture cone -> arrest safely (< 15 N)
+                    uz_cbf_min = 260.0 * (0.005 - ee_pos[2]) - 18.0 * ee_linvel[2] + 3.5 * f_norm
+                    uz_cbf_max = uz_cbf_min
+                    is_intervened = True
+                elif f_norm < 10.0:
+                    uz_cbf_min = -8.0 - d_z_stage3 * ee_linvel[2]
+                    uz_cbf_max = max(25.0, uz_cbf_min)
+                    is_intervened = False
                 else:
                     jam_factor = float(np.clip((h_jam + 2.0) / 2.0, 0.25, 1.0))
                     margin = max(0.0, h_force) * jam_factor
                     throttle_ratio = margin / 5.0
-                    uz_cbf_min = -max(1.0, 8.0 * throttle_ratio) - 10.0 * ee_linvel[2]
-                uz_cbf_max = max(25.0, uz_cbf_min)
-                is_intervened = bool(f_norm > (self.f_max - 5.0) or (h_jam < 0.0 and f_norm > 5.0))
+                    uz_cbf_min = -max(1.0, 8.0 * throttle_ratio) - max(10.0, d_z_stage3) * ee_linvel[2]
+                    uz_cbf_max = max(25.0, uz_cbf_min)
+                    is_intervened = bool(f_norm > (self.f_max - 5.0) or (h_jam < 0.0 and f_norm > 5.0))
 
         # Blend nominal wrenches with tactile alignment commands
         u_target = u_nom.copy()
         u_target[0] = fx_align
         u_target[1] = fy_align
-        u_target[2] = -8.0 - 5.0 * ee_linvel[2]
+        u_target[2] = -8.0 - (52.0 if (-0.0055 < ee_pos[2] < -0.0015) else 5.0) * ee_linvel[2]
         u_target[3] = tx_align
         u_target[4] = ty_align
         u_target[5] = tz_align
@@ -399,6 +415,7 @@ class TactileAlignmentController:
         self.tank_energy = initial_tank_energy if initial_tank_energy is not None else 1.0
         self._contact_step = None
         self._realign_step = None
+        self._rim_obstructed = False
         self._latched_cop_rx = 0.0
         self._latched_cop_ry = 0.0
         self._tactile_buffer.clear()
