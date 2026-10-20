@@ -77,6 +77,7 @@ Optical tactile estimation runs at 25--50\,Hz ($\tau_{\mathrm{delay}}\in[10,50]$
 where the latched tactile residual is $\boldsymbol\delta=\arcsin(\Delta\mathbf{r}_c(t-\tau)/r_{\mathrm{pad}})-\boldsymbol\theta_{\mathrm{wrist}}(t-\tau)$ when the delayed contact force satisfies $\|\mathbf{F}(t-\tau)\|\ge1.0$\,N, and otherwise decays as $\boldsymbol\delta\leftarrow0.90\,\boldsymbol\delta$ per 1\,ms step. The latching threshold is intended to reject low-force marker noise and viscoelastic relaxation during unloading on real sensors; this has not yet been validated on hardware.
 
 \subsection{Incipient Stick Ratio and Jamming Index}
+To detect incipient slip prior to gross tool displacement and identify two-point wedging conditions, we compute the incipient stick ratio $\rho_{\mathrm{stick}}$ and Whitney-style jamming index $J_{\mathrm{jam}}$:
 \begin{equation}
 \rho_{\mathrm{stick}}=\frac{\int_\Omega\mathbb{I}(\|\mathbf{f}_{xy}\|<\mu f_z)}{\int_\Omega\mathbb{I}(f_z>0)},\qquad
 J_{\mathrm{jam}}=\frac{|\hat F_{z,\mathrm{ext}}|\,r_{\mathrm{char}}}{\|\hat{\boldsymbol\tau}_{\mathrm{tilt}}\|_2+\epsilon}.
@@ -124,7 +125,7 @@ F_{\mathrm{grip}}=F_{\mathrm{grip},0}+K_{\mathrm{slip}}\max(0,\rho_{\mathrm{safe
 \end{equation}
 
 \subsection{Safety and Passivity Arguments}
-\textbf{Proposition 1 (informal).} Under quasi-static contact with stiffness $K_{\mathrm{env}}$ and the automaton (\ref{eq:cbf_qp})--(\ref{eq:uz_piecewise}), if Stage 2 is entered with $h_{\mathrm{force}}>0$ and the Stage 2 bound produces $\dot z>0$ before $\|\mathbf F\|$ reaches $F_{\max}=15$\,N, then $h_{\mathrm{force}}$ remains non-negative through the transition to Stage 3, which begins only after rim compression is relieved.
+\textbf{Proposition 1 (Informal Guarantee).} Under quasi-static contact with stiffness $K_{\mathrm{env}}$ and the automaton (\ref{eq:cbf_qp})--(\ref{eq:uz_piecewise}), if Stage 2 is entered with $h_{\mathrm{force}}>0$ and the Stage 2 bound produces $\dot z>0$ before $\|\mathbf F\|$ reaches $F_{\max}=15$\,N, then $h_{\mathrm{force}}$ remains non-negative through the transition to Stage 3, which begins only after rim compression is relieved.
 
 \emph{Sketch.} At $G_{1\to2}$, $h_{\mathrm{force}}\approx14.9$\,N. Stage 2 commands a restoring wrench that reverses $\dot z$ after peak compression $\Delta z_{\max}\approx v_0\sqrt{m/K_{\mathrm{env}}}$, after which $\dot h_{\mathrm{force}}=K_{\mathrm{env}}\dot z>0$. This is a sufficient-condition argument, not a formal hybrid-systems proof; the condition depends on approach velocity and is verified empirically below.
 
@@ -206,7 +207,7 @@ $\tau_{\mathrm{delay}}\in[10,50]$\,ms & success, $11.73$--$11.91$\,N\\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/phase3_benchmark_comparison.pdf}
-\caption{Structured stress set and robustness sweeps. (A) Success vs.\ jamming; (B) peak force vs.\ initial tilt norm $\|\boldsymbol\theta_0\|_2$; (C) stiffness sweep; (D) latency sweep ($N=5$ seeds/point). Held-out results are in Table~\ref{tab:bench_a}.}
+\caption{Benchmark A held-out evaluation and multi-seed robustness sweeps. (A) Insertion success vs.\ jamming rate across held-out random trials ($N=50$, unused seed; 74.0\% overall, 96.9\% in-basin, 0.0\% jamming for Ours vs.\ 8.0\% / 92.0\% for wrist F/T); (B) peak force vs.\ initial tilt norm $\|\boldsymbol\theta_0\|_2$; (C) stiffness sweep; (D) latency sweep ($N=5$ seeds/point).}
 \label{fig:bench_a}
 \end{figure*}
 

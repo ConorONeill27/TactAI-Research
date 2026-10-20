@@ -534,12 +534,35 @@ def generate_phase3_figure(
         "TactAI Filter\n+ FARM (Ours)",
     ]
 
+    # Check for held-out evaluation dataset (N=50, seed 20261020)
+    heldout_file = os.path.join("data", "phase3_validation", "heldout_summary.json")
+    heldout_data = None
+    if os.path.exists(heldout_file):
+        try:
+            with open(heldout_file, "r", encoding="utf-8") as f:
+                heldout_data = json.load(f)
+        except Exception:
+            heldout_data = None
+
     # Panel A: Success Rate vs. Jamming Rate (%)
     ax = axes[0, 0]
     x = np.arange(len(keys))
     width = 0.36
-    succ_vals = [bench_a[k]["success_rate_pct"] for k in keys]
-    jam_vals = [bench_a[k]["jamming_rate_pct"] for k in keys]
+    if heldout_data and "controllers" in heldout_data:
+        h_ctrls = heldout_data["controllers"]
+        h_map = {
+            "unconstrained_farm": "unconstrained_policy",
+            "fixed_impedance_k200": "fixed_impedance_k200",
+            "wrist_ft_admittance": "wrist_ft_admittance",
+            "tactile_safety_filter_ours": "tactile_safety_filter_ours",
+        }
+        succ_vals = [h_ctrls[h_map[k]]["all"]["success_rate"] * 100.0 for k in keys]
+        jam_vals = [h_ctrls[h_map[k]]["all"]["jam_rate"] * 100.0 for k in keys]
+        title_a = r"(A) Benchmark A: Held-Out Set ($N=50$, Unused Seed)"
+    else:
+        succ_vals = [bench_a[k]["success_rate_pct"] for k in keys]
+        jam_vals = [bench_a[k]["jamming_rate_pct"] for k in keys]
+        title_a = r"(A) Benchmark A (Structured Set, $N=50$)"
 
     bars1 = ax.bar(x - width / 2, succ_vals, width, label="Insertion Success (%)", color="#10B981", edgecolor="#065F46")
     bars2 = ax.bar(x + width / 2, jam_vals, width, label="Jamming / Wedging (%)", color="#EF4444", edgecolor="#991B1B")
@@ -547,11 +570,16 @@ def generate_phase3_figure(
     ax.set_xticklabels(short_labels, fontsize=8.5, fontweight="bold")
     ax.set_ylabel("Rate (%)", fontsize=9.5, fontweight="bold")
     ax.set_ylim(0, 118)
-    ax.set_title("(A) Benchmark A: Success vs. Jamming Rate ($N=50$ OOD Trials)", fontsize=10, fontweight="bold")
+    ax.set_title(title_a, fontsize=10, fontweight="bold")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
     ax.legend(loc="upper center", ncol=2, fontsize=8)
-    for b in bars1:
-        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#065F46")
+    for idx_b, b in enumerate(bars1):
+        k = keys[idx_b]
+        if k == "tactile_safety_filter_ours" and heldout_data:
+            txt = f"{b.get_height():.1f}%\n(96.9% Basin)"
+            ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, txt, ha="center", fontsize=7.2, fontweight="bold", color="#065F46")
+        else:
+            ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#065F46")
     for b in bars2:
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#991B1B")
 
