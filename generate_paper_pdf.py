@@ -96,7 +96,7 @@ class NumberedCanvas(canvas.Canvas):
 
         # Header (pages > 1)
         if self._pageNumber > 1:
-            self.drawString(48, 11 * inch - 32, "TACTILE CONTACT-MANIFOLD SAFETY FILTERING FOR LEARNED MANIPULATION POLICIES")
+            self.drawString(48, 11 * inch - 32, "TACTILE CONTACT-MANIFOLD SAFETY FILTERING")
             self.drawRightString(8.5 * inch - 48, 11 * inch - 32, "O'NEILL AND VYSOTSKI (IEEECONF PREPRINT, 2026)")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
@@ -104,8 +104,8 @@ class NumberedCanvas(canvas.Canvas):
 
         # Footer
         page_str = f"{self._pageNumber}"
+        self.drawString(48, 30, "IEEE Conference Format (ieeeconf) — cs.RO / eess.SY")
         self.drawCentredString(4.25 * inch, 30, page_str)
-        self.drawString(48, 30, "IEEE Conference Format (ieeeconf) — Robotics (cs.RO) / Systems and Control (eess.SY)")
         self.drawRightString(8.5 * inch - 48, 30, f"Page {self._pageNumber} of {total_pages}")
         self.setStrokeColor(colors.HexColor("#CBD5E1"))
         self.setLineWidth(0.5)
@@ -454,7 +454,13 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         body_style
     ))
     story.append(Paragraph("C. Incipient Stick Ratio and Jamming Index", subsec_heading))
+    story.append(Paragraph(
+        "To detect incipient slip prior to gross tool displacement and identify two-point wedging conditions, "
+        "we compute the incipient stick ratio &rho;<sub>stick</sub> and Whitney-style jamming index <i>J</i><sub>jam</sub>:",
+        body_style
+    ))
     story.append(Image(eq3_path, width=7.05 * inch, height=0.42 * inch))
+    story.append(Spacer(1, 3.5))
 
     # ---------------------------------------------------------
     # SECTION IV: 1 kHz SUPERVISORY CBF-QP & PASSIVITY ARCHITECTURE
@@ -497,7 +503,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(Spacer(1, 2))
     story.append(Paragraph("D. Safety and Passivity Arguments", subsec_heading))
     story.append(Paragraph(
-        "<b>Proposition 1 (informal):</b> Under quasi-static contact with stiffness <i>K</i><sub>env</sub> and the automaton (Eqs. 5a&ndash;5b), if Stage 2 "
+        "<b>Proposition 1 (Informal Guarantee):</b> Under quasi-static contact with stiffness <i>K</i><sub>env</sub> and the automaton (Eqs. 5a&ndash;5b), if Stage 2 "
         "is entered with <i>h</i><sub>force</sub> &gt; 0 and the Stage 2 bound produces <i>v<sub>z</sub></i> &gt; 0 before ||<b>F</b>|| reaches "
         "<i>F</i><sub>max</sub> = 15 N, then <i>h</i><sub>force</sub> remains non-negative through the transition to Stage 3, which begins only after rim "
         "compression is relieved.<br/>"
@@ -671,10 +677,11 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         story.append(KeepTogether([
             Image(fig1_bench_a, width=6.25 * inch, height=4.30 * inch),
             Paragraph(
-                "<b>Fig. 1.</b> Benchmark A Structured Stress Set &amp; Multi-Seed Robustness Results: (A) Insertion success vs. jamming rate across "
-                "<i>N</i> = 50 structured trials; (B) Peak contact force vs. initial 2-axis OOD tilt norm ||<b>&theta;</b><sub>0</sub>||<sub>2</sub> (&mu; &plusmn; 1&sigma;); "
+                "<b>Fig. 1.</b> Benchmark A Held-Out Evaluation &amp; Multi-Seed Robustness Results: (A) Insertion success vs. jamming rate across "
+                "<i>N</i> = 50 held-out random trials (unused seed; 74.0% overall, 96.9% in-basin, 0.0% jamming for Ours vs. 8.0% / 92.0% for wrist F/T); "
+                "(B) Peak contact force vs. initial 2-axis OOD tilt norm ||<b>&theta;</b><sub>0</sub>||<sub>2</sub> (&mu; &plusmn; 1&sigma;); "
                 "(C) Surface stiffness sweep across <i>K</i><sub>env</sub> &isin; [10<sup>2</sup>, 10<sup>5</sup>] N/m (<i>N</i> = 5 seeds/point; note safe force but no insertion at 10<sup>2</sup> N/m); and "
-                "(D) Tactile perception latency robustness (&tau;<sub>delay</sub> &isin; [10, 50] ms, <i>N</i> = 5 seeds/point). Held-out random results are reported in Table I.",
+                "(D) Tactile perception latency robustness (&tau;<sub>delay</sub> &isin; [10, 50] ms, <i>N</i> = 5 seeds/point).",
                 caption_style
             )
         ]))
