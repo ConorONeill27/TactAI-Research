@@ -360,10 +360,10 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
             contour_env.run_trial(controller_mode=mode_key, phase_shift=p, latency_ms=25.0)
             for p in np.linspace(0.0, np.pi, 20)
         ]
-        safe_tracking = float(np.mean([t["safe_tracking"] for t in trials])) * 100.0
-        force_rmse = float(np.mean([t["force_rmse"] for t in trials]))
-        peak_force = float(np.max([t["peak_force"] for t in trials]))
-        chatter = bool(np.any([t["chatter_detected"] for t in trials]))
+        safe_tracking = float(np.mean([t.get("safe_tracking", t.get("is_safe", False)) for t in trials])) * 100.0
+        force_rmse = float(np.mean([t.get("force_rmse", t.get("rmse_force_n", 0.0)) for t in trials]))
+        peak_force = float(np.max([t.get("peak_force", t.get("peak_force_n", 0.0)) for t in trials]))
+        chatter = bool(np.any([t.get("chatter_detected", t.get("chatter_reversals", 0) > 5) for t in trials]))
 
         bench_b_summary[mode_key] = {
             "label": label,
@@ -396,10 +396,10 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
             slip_env.run_trial(controller_mode=mode_key, mu_friction=float(mu), peak_disturbance_n=3.1)
             for mu in mu_list
         ]
-        drop_rate = float(np.mean([t["drop_occurred"] for t in trials])) * 100.0
-        mean_slip = float(np.mean([t["final_slip_mm"] for t in trials]))
-        max_slip = float(np.max([t["final_slip_mm"] for t in trials]))
-        mean_grip = float(np.mean([t["mean_grip_force_n"] for t in trials]))
+        drop_rate = float(np.mean([t.get("drop_occurred", t.get("is_dropped", False)) for t in trials])) * 100.0
+        mean_slip = float(np.mean([t.get("final_slip_mm", t.get("total_slip_mm", 0.0)) for t in trials]))
+        max_slip = float(np.max([t.get("final_slip_mm", t.get("total_slip_mm", 0.0)) for t in trials]))
+        mean_grip = float(np.mean([t.get("mean_grip_force_n", t.get("peak_grip_force_n", 0.0)) for t in trials]))
 
         bench_c_summary[mode_key] = {
             "label": label,
@@ -423,9 +423,9 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
 
     ablations = [
         ("tactai_full", "Full TactAI Safety Filter (Ours)", TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env.dt)),
-        ("tactai_no_cop_tensor", "Ablation 1: w/o CoP Delta_rc & Tensor C", TactileAlignmentController(f_max=15.0, use_cop_invariants=False, dt=env.dt)),
-        ("tactai_no_jam_cbf", "Ablation 2: w/o Stage 2 Un-Wedging h_jam", TactileAlignmentController(f_max=15.0, use_jamming_cbf=False, dt=env.dt)),
-        ("tactai_no_tank", "Ablation 3: w/o Energy Tank Passivity T(t)", TactileAlignmentController(f_max=15.0, use_energy_tank=False, dt=env.dt)),
+        ("tactai_no_cop_tensor", "Ablation 1: w/o CoP Delta_rc & Tensor C", TactileAlignmentController(f_max=15.0, enable_tactile_rot=False, dt=env.dt)),
+        ("tactai_no_jam_cbf", "Ablation 2: w/o Stage 2 Un-Wedging h_jam", TactileAlignmentController(f_max=15.0, enable_unwedge_cbf=False, dt=env.dt)),
+        ("tactai_no_tank", "Ablation 3: w/o Energy Tank Passivity T(t)", TactileAlignmentController(f_max=15.0, enable_energy_tank=False, dt=env.dt)),
     ]
 
     ablation_summary: Dict[str, Any] = {}
