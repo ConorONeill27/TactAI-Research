@@ -87,23 +87,23 @@
         0.0,
         16.11
       ],
-      "safe_force_count": 20,
-      "safe_force_rate_pct": 100.0,
+      "safe_force_count": 3,
+      "safe_force_rate_pct": 15.0,
       "safe_force_rate_wilson_95_ci_pct": [
-        83.89,
-        100.0
+        5.24,
+        36.04
       ],
-      "mean_peak_force_n": 8.97,
-      "std_peak_force_n": 0.29,
-      "max_peak_force_n": 9.46,
-      "mean_episode_duration_s": 0.4766,
-      "std_episode_duration_s": 0.0024,
+      "mean_peak_force_n": 15.59,
+      "std_peak_force_n": 0.79,
+      "max_peak_force_n": 16.79,
+      "mean_episode_duration_s": 0.4831,
+      "std_episode_duration_s": 0.003,
       "mean_cycle_time_s": 0.48,
       "std_cycle_time_s": 0.0,
-      "mean_successful_cycle_time_s": 0.4766,
-      "std_successful_cycle_time_s": 0.0024,
+      "mean_successful_cycle_time_s": 0.4831,
+      "std_successful_cycle_time_s": 0.003,
       "num_successful_cycle_times": 20,
-      "mean_solve_time_ms": 0.0827
+      "mean_solve_time_ms": 0.1118
     },
     "tactai_no_cop_tensor": {
       "label": "Ablation 1: w/o CoP Delta_rc & Tensor C",
@@ -120,15 +120,15 @@
         0.0,
         16.11
       ],
-      "safe_force_count": 20,
-      "safe_force_rate_pct": 100.0,
+      "safe_force_count": 3,
+      "safe_force_rate_pct": 15.0,
       "safe_force_rate_wilson_95_ci_pct": [
-        83.89,
-        100.0
+        5.24,
+        36.04
       ],
-      "mean_peak_force_n": 8.97,
-      "std_peak_force_n": 0.29,
-      "max_peak_force_n": 9.46,
+      "mean_peak_force_n": 15.59,
+      "std_peak_force_n": 0.79,
+      "max_peak_force_n": 16.79,
       "mean_episode_duration_s": 0.55,
       "std_episode_duration_s": 0.0,
       "mean_cycle_time_s": 0.55,
@@ -136,7 +136,7 @@
       "mean_successful_cycle_time_s": null,
       "std_successful_cycle_time_s": null,
       "num_successful_cycle_times": 0,
-      "mean_solve_time_ms": 0.0811
+      "mean_solve_time_ms": 0.1073
     },
     "tactai_no_jam_cbf": {
       "label": "Ablation 2: w/o Stage 2 Un-Wedging h_jam",
@@ -147,11 +147,11 @@
         0.0,
         16.11
       ],
-      "jamming_count": 20,
-      "jamming_rate_pct": 100.0,
+      "jamming_count": 18,
+      "jamming_rate_pct": 90.0,
       "jamming_rate_wilson_95_ci_pct": [
-        83.89,
-        100.0
+        69.9,
+        97.21
       ],
       "safe_force_count": 0,
       "safe_force_rate_pct": 0.0,
@@ -159,9 +159,9 @@
         0.0,
         16.11
       ],
-      "mean_peak_force_n": 28.58,
-      "std_peak_force_n": 1.14,
-      "max_peak_force_n": 30.93,
+      "mean_peak_force_n": 24.08,
+      "std_peak_force_n": 1.5,
+      "max_peak_force_n": 25.98,
       "mean_episode_duration_s": 0.55,
       "std_episode_duration_s": 0.0,
       "mean_cycle_time_s": 0.55,
@@ -169,7 +169,7 @@
       "mean_successful_cycle_time_s": null,
       "std_successful_cycle_time_s": null,
       "num_successful_cycle_times": 0,
-      "mean_solve_time_ms": 0.0886
+      "mean_solve_time_ms": 0.1171
     },
     "tactai_no_tank": {
       "label": "Ablation 3: w/o Energy Tank Passivity T(t)",
@@ -186,23 +186,23 @@
         0.0,
         16.11
       ],
-      "safe_force_count": 20,
-      "safe_force_rate_pct": 100.0,
+      "safe_force_count": 3,
+      "safe_force_rate_pct": 15.0,
       "safe_force_rate_wilson_95_ci_pct": [
-        83.89,
-        100.0
+        5.24,
+        36.04
       ],
-      "mean_peak_force_n": 6.41,
-      "std_peak_force_n": 0.22,
-      "max_peak_force_n": 6.8,
-      "mean_episode_duration_s": 0.4739,
-      "std_episode_duration_s": 0.0028,
-      "mean_cycle_time_s": 0.47,
+      "mean_peak_force_n": 15.64,
+      "std_peak_force_n": 0.69,
+      "max_peak_force_n": 16.79,
+      "mean_episode_duration_s": 0.4829,
+      "std_episode_duration_s": 0.0023,
+      "mean_cycle_time_s": 0.48,
       "std_cycle_time_s": 0.0,
-      "mean_successful_cycle_time_s": 0.4739,
-      "std_successful_cycle_time_s": 0.0028,
+      "mean_successful_cycle_time_s": 0.4829,
+      "std_successful_cycle_time_s": 0.0023,
       "num_successful_cycle_times": 20,
-      "mean_solve_time_ms": 0.0852
+      "mean_solve_time_ms": 0.1125
     }
   }
 }

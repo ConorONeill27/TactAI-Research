@@ -213,7 +213,7 @@ class TactileAlignmentController:
                 self._realign_step = step_idx
 
         if self._contact_step is not None and self._realign_step is None and ee_pos[2] > -0.0032:
-            if (step_idx - self._contact_step) >= min(15, self.latency_steps):
+            if (step_idx - self._contact_step) >= max(15, self.latency_steps):
                 # Un-wedging micro-retraction clearance reached and tactile frame received
                 self._realign_step = step_idx
 
@@ -324,6 +324,17 @@ class TactileAlignmentController:
                     uz_cbf_max = max(25.0, uz_cbf_min)
                     is_intervened = bool(f_norm > (self.f_max - 5.0) or (h_jam < 0.0 and f_norm > 5.0))
 
+        # Conservative force-response override. This reacts to measured contact force by
+        # commanding upward motion (positive Fz in this environment) before the QP.
+        # It is a feedback safeguard, not a formal force CBF: the environment does not
+        # provide a control-affine model mapping commanded wrench to next-step contact force.
+        if f_norm >= 0.8 * self.f_max:
+            force_excess = max(0.0, f_norm - 0.8 * self.f_max)
+            retract_cmd = 2.0 + 1.5 * force_excess + 8.0 * max(0.0, -float(ee_linvel[2]))
+            uz_cbf_min = max(float(uz_cbf_min), min(15.0, retract_cmd))
+            uz_cbf_max = max(float(uz_cbf_max), uz_cbf_min)
+            is_intervened = True
+
         # Blend nominal wrenches with tactile alignment commands
         u_target = u_nom.copy()
         u_target[0] = fx_align
@@ -351,8 +362,12 @@ class TactileAlignmentController:
         if qp_res.info.status_val in (1, 2) and qp_res.x is not None:
             u_net_qp = np.asarray(qp_res.x[:6], dtype=np.float64)
         else:
-            u_net_qp = u_target.copy()
-            u_net_qp[2] = uz_cbf_min
+            # Fail closed: do not pass the unconstrained nominal wrench through when the
+            # optimizer fails. Use bounded lateral/rotational commands and a conservative
+            # upward command, then apply the final actuator-command limits below.
+            u_net_qp = np.zeros(6, dtype=np.float64)
+            u_net_qp[2] = float(np.clip(max(0.0, uz_cbf_min), 0.0, 15.0))
+            is_intervened = True
 
         # Add physical gravity compensation for the 2.5 kg end-effector
         u_filtered = u_net_qp.copy()
@@ -374,21 +389,36 @@ class TactileAlignmentController:
         delta_e = self.dt * (0.8 * p_diss - p_ctrl)
         new_tank_energy = self.tank_energy + delta_e
         
-        # Enforce passivity bounds
-        if self.enable_energy_tank and new_tank_energy < self.tank_min_energy and p_ctrl > 0:
-            # Scale down injected control power to maintain strict passivity
-            scale_passivity = max(0.0, 1.0 - (self.tank_min_energy - new_tank_energy) / 0.1)
+        # Energy-tank supervision. If the predicted energy would cross the floor,
+        # scale the net (gravity-compensation-excluded) wrench by the exact ratio needed
+        # to keep predicted tank energy at or above the floor for this discrete step.
+        # This is a discrete-time accounting safeguard, not by itself a proof of full
+        # robot/environment passivity; model error and unmeasured power remain relevant.
+        if self.enable_energy_tank and new_tank_energy < self.tank_min_energy and p_ctrl > 0.0:
+            available_power = max(0.0, (self.tank_energy - self.tank_min_energy) / self.dt + 0.8 * p_diss)
+            scale_passivity = float(np.clip(available_power / max(p_ctrl, 1e-12), 0.0, 1.0))
             u_net *= scale_passivity
             u_filtered = u_net.copy()
             u_filtered[2] += self.f_grav
-            new_tank_energy = self.tank_min_energy
+            p_ctrl = float(np.dot(u_net, v_6d))
+            new_tank_energy = self.tank_energy + self.dt * (0.8 * p_diss - p_ctrl)
 
+        # Final actuator bounds apply after gravity compensation and passivity scaling.
+        # These are actuator-command bounds, not a bound on measured contact force.
+        u_filtered[0:2] = np.clip(u_filtered[0:2], -15.0, 15.0)
+        u_filtered[2] = np.clip(u_filtered[2], -25.0, 50.0)
+        u_filtered[3:6] = np.clip(u_filtered[3:6], -6.0, 6.0)
+        u_net = u_filtered.copy()
+        u_net[2] -= self.f_grav
+        p_ctrl = float(np.dot(u_net, v_6d))
+        new_tank_energy = self.tank_energy + self.dt * (0.8 * p_diss - p_ctrl) if self.enable_energy_tank else self.tank_energy
         self.tank_energy = float(np.clip(new_tank_energy, self.tank_min_energy, self.tank_max_energy))
 
         solve_time_ms = (time.perf_counter() - t0) * 1e3
 
         diagnostics = {
             "h_force": float(h_force),
+            "force_limit_is_hard_guarantee": False,
             "h_jam": float(h_jam),
             "h_slip": float(h_slip),
             "f_norm": float(f_norm),
