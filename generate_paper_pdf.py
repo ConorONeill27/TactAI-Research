@@ -1,5 +1,5 @@
 """
-Generate Peer-Reviewed IEEE (ieeeconf) Preprint PDF
+Generate Peer-Reviewed Research Preprint PDF
 Title: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies:
        A 1 kHz Multi-Rate Control Barrier Function Architecture for Anti-Jamming and Contact Passivity
 Authors: Conor O'Neill* and Alec Vysotski* (*Equal contribution)
@@ -27,7 +27,7 @@ def render_latex_equation_box(
     height_in: float = 0.52,
     fontsize: float = 9.2
 ) -> str:
-    """Renders compiled LaTeX math lines into a crisp 600-DPI IEEE equation block image."""
+    """Renders compiled LaTeX math lines into a crisp 600-DPI academic equation block image."""
     plt.rcParams["mathtext.fontset"] = "cm"
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     fig = plt.figure(figsize=(width_in, height_in), dpi=600)
@@ -97,14 +97,14 @@ class NumberedCanvas(canvas.Canvas):
         # Header (pages > 1)
         if self._pageNumber > 1:
             self.drawString(48, 11 * inch - 32, "TACTILE CONTACT-MANIFOLD SAFETY FILTERING")
-            self.drawRightString(8.5 * inch - 48, 11 * inch - 32, "O'NEILL AND VYSOTSKI (IEEECONF PREPRINT, 2026)")
+            self.drawRightString(8.5 * inch - 48, 11 * inch - 32, "O'NEILL AND VYSOTSKI (PREPRINT, 2026)")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
             self.line(48, 11 * inch - 36, 8.5 * inch - 48, 11 * inch - 36)
 
         # Footer
         page_str = f"{self._pageNumber}"
-        self.drawString(48, 30, "IEEE Conference Format (ieeeconf) — cs.RO / eess.SY")
+        self.drawString(48, 30, "TactAI Research Preprint — Robotics and Control (cs.RO / eess.SY)")
         self.drawCentredString(4.25 * inch, 30, page_str)
         self.drawRightString(8.5 * inch - 48, 30, f"Page {self._pageNumber} of {total_pages}")
         self.setStrokeColor(colors.HexColor("#CBD5E1"))
@@ -133,7 +133,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     eq2_path = render_latex_equation_box(
         [
             r"$\hat{\mathbf{F}}_{\mathrm{ext}}(t) = (1 - \gamma_F)\mathbf{F}_{\mathrm{prop}}(t) + \gamma_F \mathbf{F}_{\mathrm{tac}}(t - \tau_{\mathrm{delay}}), \quad "
-            r"\hat{\boldsymbol{\theta}}_{\mathrm{est}}(t) = \boldsymbol{\theta}_{\mathrm{wrist}}(t) + \gamma_{\mathrm{obs}}\,\boldsymbol{\delta}(t)$"
+            r"\hat{\boldsymbol{\theta}}_{\mathrm{est}}(t) = \boldsymbol{\theta}_{\mathrm{wrist}}(t) + \boldsymbol{\delta}(t)$"
         ],
         "(2)",
         os.path.join(eq_dir, "eq2_observer.png"),
@@ -144,7 +144,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     eq3_path = render_latex_equation_box(
         [
             r"$\rho_{\mathrm{stick}} = \frac{\int_{\Omega} \mathbb{I}\left(\|\mathbf{f}_{xy}(u,v)\|_2 < \mu f_z(u,v)\right)\mathrm{d}u\,\mathrm{d}v}{\int_{\Omega} \mathbb{I}\left(f_z(u,v) > 0\right)\mathrm{d}u\,\mathrm{d}v} \in [0,1], \qquad "
-            r"J_{\mathrm{jam}} = \frac{|\hat{F}_{z,\mathrm{ext}}|\,r_{\mathrm{char}}}{\|\hat{\boldsymbol{\tau}}_{\mathrm{tilt}}\|_2 + \epsilon}$"
+            r"J_{\mathrm{jam}} = \frac{\|\hat{\boldsymbol{\tau}}_{\mathrm{tilt}}\|_2}{|\hat{F}_{z,\mathrm{ext}}|\,r_{\mathrm{char}} + \epsilon}$"
         ],
         "(3)",
         os.path.join(eq_dir, "eq3_stick_jam.png"),
@@ -179,17 +179,17 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         [
             r"$u_{z,\mathrm{cbf}}(h_{\mathrm{force}}, h_{\mathrm{jam}}) = \left\{ \;\; \mathrm{Stage\,1\;(Free\text{-}Space):}\;\; -F_{\mathrm{app}} - D_1 \dot{z}_{\mathrm{ee}}, \qquad "
             r"\mathrm{Stage\,2\;(Un\text{-}Wedging\;at\;}G_{1\rightarrow 2}\mathrm{):}\;\; K_z(z_{\mathrm{clear}} - z_{\mathrm{ee}}) - D_2 \dot{z}_{\mathrm{ee}} + \beta_f \|\hat{\mathbf{F}}_{\mathrm{ext}}\|, \right.$",
-            r"$\left. \mathrm{Stage\,3\;(Aligned\;Insertion\;at\;}G_{2\rightarrow 3}\mathrm{):}\;\; -\min\left(F_{z,\mathrm{nom}},\, \frac{\alpha_f}{K_{\mathrm{loc}}}h_{\mathrm{force}}\right) - D_3 \dot{z}_{\mathrm{ee}} \;\; \right\}$"
+            r"$\left. \mathrm{Stage\,3\;(Aligned\;Insertion\;at\;}G_{2\rightarrow 3}\mathrm{):}\;\; -\min\left(F_{z,\mathrm{nom}},\, \alpha_f h_{\mathrm{force}}\right) - D_3 \dot{z}_{\mathrm{ee}} \;\; \right\}$"
         ],
         "(5b)",
         os.path.join(eq_dir, "eq5b_piecewise_uz.png"),
         height_in=0.56,
-        fontsize=8.5,
+        fontsize=8.3,
     )
 
     eq6_path = render_latex_equation_box(
         [
-            r"$F_{\mathrm{grip}}(t) = F_{\mathrm{grip},\min}(h_{\mathrm{slip}}) = F_{\mathrm{grip},0} + K_{\mathrm{slip}}\max\left(0,\, \rho_{\mathrm{safe}} - \hat{\rho}_{\mathrm{stick}}(t)\right) + \mu_{\mathrm{safe}}^{-1}\left\|\hat{\mathbf{F}}_{xy,\mathrm{ext}}(t)\right\|_2 \quad \mathrm{(1D\;Closed\text{-}Form\;Gripper\;Barrier)}$"
+            r"$F_{\mathrm{grip}}(t) = F_{\mathrm{grip},\min}(h_{\mathrm{slip}}) = F_{\mathrm{grip},0} + K_{\mathrm{slip}}\max\left(0,\, \rho_{\mathrm{safe}} - \hat{\rho}_{\mathrm{stick}}(t)\right) + \mu_{\mathrm{safe}}^{-1}\left\|\hat{\mathbf{F}}_{xy,\mathrm{ext}}(t)\right\|_2$"
         ],
         "(6)",
         os.path.join(eq_dir, "eq6_grip_cbf.png"),
@@ -327,18 +327,18 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         fontSize=7.5,
         leading=9.2,
         alignment=1,
-        textColor=colors.white
+        textColor=colors.HexColor('#0F172A')
     )
 
     story = []
 
     # ---------------------------------------------------------
-    # TITLE & HEADER (IEEECONF STYLE)
+    # TITLE & HEADER
     # ---------------------------------------------------------
     story.append(Paragraph("Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies:", title_style))
     story.append(Paragraph("A 1 kHz Multi-Rate Control Barrier Function Architecture for Anti-Jamming and Contact Passivity", subtitle_style))
     story.append(Paragraph("Conor O'Neill<sup>*</sup> and Alec Vysotski<sup>*</sup>", authors_style))
-    story.append(Paragraph("<sup>*</sup>Equal contribution &nbsp;&mdash;&nbsp; Independent Research Preprint (IEEE <i>ieeeconf</i> Format)", affil_style))
+    story.append(Paragraph("<sup>*</sup>Equal contribution &nbsp;&mdash;&nbsp; Independent Research Preprint (October 2026)", affil_style))
     story.append(HRFlowable(width="100%", thickness=0.8, color=colors.HexColor("#94A3B8"), spaceAfter=4))
 
     # ---------------------------------------------------------
@@ -346,11 +346,11 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     # ---------------------------------------------------------
     abstract_text = (
         "<i>Abstract</i>&mdash;Learned manipulation policies such as action-chunking diffusion policies generalize well visually but can "
-        "produce large force spikes, two-point wedging, and object drop when contact geometry is out of distribution (OOD). We present a "
-        "1 kHz supervisory safety filter that sits between a pre-trained policy and the robot actuators and requires no policy retraining. "
+        "produce large force spikes, two-point wedging, and object drop when contact geometry is out of distribution (OOD). We present TactAI, a "
+        "1 kHz supervisory filter that sits between a pre-trained policy and the robot actuators and requires no policy retraining. "
         "A complementary observer fuses 1 kHz proprioception with delayed (10&ndash;50 ms) optical-tactile traction invariants&mdash;the "
         "Differential Center of Pressure &Delta;<b>r</b><sub><i>c</i></sub>, the Contact Constraint Tensor <b>C</b>, the Incipient Stick Ratio "
-        "&rho;<sub>stick</sub>, and a Whitney-style Jamming Index <i>J</i><sub>jam</sub>. A 7-variable OSQP quadratic program filters the 6-DoF arm "
+        "&rho;<sub>stick</sub>, and a Whitney-style Jamming Index <i>J</i><sub>jam</sub>. A 7-variable convex QP (OSQP) filters the 6-DoF arm "
         "wrench (mean 0.11 ms per filter step in Python), a closed-form 1D barrier regulates grip force, a 3-stage hybrid automaton performs "
         "un-wedging before reorientation, and a discrete-time energy tank bounds energy injected by delayed feedback. We evaluate in MuJoCo "
         "with an analytical tactile model and a stochastic action-chunking policy proxy. On 0.15 mm-clearance peg insertion with <i>N</i> = 50 "
@@ -433,7 +433,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(Paragraph("A. Differential Center of Pressure and Contact Constraint Tensor", subsec_heading))
     story.append(Paragraph(
         "With <b>r</b><sub><i>c,p</i></sub> = <i>F</i><sub><i>z,p</i></sub><sup>&minus;1</sup> &int;<sub>&Omega;</sub> <b>u</b> <i>f<sub>z,p</sub></i> d<i>u</i> d<i>v</i> "
-        "the normal CoP on pad <i>p</i>:",
+        "the normal CoP on pad <i>p</i> (where 2D pad coordinate <b>u</b> = [<i>u</i>,<i>v</i>]<sup><i>T</i></sup> &isin; &Omega; is distinct from the 6-DoF wrench in Sec. IV):",
         body_style
     ))
     story.append(Image(eq1_path, width=7.05 * inch, height=0.38 * inch))
@@ -441,29 +441,33 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(Paragraph("B. Multi-Rate Complementary Observer and Contact Latching", subsec_heading))
     story.append(Paragraph(
         "Optical tactile estimation runs at 25&ndash;50 Hz (&tau;<sub>delay</sub> &isin; [10, 50] ms), too slow alone to arrest a stiff-contact impact; "
-        "proprioception runs at 1 kHz but is wrench-ambiguous. We fuse them (&gamma;<sub><i>F</i></sub> = 0.30, &gamma;<sub>obs</sub> = 0.25):",
+        "proprioception runs at 1 kHz but is wrench-ambiguous. We fuse them via contact-gated &gamma;<sub><i>F</i></sub> = 0.30 when ||<b>F</b><sub>tac</sub>|| &ge; 1 N "
+        "and &gamma;<sub><i>F</i></sub> = 0 otherwise (1.0&times; fast impact response):",
         body_style
     ))
     story.append(Image(eq2_path, width=7.05 * inch, height=0.38 * inch))
     story.append(Spacer(1, 2))
     story.append(Paragraph(
-        "where the latched tactile residual is <b>&delta;</b> = arcsin(&Delta;<b>r</b><sub><i>c</i></sub>(<i>t</i> &minus; &tau;)/<i>r</i><sub>pad</sub>) &minus; "
-        "<b>&theta;</b><sub>wrist</sub>(<i>t</i> &minus; &tau;) when the delayed contact force satisfies ||<b>F</b>(<i>t</i> &minus; &tau;)|| &ge; 1.0 N, "
-        "and otherwise decays as <b>&delta;</b> &larr; 0.90 <b>&delta;</b> per 1 ms step. The latching threshold is intended to reject low-force marker noise "
-        "and viscoelastic relaxation during unloading on real sensors; this has not yet been validated on hardware.",
+        "where <b>&delta;</b><sub><i>k</i></sub> = (1 &minus; &gamma;<sub>obs</sub>)<b>&delta;</b><sub><i>k</i>&ndash;1</sub> + &gamma;<sub>obs</sub>[arcsin(clip(<b>J</b><sub>pad</sub>&Delta;<b>r</b><sub><i>c</i></sub>(<i>t</i>&minus;&tau;)/<i>r</i><sub>pad</sub>, &minus;1, 1)) &minus; <b>&theta;</b><sub>wrist</sub>(<i>t</i>&minus;&tau;)] "
+        "(&gamma;<sub>obs</sub>=0.25, <i>r</i><sub>pad</sub>=9 mm, <b>J</b><sub>pad</sub>=<b>I</b><sub>2</sub>) for ||<b>F</b><sub>tac</sub>|| &ge; 1 N, holds "
+        "<b>&delta;</b><sub><i>k</i></sub> = <b>&delta;</b><sub><i>k</i>&ndash;1</sub> during Stages 2&ndash;3 free-space reorientation, and decays as "
+        "<b>&delta;</b><sub><i>k</i></sub> &larr; 0.90 <b>&delta;</b><sub><i>k</i>&ndash;1</sub> in Stage 1 when unloaded. Note that &Delta;<b>r</b><sub><i>c</i></sub>/<i>r</i><sub>pad</sub> is a "
+        "linearized Winkler-foundation proxy whose effective scale depends on grip force on real elastomers; this is not yet validated on hardware.",
         body_style
     ))
     story.append(Paragraph("C. Incipient Stick Ratio and Jamming Index", subsec_heading))
     story.append(Paragraph(
         "To detect incipient slip prior to gross tool displacement and identify two-point wedging conditions, "
-        "we compute the incipient stick ratio &rho;<sub>stick</sub> and Whitney-style jamming index <i>J</i><sub>jam</sub>:",
+        "we compute the incipient stick ratio &rho;<sub>stick</sub> and Whitney-inspired tip-moment ratio <i>J</i><sub>jam</sub> "
+        "(<b>&tau;</b><sub>tilt</sub> = <b>&tau;</b><sub>ext</sub> &minus; <b>r</b><sub>tip</sub>&times;<b>F</b><sub>ext</sub>, <i>r</i><sub>tip</sub>=35 mm, <i>r</i><sub>char</sub>=5 mm; "
+        "<i>h</i><sub>jam</sub>=1&minus;<i>J</i><sub>jam</sub>, <i>h</i><sub>force</sub>=<i>F</i><sub>max</sub>&minus;||<b>F</b><sub>ext</sub>||<sub>2</sub>, <i>h</i><sub>slip</sub>=&rho;<sub>stick</sub>&minus;&rho;<sub>crit</sub>):",
         body_style
     ))
     story.append(Image(eq3_path, width=7.05 * inch, height=0.42 * inch))
     story.append(Spacer(1, 3.5))
 
     # ---------------------------------------------------------
-    # SECTION IV: 1 kHz SUPERVISORY CBF-QP & PASSIVITY ARCHITECTURE
+    # SECTION IV: SUPERVISORY FILTER
     # ---------------------------------------------------------
     story.append(Paragraph("IV. SUPERVISORY FILTER", sec_heading))
     story.append(Paragraph("A. Tensor Gain Modulation", subsec_heading))
@@ -474,15 +478,16 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(Image(eq4_path, width=7.05 * inch, height=0.40 * inch))
     story.append(Spacer(1, 2))
     story.append(Paragraph(
-        "with &kappa;<sub>min</sub> = 0.92, <i>C</i><sub>ref</sub> = 10<sup>&minus;4</sup>, &eta;<sub>0</sub> = 0.85, and "
-        "<b>&tau;</b><sub>align</sub> = &minus;<b>K</b><sub>rot</sub><b>&theta;</b><sub>est</sub> + <i>K</i><sub>&tau;</sub><b>&tau;</b><sub>ext</sub>. "
+        "with <i>K</i><sub>rot,0</sub> = 12 N&middot;m/rad, <i>K</i><sub>&tau;</sub> = 0.45, &kappa;<sub>min</sub> = 0.92, <i>C</i><sub>ref</sub> = 10<sup>&ndash;4</sup> N&middot;m<sup>2</sup>, &eta;<sub>0</sub> = 0.85, and "
+        "6-DoF target <b>u</b><sub>target</sub> = [<b>f</b><sub>&pi;</sub><sup><i>T</i></sup>, <b>&tau;</b><sub>&pi;,xy</sub><sup><i>T</i></sup> + <i>T</i>(<i>t</i>)<b>&tau;</b><sub>align</sub><sup><i>T</i></sup>, &tau;<sub>&pi;,z</sub>]<sup><i>T</i></sup>. "
         "Note that with &eta;<sub>0</sub> = 0.85 and &kappa; &isin; [0.92, 1.05] the modulation is mild; ablation 1 (Table III) removes "
-        "&Delta;<b>r</b><sub><i>c</i></sub> and <b>C</b> jointly, so we do not claim a separate contribution of <b>C</b>.",
+        "&Delta;<b>r</b><sub><i>c</i></sub> and <b>C</b> jointly, so we do not claim <b>C</b> separately.",
         body_style
     ))
-    story.append(Paragraph("B. 7-Variable CBF-QP and Hybrid Automaton", subsec_heading))
+    story.append(Paragraph("B. 7-Variable Barrier-Inspired Hybrid Impedance QP and Automaton", subsec_heading))
     story.append(Paragraph(
-        "Given the 20 Hz policy wrench <b>u</b><sub>&pi;</sub> (chunk horizon <i>H</i> = 50), at 1 kHz we solve over <b>z</b> = [<b>u</b><sup><i>T</i></sup>, &delta;]<sup><i>T</i></sup> &isin; <b>R</b><sup>7</sup>:",
+        "Since <i>h</i><sub>force</sub>(<i>z</i><sub>ee</sub>) has rel. deg. 2 to <i>u<sub>z</sub></i>, we pair &minus;<i>D<sub>i</sub>v<sub>z</sub></i> with barrier terms "
+        "(&lambda;<sub>slack</sub>=10<sup>4</sup>, <b>W</b>=diag(1,1,1,10,10,10), <i>F</i><sub>lat,max</sub>=<i>F</i><sub>lat,0</sub>clip(1+<i>h</i><sub>slip</sub>,0.2,1)):",
         body_style
     ))
     story.append(Image(eq5a_path, width=7.05 * inch, height=0.55 * inch))
@@ -491,29 +496,26 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(Spacer(1, 2))
     story.append(Paragraph(
         "with guards <i>G</i><sub>1&rarr;2</sub>: ||<b>F</b>|| &gt; 0.1 N &and; (<i>h</i><sub>jam</sub> &lt; 0 &or; ||<b>&theta;</b>|| &ge; 0.65&deg;) and "
-        "<i>G</i><sub>2&rarr;3</sub>: <i>z</i> &gt; &minus;3.2 mm after the tactile frame has arrived.<br/>"
+        "<i>G</i><sub>2&rarr;3</sub>: <i>z</i><sub>ee</sub> &gt; &minus;3.2 mm &and; ||<b>&theta;</b><sub>est</sub>|| &lt; 0.65&deg; &and; <i>h</i><sub>jam</sub> &gt; 0 (pre-contact <i>z</i><sub>ee</sub>=0, <i>z</i><sub>rim</sub>=&minus;3.5 mm).<br/>"
         "<b>Hand-tuned rim-arrest guard (disclosure):</b> Stage 3 contains a heuristic for an aligned part that lands on the flat rim outside the capture region: "
         "within a height band above the rim the axial damping is raised to 52 Ns/m; if vertical contact force exceeds 4.2 N the Stage 2 retraction law is applied, "
-        "and above 6.5 N it is latched. These constants were selected while observing the structured scenario set (Sec. V); performance is therefore reported "
-        "primarily on held-out random trials.",
+        "and above 6.5 N it is latched. These constants were selected while observing the structured scenario set (Sec. V); performance is "
+        "reported on held-out trials (<i>F</i><sub>app</sub>=6 N, <i>F</i><sub>lat,0</sub>=6 N, <i>F</i><sub>z,nom</sub>=8 N, &alpha;<sub><i>f</i></sub>=0.8, <i>K<sub>z</sub></i>=600 N/m, <i>z</i><sub>clear</sub>=2 mm, <i>D</i><sub>1..3</sub>={18,35,24} Ns/m, &beta;<sub><i>f</i></sub>=0.25).",
         body_style
     ))
-    story.append(Paragraph("C. Decoupled Grip Barrier", subsec_heading))
+    story.append(Paragraph("C. Decoupled Incipient-Slip Margin Controller (<i>F</i><sub>grip,0</sub>=6 N, <i>K</i><sub>slip</sub>=25 N, &rho;<sub>safe</sub>=0.55 &gt; &rho;<sub>crit</sub>=0.35, &mu;<sub>safe</sub>=0.40)", subsec_heading))
     story.append(Image(eq6_path, width=7.05 * inch, height=0.36 * inch))
     story.append(Spacer(1, 2))
     story.append(Paragraph("D. Safety and Passivity Arguments", subsec_heading))
     story.append(Paragraph(
-        "<b>Proposition 1 (Informal Guarantee):</b> Under quasi-static contact with stiffness <i>K</i><sub>env</sub> and the automaton (Eqs. 5a&ndash;5b), if Stage 2 "
-        "is entered with <i>h</i><sub>force</sub> &gt; 0 and the Stage 2 bound produces <i>v<sub>z</sub></i> &gt; 0 before ||<b>F</b>|| reaches "
-        "<i>F</i><sub>max</sub> = 15 N, then <i>h</i><sub>force</sub> remains non-negative through the transition to Stage 3, which begins only after rim "
-        "compression is relieved.<br/>"
-        "<i>Sketch:</i> At <i>G</i><sub>1&rarr;2</sub>, <i>h</i><sub>force</sub> &approx; 14.9 N. Stage 2 commands a restoring wrench that reverses "
-        "<i>v<sub>z</sub></i> after peak compression &Delta;<i>z</i><sub>max</sub> &approx; <i>v</i><sub>0</sub>(<i>m</i>/<i>K</i><sub>env</sub>)<sup>1/2</sup>, "
-        "after which d<i>h</i><sub>force</sub>/d<i>t</i> = <i>K</i><sub>env</sub><i>v<sub>z</sub></i> &gt; 0. This is a sufficient-condition argument, "
-        "not a formal hybrid-systems proof; the condition depends on approach velocity and is verified empirically below.<br/>"
-        "<b>Proposition 2 (passivity):</b> With storage <i>V</i> = &frac12;<b>v</b><sup><i>T</i></sup><b>M</b><b>v</b> + <i>E<sub>k</sub></i> and "
-        "<i>E<sub>k</sub></i> &ge; <i>E</i><sub>min</sub> = 0.05 J, attenuating delayed tactile feedback whenever it would inject positive power bounds the "
-        "energy injected by delayed updates by <i>E</i><sub>0</sub> &minus; <i>E</i><sub>min</sub>.",
+        "<b>Proposition 1 (Quasi-Static Impact Arrest Bound):</b> Under vertical contact with rim stiffness <i>K</i><sub>env</sub>, carriage mass <i>m</i> = 1.2 kg, and downward "
+        "speed <i>v</i><sub>0</sub> &gt; 0, if <i>G</i><sub>1&rarr;2</sub> triggers at <i>F</i><sub>guard</sub> = 0.1 N and Stage 2 applies restoring force <i>F</i><sub>retract</sub> &ge; 4.0 N with <i>D</i><sub>2</sub> &ge; 0, then <i>h</i><sub>force</sub>(<i>t</i>) &ge; 0 holds "
+        "throughout impact arrest for all approach speeds satisfying <i>v</i><sub>0</sub> &le; [(<i>F</i><sub>max</sub><sup>2</sup> &minus; <i>F</i><sub>guard</sub><sup>2</sup> + 2<i>F</i><sub>retract</sub>(<i>F</i><sub>max</sub> &minus; <i>F</i><sub>guard</sub>))/(<i>mK</i><sub>env</sub>)]<sup>1/2</sup>.<br/>"
+        "<i>Sketch:</i> Integrating <i>mv<sub>z</sub></i> d<i>v<sub>z</sub></i> = &minus;(<i>K</i><sub>env</sub>&Delta;<i>z</i> + <i>F</i><sub>retract</sub>) d(&Delta;<i>z</i>) from <i>F</i><sub>guard</sub> to peak compression <i>v<sub>z</sub></i> = 0 yields <i>v</i><sub>0</sub> &le; 0.17 m/s at <i>K</i><sub>env</sub> = 10<sup>4</sup> N/m "
+        "(above the 0.05 m/s approach speed), reversing <i>v<sub>z</sub></i> &gt; 0 before <i>G</i><sub>2&rarr;3</sub>. This sufficient condition is verified empirically in Sec. V.<br/>"
+        "<b>Proposition 2 (Passivity Tank <i>T</i>(<i>t</i>)):</b> With storage <i>V</i> = &frac12;<b>v</b><sup><i>T</i></sup><b>Mv</b> + <i>E<sub>k</sub></i> (<i>E</i><sub>0</sub>=0.50 J, <i>E</i><sub>min</sub>=0.05 J, <i>P</i><sub>diss</sub>=<b>v</b><sub>ee</sub><sup><i>T</i></sup><b>Dv</b><sub>ee</sub>), scaling delayed tactile "
+        "feedback by multiplier <i>T</i>(<i>t</i>) = clip((<i>E<sub>k</sub></i> &minus; <i>E</i><sub>min</sub>)/<i>E</i><sub>0</sub>, 0, 1) whenever net power <b>u</b><sub>net</sub><sup><i>T</i></sup><b>v</b><sub>ee</sub> &gt; 0 bounds total energy injected by delayed "
+        "updates across all contact transitions by <i>E</i><sub>0</sub> &minus; <i>E</i><sub>min</sub>.",
         body_style
     ))
 
@@ -534,8 +536,8 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     ))
     story.append(Paragraph(
         "<b>Benchmarks:</b> <i>Benchmark A (insertion, 0.15 mm clearance per side):</i> <b>Held-out set (primary):</b> <i>N</i> = 50 initial conditions sampled "
-        "once with an unused seed, &theta;<sub><i>x</i>,0</sub>, &theta;<sub><i>y</i>,0</sub> &sim; U(&minus;15&deg;, 15&deg;) with ||<b>&theta;</b><sub>0</sub>||<sub>2</sub> "
-        "&le; 19.2&deg;, and lateral offsets &Delta;<i>x</i><sub>0</sub>, &Delta;<i>y</i><sub>0</sub> &sim; U(&minus;0.92, 0.92) mm. The capture basin is defined "
+        "once with an unused seed, &theta;<sub><i>x</i>,0</sub>, &theta;<sub><i>y</i>,0</sub> &sim; U(&minus;15&deg;, 15&deg;) (max sampled ||<b>&theta;</b><sub>0</sub>||<sub>2</sub> "
+        "= 19.2&deg;), and lateral offsets &Delta;<i>x</i><sub>0</sub>, &Delta;<i>y</i><sub>0</sub> &sim; U(&minus;0.92, 0.92) mm. The capture basin is defined "
         "a priori as ||<b>&theta;</b><sub>0</sub>||<sub>2</sub> &le; 15&deg; and max(|&Delta;<i>x</i><sub>0</sub>|, |&Delta;<i>y</i><sub>0</sub>|) &le; 0.80 mm "
         "(32/50 held-out trials). <b>Structured stress set:</b> 50 hand-designed conditions (47 in-basin, 3 extreme compound cases) used during development, "
         "including for tuning the rim-arrest guard.<br/>"
@@ -556,31 +558,31 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         [Paragraph("Unconstrained Policy (Proxy)", table_cell),
          Paragraph("0.0% (0/50) [0&ndash;7%]", table_cell),
          Paragraph("0/32 (0.0%)", table_cell),
-         Paragraph("100% | 42.96 &plusmn; 2.61 N", table_cell),
+         Paragraph("100% / 42.96 &plusmn; 2.61 N", table_cell),
          Paragraph("6.0% (3/50)", table_cell),
-         Paragraph("94.0% | 41.87 &plusmn; 7.43 N", table_cell)],
+         Paragraph("94.0% / 41.87 &plusmn; 7.43 N", table_cell)],
         [Paragraph("Wrist F/T Admittance", table_cell),
          Paragraph("8.0% (4/50) [3&ndash;19%]", table_cell),
          Paragraph("3/32 (9.4%)", table_cell),
-         Paragraph("92.0% | 33.54 &plusmn; 3.82 N", table_cell),
+         Paragraph("92.0% / 33.54 &plusmn; 3.82 N", table_cell),
          Paragraph("20.0% (10/50)", table_cell),
-         Paragraph("80.0% | 32.80 &plusmn; 6.00 N", table_cell)],
+         Paragraph("80.0% / 32.80 &plusmn; 6.00 N", table_cell)],
         [Paragraph("Fixed Impedance (K=200)", table_cell),
          Paragraph("0.0% (Rim Stall)", table_cell),
          Paragraph("0/32 (0.0%)", table_cell),
-         Paragraph("0.0% | 9.99 &plusmn; 0.17 N", table_cell),
+         Paragraph("0.0% / 9.99 &plusmn; 0.17 N", table_cell),
          Paragraph("0.0% (Rim Stall)", table_cell),
-         Paragraph("0.0% | 10.31 &plusmn; 0.21 N", table_cell)],
+         Paragraph("0.0% / 10.31 &plusmn; 0.21 N", table_cell)],
         [Paragraph("<b>Tactile Safety Filter (Ours)</b>", table_cell),
          Paragraph("<b>74.0% (37/50) [60&ndash;84%]</b>", table_cell),
          Paragraph("<b>31/32 (96.9%)</b>", table_cell),
-         Paragraph("<b>0.0% | 10.15 &plusmn; 2.29 N</b>", table_cell),
+         Paragraph("<b>0.0% / 10.15 &plusmn; 2.29 N</b>", table_cell),
          Paragraph("<b>94.0% (47/50)</b>", table_cell),
-         Paragraph("<b>0.0% | 8.83 &plusmn; 2.58 N</b>", table_cell)]
+         Paragraph("<b>0.0% / 8.83 &plusmn; 2.58 N</b>", table_cell)]
     ]
     t1 = Table(table1_data, colWidths=[1.85 * inch, 1.25 * inch, 0.95 * inch, 1.15 * inch, 1.05 * inch, 1.05 * inch])
     t1.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1E293B')),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F0F4F9')),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
         ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#ECFDF5')),
         ('TOPPADDING', (0, 0), (-1, -1), 2.8),
@@ -589,7 +591,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(t1)
     story.append(Spacer(1, 3.0))
 
-    # TABLE II & III SIDE-BY-SIDE OR SEQUENTIAL
+    # TABLE II & III
     story.append(Paragraph("TABLE II: Benchmarks B &amp; C (<i>N</i> = 20 Trials Each) &mdash; Non-Planar Contour Tracking &amp; Incipient-Slip Tool Manipulation", subsec_heading))
     table2_bc_data = [
         [Paragraph("Controller Architecture", table_header),
@@ -620,7 +622,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     ]
     t2_bc = Table(table2_bc_data, colWidths=[2.15 * inch, 1.25 * inch, 1.25 * inch, 1.15 * inch, 1.35 * inch])
     t2_bc.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1E293B')),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F0F4F9')),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
         ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#ECFDF5')),
         ('TOPPADDING', (0, 0), (-1, -1), 2.8),
@@ -629,7 +631,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
     story.append(t2_bc)
     story.append(Spacer(1, 3.0))
 
-    story.append(Paragraph("TABLE III: Component Ablations (<i>N</i> = 20) &amp; Multi-Seed Environmental Sweeps (<i>N</i> = 5 Seeds/Point)", subsec_heading))
+    story.append(Paragraph("TABLE III: Component Ablations on In-Basin OOD Trials (<i>N</i> = 20) &amp; Multi-Seed Environmental Sweeps (<i>N</i> = 5 Seeds/Point)", subsec_heading))
     table3_data = [
         [Paragraph("Tested Condition / Module", table_header),
          Paragraph("Parameter Range / Ablation", table_header),
@@ -645,24 +647,24 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
          Paragraph("<b>100.0% Succ. (0.0% Jamming, &lt;15 N)</b>", table_cell)],
         [Paragraph("Ablation 3: Energy Tank", table_cell),
          Paragraph("w/o Energy Tank Passivity <i>T</i>(<i>t</i>)", table_cell),
-         Paragraph("Bench A: 35% Succ. | Bench B: 77.0 N Chatter", table_cell),
-         Paragraph("<b>100% Succ. | 10.64 N Chatter-Free</b>", table_cell)],
+         Paragraph("Bench A: 35% Succ. / Bench B: 77.0 N Chatter", table_cell),
+         Paragraph("<b>Bench A: 100% (11.8 N) / B: 10.64 N</b>", table_cell)],
         [Paragraph("Ablation 4: Slip Barrier", table_cell),
          Paragraph("w/o Incipient Slip CBF <i>h</i><sub>slip</sub>", table_cell),
          Paragraph("100.0% Tool Drop (148.8 mm Gross Slip)", table_cell),
          Paragraph("<b>90.0% Retention (0.44 mm Mean Slip)</b>", table_cell)],
         [Paragraph("Surface Stiffness <i>K</i><sub>env</sub>", table_cell),
          Paragraph("10<sup>2</sup> to 10<sup>5</sup> N/m (<i>N</i> = 5 Seeds)", table_cell),
-         Paragraph("0% Succ. | Jammed (41.15&ndash;43.98 N Spikes)", table_cell),
+         Paragraph("0% Succ. / Jammed (41.15&ndash;43.98 N Spikes)", table_cell),
          Paragraph("<b>10<sup>2</sup>: Safe (3.2 N, No Insert); 10<sup>3&ndash;5</sup>: Succ.</b>", table_cell)],
         [Paragraph("Friction &mu; &amp; Latency &tau;", table_cell),
          Paragraph("&mu; &isin; [0.15, 0.85], &tau;<sub>delay</sub> &isin; [10, 50] ms", table_cell),
-         Paragraph("0% Succ. | Wedged (43.62&ndash;44.18 N)", table_cell),
-         Paragraph("<b>100% Succ. | Safe (8.63&ndash;11.91 N Peaks)</b>", table_cell)]
+         Paragraph("0% Succ. / Wedged (43.62&ndash;44.18 N)", table_cell),
+         Paragraph("<b>100% Succ. / Safe (8.63&ndash;11.91 N Peaks)</b>", table_cell)]
     ]
     t3 = Table(table3_data, colWidths=[1.65 * inch, 1.55 * inch, 1.95 * inch, 2.00 * inch])
     t3.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1E293B')),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F0F4F9')),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
         ('BACKGROUND', (3, 1), (3, -1), colors.HexColor('#ECFDF5')),
         ('TOPPADDING', (0, 0), (-1, -1), 2.8),
@@ -694,7 +696,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
                 "<b>Fig. 2.</b> Benchmarks B &amp; C (<i>N</i> = 20 Each) and Component Ablation Study: (A) Benchmark B non-planar stiff contour force tracking "
                 "(<i>K</i><sub>env</sub> = 10<sup>4</sup> N/m, 25 ms delay) showing full oscillation peaks (127.6 N for Wrist F/T Admittance, "
                 "77.0 N w/o Energy Tank vs. 10.6 N chatter-free for Ours); (B) Benchmark C mean cumulative tool slip across &mu; &isin; [0.22, 0.58] "
-                "(0.44 mm mean slip for Ours vs. 44.0&ndash;148.8 mm for baselines); and (C) Component ablation study on <i>N</i> = 20 OOD trials.",
+                "(0.44 mm mean slip for Ours vs. 44.0&ndash;148.8 mm for baselines); and (C) Component ablation study on <i>N</i> = 20 in-basin OOD trials.",
                 caption_style
             )
         ]))
@@ -767,7 +769,7 @@ def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
         story.append(Paragraph(r, ref_style))
 
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Successfully generated peer-reviewed IEEE (ieeeconf) preprint PDF at: {output_path}")
+    print(f"Successfully generated research preprint PDF at: {output_path}")
 
 
 if __name__ == "__main__":
