@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from src.envs.franka_slot_env import FrankaSlotEnv
 
 
-def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22, lookat=(0.0, 0.0, 0.030), width=960, height=720):
-    renderer = mujoco.Renderer(env.model, height, width)
+def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22,
+                 lookat=(0.0, 0.0, 0.030), width=960, height=720, show_contacts=False):
     camera = mujoco.MjvCamera()
     camera.type = mujoco.mjtCamera.mjCAMERA_FREE
     camera.lookat = list(lookat)
@@ -29,8 +29,29 @@ def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22, lookat=(
     camera.azimuth = azimuth
     camera.elevation = elevation
     
-    renderer.update_scene(env.data, camera)
-    return renderer.render()
+    env.model.geom_rgba[env.peg_geom_id] = (0.02, 0.65, 0.83, 1.0)
+    with mujoco.Renderer(env.model, height, width) as renderer:
+        renderer.update_scene(env.data, camera)
+        if show_contacts:
+            for i in range(env.data.ncon):
+                contact = env.data.contact[i]
+                if env.peg_geom_id not in (contact.geom1, contact.geom2):
+                    continue
+                wrench = np.zeros(6)
+                mujoco.mj_contactForce(env.model, env.data, i, wrench)
+                if wrench[0] <= 0 or renderer.scene.ngeom >= renderer.scene.maxgeom:
+                    continue
+                normal = contact.frame[:3]
+                if contact.geom1 == env.peg_geom_id:
+                    normal = -normal
+                arrow = renderer.scene.geoms[renderer.scene.ngeom]
+                mujoco.mjv_initGeom(arrow, mujoco.mjtGeom.mjGEOM_ARROW,
+                                    np.zeros(3), np.zeros(3), np.eye(3).ravel(),
+                                    np.array([1.0, 0.65, 0.05, 1.0], dtype=np.float32))
+                mujoco.mjv_connector(arrow, mujoco.mjtGeom.mjGEOM_ARROW, 0.001,
+                                     contact.pos - normal * 0.012, contact.pos)
+                renderer.scene.ngeom += 1
+        return renderer.render()
 
 
 def main():
@@ -55,7 +76,8 @@ def main():
         obs_t, _, term, _, info_t = env_tilted.step(action_down)
         if term:
             break
-    img_tilted = render_scene(env_tilted, camera_distance=0.18, azimuth=140, elevation=-20, lookat=(0.0, 0.0, 0.025))
+    img_tilted = render_scene(env_tilted, camera_distance=0.16, azimuth=125,
+                              elevation=-14, lookat=(0.0, 0.0, 0.020), show_contacts=True)
 
     # 3. Overview Perspective (Peg above slot in ready position)
     env_ready = FrankaSlotEnv(seed=42)
@@ -65,12 +87,7 @@ def main():
     # Extract tactile traction distribution from the tilted pad
     tactile_data = obs_t["tactile"]["left_pad"]
     # Normal pressure
-    fz_pad = env_tilted.sensor_left.generate_traction_field(
-        contact_type="line_edge",
-        indentation_depth=0.0006,
-        offset=(0.0, 0.002),
-        aspect_ratio=2.5
-    )["normal_pressure"] / 1e3 # in kPa
+    fz_pad = env_tilted.left_pad_pressure / 1e3
 
     # Create composite 2x2 dashboard
     fig = plt.figure(figsize=(16, 12), dpi=200)
@@ -100,7 +117,7 @@ def main():
     ax3.imshow(img_tilted)
     ax3.set_title("3. Tilted Push (+10° Tilt) — WEDGING / FORCE SURGE", color="#F87171", fontsize=13, weight="bold", pad=10)
     ax3.axis("off")
-    ax3.text(0.04, 0.92, f"Peak Force: {info_t['peak_force_n']:.1f} N (>40 N limit!)\nWedging Rim Contact\nState: JAMMED at 0.45 mm",
+    ax3.text(0.04, 0.92, f"Peak force: {info_t['peak_force_n']:.1f} N\nGold arrows: peg contact normals\nDepth: {info_t['insertion_depth_m']*1e3:.2f} mm",
              transform=ax3.transAxes, color="#F8FAFC", fontsize=10,
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#7F1D1D", edgecolor="#F87171", alpha=0.9))
 

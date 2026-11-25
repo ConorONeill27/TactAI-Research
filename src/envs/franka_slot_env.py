@@ -619,6 +619,7 @@ class FrankaSlotEnv:
             rel_omega=-peg_wrx,
             aspect_ratio=c_aspect
         )
+        self.left_pad_pressure = res_left["normal_pressure"]
 
         # Extract invariants for Left and Right pads
         inv_left = self.invariant_engine.extract_invariants(

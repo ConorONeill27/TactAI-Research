@@ -3,8 +3,8 @@
     "episode_id": "tactai_controller_tilt_10deg",
     "controller_name": "tactai_phase2_controller",
     "seed": 42,
-    "timestamp_iso": "2026-10-20T17:17:41.042411+00:00",
-    "git_commit": "357e2ebc05af26f53fbbcb8aa87350c4177861bd",
+    "timestamp_iso": "2026-11-25T13:15:53.557984+00:00",
+    "git_commit": "4fc3d30310adebc24fc5380d281753c93a3fc39f",
     "env_params": {
       "slot_clearance": 0.00015,
       "initial_tilt_deg": 10.0
@@ -15,20 +15,20 @@
     "is_success": true,
     "is_jammed": false,
     "is_force_exceeded": false,
-    "total_steps": 478,
-    "cycle_time_s": 0.47800000000000004,
-    "peak_force_n": 8.779745318402195,
-    "mean_contact_force_n": 3.9803058298773357,
-    "final_insertion_depth_mm": 20.160459295792663,
+    "total_steps": 484,
+    "cycle_time_s": 0.484,
+    "peak_force_n": 15.242171661682178,
+    "mean_contact_force_n": 6.598567335002473,
+    "final_insertion_depth_mm": 20.212707280419945,
     "min_stick_ratio": 0.0,
-    "min_jamming_index": 0.45100808223639494,
-    "cumulative_reward": 583.7630521094575
+    "min_jamming_index": 0.432895343241216,
+    "cumulative_reward": 576.4243365478329
   },
   "contact_mode_distribution": {
-    "FREE_SPACE": 0.9456066945606695,
-    "POINT_CONTACT": 0.0,
-    "LINE_CONTACT": 0.0020920502092050207,
+    "FREE_SPACE": 0.9400826446280992,
+    "POINT_CONTACT": 0.002066115702479339,
+    "LINE_CONTACT": 0.002066115702479339,
     "TWO_POINT_JAMMING": 0.0,
-    "GROSS_SLIP": 0.05230125523012552
+    "GROSS_SLIP": 0.05578512396694215
   }
 }

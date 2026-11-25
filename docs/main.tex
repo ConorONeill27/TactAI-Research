@@ -30,7 +30,7 @@ Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies: A 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-Learned manipulation policies such as action-chunking diffusion policies generalize well visually but can produce large force spikes, two-point wedging, and object drop when contact geometry is out of distribution (OOD). We present a 1\,kHz supervisory safety filter that sits between a pre-trained policy and the robot actuators and requires no policy retraining. A complementary observer fuses 1\,kHz proprioception with delayed (10--50\,ms) optical-tactile traction invariants---the Differential Center of Pressure $\Delta\mathbf{r}_c$, the Contact Constraint Tensor $\mathbf{C}$, the Incipient Stick Ratio $\rho_{\mathrm{stick}}$, and a Whitney-style Jamming Index $J_{\mathrm{jam}}$. A 7-variable OSQP quadratic program filters the 6-DoF arm wrench (mean 0.11\,ms per filter step in Python), a closed-form 1D barrier regulates grip force, a 3-stage hybrid automaton performs un-wedging before reorientation, and a discrete-time energy tank bounds energy injected by delayed feedback. We evaluate in MuJoCo with an analytical tactile model and a stochastic action-chunking policy proxy. On 0.15\,mm-clearance peg insertion with $N=50$ held-out random OOD initial conditions (per-axis tilt up to $\pm15^\circ$, lateral offset up to $\pm0.92$\,mm), the filter achieves 74\% insertion success (95\% CI 60--84\%; 97\% inside an a-priori capture basin) with zero jams and all trials below the 15\,N force limit, versus 8\% success and 92\% jamming for 6-axis wrist F/T admittance and 0\% success for the unconstrained policy. On stiff contour tracking ($N=20$) it achieves 100\% safe tracking (2.06\,N RMSE), and under incipient slip ($N=20$) it reduces tool drop from 85--100\% to 10\%. All results are simulation-only; we discuss the idealizations of the tactile model and the hand-tuned components explicitly.
+Learned manipulation policies such as action-chunking diffusion policies generalize well visually but can produce large force spikes, two-point wedging, and object drop when contact geometry is out of distribution (OOD). We present a 1\,kHz supervisory safety filter that sits between a pre-trained policy and the robot actuators and requires no policy retraining. A complementary observer fuses 1\,kHz proprioception with delayed (10--50\,ms) optical-tactile traction invariants---the Differential Center of Pressure $\Delta\mathbf{r}_c$, the Contact Constraint Tensor $\mathbf{C}$, the Incipient Stick Ratio $\rho_{\mathrm{stick}}$, and a Whitney-style Jamming Index $J_{\mathrm{jam}}$. A 7-variable OSQP quadratic program filters the 6-DoF arm wrench (mean 0.11\,ms per filter step in Python), a closed-form 1D barrier regulates grip force, a 3-stage hybrid automaton performs un-wedging before reorientation, and a discrete-time energy tank bounds energy injected by delayed feedback. We evaluate in MuJoCo with an analytical tactile model and a stochastic action-chunking policy proxy. On 0.15\,mm-clearance peg insertion with $N=50$ held-out random OOD initial conditions (per-axis tilt up to $\pm15^\circ$, lateral offset up to $\pm0.92$\,mm), the filter achieves 74\% insertion success (95\% CI 60--84\%; 97\% inside an a-priori capture basin) with zero jams and all trials below the 15\,N force limit, versus 8\% success and 92\% jamming for 6-axis wrist F/T admittance and 0\% success for the unconstrained policy. On stiff contour tracking ($N=20$) it achieves 100\% safe tracking (2.33\,N RMSE), and under incipient slip ($N=20$) it reduces tool drop from 85--100\% to 10\%. All results are simulation-only; we discuss the idealizations of the tactile model and the hand-tuned components explicitly.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,7 +127,7 @@ F_{\mathrm{grip}}=F_{\mathrm{grip},0}+K_{\mathrm{slip}}\max(0,\rho_{\mathrm{safe
 \subsection{Safety and Passivity Arguments}
 \textbf{Proposition 1 (Informal Guarantee).} Under quasi-static contact with stiffness $K_{\mathrm{env}}$ and the automaton (\ref{eq:cbf_qp})--(\ref{eq:uz_piecewise}), if Stage 2 is entered with $h_{\mathrm{force}}>0$ and the Stage 2 bound produces $\dot z>0$ before $\|\mathbf F\|$ reaches $F_{\max}=15$\,N, then $h_{\mathrm{force}}$ remains non-negative through the transition to Stage 3, which begins only after rim compression is relieved.
 
-\emph{Sketch.} At $G_{1\to2}$, $h_{\mathrm{force}}\approx14.9$\,N. Stage 2 commands a restoring wrench that reverses $\dot z$ after peak compression $\Delta z_{\max}\approx v_0\sqrt{m/K_{\mathrm{env}}}$, after which $\dot h_{\mathrm{force}}=K_{\mathrm{env}}\dot z>0$. This is a sufficient-condition argument, not a formal hybrid-systems proof; the condition depends on approach velocity and is verified empirically below.
+\emph{Sketch.} In a scalar spring model, let $d=(F_{\max}-F_{\mathrm{guard}})/K_{\mathrm{env}}$ be the allowable additional compression. If the net retraction wrench is bounded below by $F_{\mathrm{retract}}$, the available arrest work is $F_{\mathrm{retract}}d+(F_{\max}^2-F_{\mathrm{guard}}^2)/(2K_{\mathrm{env}})$. Requiring this work to exceed $mv_0^2/2$ gives $v_0\le 0.169$\,m/s for $m=1.2$\,kg, $F_{\mathrm{guard}}=0.1$\,N, $F_{\mathrm{retract}}=4$\,N, and $K_{\mathrm{env}}=10^4$\,N/m. These are illustrative scalar-model assumptions: the MuJoCo wrist and peg have a combined nominal mass of 2.5\,kg and the Stage 2 wrench varies with state. At 1\,ms sampling, the guard can be detected one tick late, so the continuous-time calculation needs an additional compression allowance for the motion during that tick.
 
 \textbf{Proposition 2 (passivity).} With storage $V=\frac12\mathbf v^\top\mathbf M\mathbf v+E_k$ and $E_k\ge E_{\min}=0.05$\,J, attenuating delayed tactile feedback whenever it would inject positive power bounds the energy injected by delayed updates by $E_0-E_{\min}$.
 
@@ -173,10 +173,10 @@ Fixed impedance ($K=200$) & 0\% (stall) & 0/32 & 0\% & $9.99\pm0.17$ & 0\% & 0\%
 & \multicolumn{2}{c}{\textbf{B: contour}} & \multicolumn{2}{c}{\textbf{C: slip}}\\
 \textbf{Controller} & \textbf{Safe} & \textbf{RMSE} & \textbf{Drop} & \textbf{Slip}\\
 \midrule
-Unconstrained & 15\% & 6.80\,N & 100\% & 148.8\,mm\\
-Fixed impedance & 85\% & 2.53\,N & 85\% & 104.8\,mm\\
-Wrist F/T adm. & 0\% & 27.38\,N & 85\% & 44.0\,mm\\
-\textbf{Ours} & \textbf{100\%} & \textbf{2.06\,N} & \textbf{10\%} & \textbf{0.44\,mm}\\
+Unconstrained & 40\% & 4.79\,N & 100\% & 148.8\,mm\\
+Fixed impedance & 75\% & 2.80\,N & 85\% & 104.8\,mm\\
+Wrist F/T adm. & 0\% & 27.31\,N & 85\% & 44.0\,mm\\
+\textbf{Ours} & \textbf{100\%} & \textbf{2.33\,N} & \textbf{10\%} & \textbf{0.44\,mm}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -189,11 +189,14 @@ Wrist F/T adm. & 0\% & 27.38\,N & 85\% & 44.0\,mm\\
 \toprule
 \textbf{Condition} & \textbf{Result}\\
 \midrule
-Full filter (A) & 100\% succ., $11.79\pm0.52$\,N\\
-w/o $\Delta\mathbf{r}_c$ and $\mathbf{C}$ (A) & 0\% succ. (rim stall), $11.79\pm0.52$\,N\\
-w/o Stage 2 un-wedging (A) & 0\% succ., $30.22\pm2.02$\,N\\
-w/o energy tank (A) & 35\% succ., $11.96\pm0.47$\,N\\
-w/o energy tank (B) & 0\% safe, $76.97\pm6.81$\,N chatter\\
+Full filter (A) & 100\% succ., $15.59\pm0.79$\,N\\
+w/o $\Delta\mathbf{r}_c$ and $\mathbf{C}$ (A) & 0\% succ., $15.59\pm0.79$\,N\\
+w/o Stage 2 un-wedging (A) & 0\% succ., $24.08\pm1.50$\,N\\
+w/o energy tank (A) & 100\% succ., $15.64\pm0.69$\,N\\
+w/o energy tank (B) & $79.14\pm6.37$\,N mean peak\\
+ & 88.53\,N max peak, 0\% safe\\
+Wrist F/T adm. (B) & $126.86\pm11.29$\,N mean peak\\
+ & 142.17\,N max peak, 0\% safe\\
 w/o slip barrier (C) & 100\% drop\\
 \midrule
 $K_{\mathrm{env}}=10^2$\,N/m & safe ($3.21\pm0.23$\,N), \textbf{no insertion}\\
@@ -207,14 +210,14 @@ $\tau_{\mathrm{delay}}\in[10,50]$\,ms & success, $11.73$--$11.91$\,N\\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/phase3_benchmark_comparison.pdf}
-\caption{Benchmark A held-out evaluation and multi-seed robustness sweeps. (A) Insertion success vs.\ jamming rate across held-out random trials ($N=50$, unused seed; 74.0\% overall, 96.9\% in-basin, 0.0\% jamming for Ours vs.\ 8.0\% / 92.0\% for wrist F/T); (B) peak force vs.\ initial tilt norm $\|\boldsymbol\theta_0\|_2$; (C) stiffness sweep; (D) latency sweep ($N=5$ seeds/point).}
+\caption{Benchmark A held-out evaluation and multi-seed robustness sweeps. (A) Insertion success and jamming rates across held-out random trials ($N=50$). (B) Peak force by rounded initial tilt norm $\|\boldsymbol\theta_0\|_2$. Dots are individual trials, with bin means and one-standard-deviation bands. (C) Stiffness sweep. (D) Latency sweep.}
 \label{fig:bench_a}
 \end{figure*}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/phase3_benchmarks_bc_ablation.pdf}
-\caption{(A) Benchmark B contour force tracking (127.6\,N peaks for wrist F/T, 77.0\,N without energy tank, 10.6\,N ours); (B) Benchmark C cumulative slip; (C) component ablations.}
+\caption{(A) Benchmark B contour force traces for the phase-zero trial. Legend peaks are computed over the displayed 600 samples. Tables~\ref{tab:bench_bc} and~\ref{tab:ablation} summarize the full 20-phase sweep. (B) Benchmark C cumulative slip. (C) Component ablations.}
 \label{fig:bench_bc}
 \end{figure*}
 

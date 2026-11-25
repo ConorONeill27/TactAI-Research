@@ -6,6 +6,8 @@
       "safe_tracking_pct": 40.0,
       "force_rmse_n": 4.79,
       "peak_force_n": 26.23,
+      "mean_peak_force_n": 17.99,
+      "std_peak_force_n": 4.71,
       "chatter_detected": false
     },
     "fixed_impedance_k200": {
@@ -14,6 +16,8 @@
       "safe_tracking_pct": 75.0,
       "force_rmse_n": 2.8,
       "peak_force_n": 18.31,
+      "mean_peak_force_n": 12.6,
+      "std_peak_force_n": 2.98,
       "chatter_detected": false
     },
     "wrist_ft_admittance": {
@@ -22,6 +26,8 @@
       "safe_tracking_pct": 0.0,
       "force_rmse_n": 27.31,
       "peak_force_n": 142.17,
+      "mean_peak_force_n": 126.86,
+      "std_peak_force_n": 11.29,
       "chatter_detected": false
     },
     "tactai_ours": {
@@ -30,6 +36,18 @@
       "safe_tracking_pct": 100.0,
       "force_rmse_n": 2.33,
       "peak_force_n": 13.98,
+      "mean_peak_force_n": 10.82,
+      "std_peak_force_n": 1.77,
+      "chatter_detected": false
+    },
+    "tactai_no_tank": {
+      "label": "TactAI without Energy Tank",
+      "num_trials": 20,
+      "safe_tracking_pct": 0.0,
+      "force_rmse_n": 17.32,
+      "peak_force_n": 88.53,
+      "mean_peak_force_n": 79.14,
+      "std_peak_force_n": 6.37,
       "chatter_detected": false
     }
   },
@@ -103,7 +121,7 @@
       "mean_successful_cycle_time_s": 0.4831,
       "std_successful_cycle_time_s": 0.003,
       "num_successful_cycle_times": 20,
-      "mean_solve_time_ms": 0.1118
+      "mean_solve_time_ms": 0.3092
     },
     "tactai_no_cop_tensor": {
       "label": "Ablation 1: w/o CoP Delta_rc & Tensor C",
@@ -136,7 +154,7 @@
       "mean_successful_cycle_time_s": null,
       "std_successful_cycle_time_s": null,
       "num_successful_cycle_times": 0,
-      "mean_solve_time_ms": 0.1073
+      "mean_solve_time_ms": 0.2908
     },
     "tactai_no_jam_cbf": {
       "label": "Ablation 2: w/o Stage 2 Un-Wedging h_jam",
@@ -169,7 +187,7 @@
       "mean_successful_cycle_time_s": null,
       "std_successful_cycle_time_s": null,
       "num_successful_cycle_times": 0,
-      "mean_solve_time_ms": 0.1171
+      "mean_solve_time_ms": 0.2961
     },
     "tactai_no_tank": {
       "label": "Ablation 3: w/o Energy Tank Passivity T(t)",
@@ -202,7 +220,7 @@
       "mean_successful_cycle_time_s": 0.4829,
       "std_successful_cycle_time_s": 0.0023,
       "num_successful_cycle_times": 20,
-      "mean_solve_time_ms": 0.1125
+      "mean_solve_time_ms": 0.29
     }
   }
 }

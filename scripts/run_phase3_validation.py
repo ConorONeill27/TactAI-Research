@@ -351,6 +351,7 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
         ("fixed_impedance_k200", "Fixed Impedance (K=200)"),
         ("wrist_ft_admittance", "Wrist F/T Admittance"),
         ("tactai_ours", "TactAI Safety Filter (Ours)"),
+        ("tactai_no_tank", "TactAI without Energy Tank"),
     ]
     bench_b_summary: Dict[str, Any] = {}
     bench_b_traces: Dict[str, np.ndarray] = {}
@@ -371,6 +372,8 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
             "safe_tracking_pct": round(safe_tracking, 1),
             "force_rmse_n": round(force_rmse, 2),
             "peak_force_n": round(peak_force, 2),
+            "mean_peak_force_n": round(float(np.mean([t["peak_force_n"] for t in trials])), 2),
+            "std_peak_force_n": round(float(np.std([t["peak_force_n"] for t in trials], ddof=1)), 2),
             "chatter_detected": chatter,
         }
         bench_b_traces[mode_key] = trials[0]["forces_trace"]
@@ -575,7 +578,7 @@ def generate_phase3_figure(
 ) -> None:
     """Generates Figure 1: Benchmark A Insertion & Multi-Seed Robustness with Held-Out support."""
     fig, axes = plt.subplots(2, 2, figsize=(13, 9), dpi=220)
-    plt.subplots_adjust(hspace=0.34, wspace=0.26)
+    plt.subplots_adjust(hspace=0.65, wspace=0.26)
 
     keys = [
         "unconstrained_farm",
@@ -661,6 +664,11 @@ def generate_phase3_figure(
         col, style, lbl = colors_map[k]
         ax.plot(tilt_bins, mean_f, style, color=col, linewidth=2.0, markersize=5.0, label=lbl)
         ax.fill_between(tilt_bins, mean_f - std_f, mean_f + std_f, color=col, alpha=0.14)
+        ax.scatter(
+            [round(t["initial_tilt_norm_deg"]) for t in trials],
+            [t["peak_force_n"] for t in trials],
+            color=col, s=9, alpha=0.45, zorder=3,
+        )
 
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
     ax.axhline(40.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Jamming Failure (40 N)")
@@ -669,7 +677,7 @@ def generate_phase3_figure(
     ax.set_title(r"(B) Peak Contact Force vs. 2-Axis OOD Tilt Norm ($\mu \pm 1\sigma$)", fontsize=10, fontweight="bold")
     ax.set_ylim(0, 54)
     ax.grid(True, linestyle=":", alpha=0.6)
-    ax.legend(loc="upper left", fontsize=7.5)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.20), ncol=2, fontsize=7.5)
 
     # Panel C: Environmental Stiffness Robustness
     ax = axes[1, 0]
@@ -746,24 +754,23 @@ def generate_bc_ablation_figure(
     # Panel A: Benchmark B (Contour Tracking) Force Profiles
     ax = axes[0]
     traces_b = bc_ablation.get("_traces_b", {})
-    t_axis = np.arange(600)
-
-    if traces_b:
-        if "unconstrained_farm" in traces_b:
-            ax.plot(t_axis, traces_b["unconstrained_farm"][:600], color="#DC2626", linewidth=1.2, label="Unconstrained Policy (Peak: 20.4 N)")
-        if "wrist_ft_admittance" in traces_b:
-            ax.plot(t_axis, traces_b["wrist_ft_admittance"][:600], color="#2563EB", linewidth=1.0, linestyle="--", label="Wrist F/T Admittance (Chatter: 127.6 N)")
-        if "tactai_no_tank" in traces_b:
-            ax.plot(t_axis, traces_b["tactai_no_tank"][:600], color="#D97706", linewidth=1.1, linestyle="-.", label="Ablation: w/o Energy Tank (Peak: 77.0 N)")
-        if "tactai_ours" in traces_b:
-            ax.plot(t_axis, traces_b["tactai_ours"][:600], color="#059669", linewidth=2.2, label="TactAI + Tank (Ours, Peak: 10.64 N)")
+    for key, label, color, style in [
+        ("unconstrained_farm", "Unconstrained policy", "#DC2626", "-"),
+        ("wrist_ft_admittance", "Wrist F/T admittance", "#2563EB", "--"),
+        ("tactai_no_tank", "TactAI without tank", "#D97706", "-."),
+        ("tactai_ours", "TactAI with tank", "#059669", "-"),
+    ]:
+        if key in traces_b:
+            trace = traces_b[key][:600]
+            ax.plot(np.arange(len(trace)), trace, color=color, linestyle=style,
+                    label=f"{label} ({np.max(trace):.1f} N)")
 
     ax.axhline(15.0, color="#059669", linestyle=":", linewidth=1.2, label="CBF Safety Bound (15.0 N)")
     ax.axhline(8.0, color="#475569", linestyle="--", linewidth=1.0, alpha=0.8, label="Target Force (8.0 N)")
     ax.set_xlabel("Time (ms)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel(r"Normal Contact Force $F_n$ (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title(r"(A) Benchmark B: Non-Planar Stiff Contour ($N=20$)", fontsize=10, fontweight="bold")
-    ax.set_ylim(-2, 165)
+    ax.set_title("(A) Benchmark B: phase-zero force traces", fontsize=10, fontweight="bold")
+    ax.set_ylim(bottom=-2)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="upper left", fontsize=7.5)
 

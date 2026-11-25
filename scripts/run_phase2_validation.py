@@ -129,7 +129,7 @@ def run_benchmark():
     # Subplot 2: Tilt Angle Correction
     axes[1].plot(b_times, b_tilts, "r-", linewidth=2.2, label="Unconstrained Baseline (Wedged at ~10°)")
     axes[1].plot(c_times, c_tilts, "b-", linewidth=2.2, label="TactAI Dynamic Reorientation (+10° -> 0°)")
-    axes[1].axhline(1.0, color="green", linestyle="--", linewidth=1.5, label="Sub-Millimeter Alignment (< 1.0°)")
+    axes[1].axhline(1.0, color="green", linestyle="--", linewidth=1.5, label="Sub-Degree Alignment (< 1.0°)")
     axes[1].set_ylabel("Peg Tilt Angle (°)", fontsize=11, fontweight="bold")
     axes[1].grid(True, linestyle="--", alpha=0.6)
     axes[1].legend(loc="upper right", framealpha=0.9)
@@ -142,6 +142,11 @@ def run_benchmark():
     axes[2].set_ylabel("Insertion Depth (mm)", fontsize=11, fontweight="bold")
     axes[2].grid(True, linestyle="--", alpha=0.6)
     axes[2].legend(loc="upper left", framealpha=0.9)
+
+    for ax, values in zip(axes, (b_forces, b_tilts, b_depths)):
+        ax.plot(b_times[-1], values[-1], "rx", markersize=9, markeredgewidth=2)
+    axes[0].annotate("Jam termination", (b_times[-1], b_forces[-1]),
+                     xytext=(10, 10), textcoords="offset points")
 
     fig_path = os.path.join(fig_dir, "phase2_validation_benchmark.png")
     plt.savefig(fig_path, dpi=200, bbox_inches="tight")

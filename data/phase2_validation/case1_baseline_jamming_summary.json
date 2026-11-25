@@ -3,8 +3,8 @@
     "episode_id": "baseline_tilt_10deg",
     "controller_name": "unconstrained_baseline",
     "seed": 42,
-    "timestamp_iso": "2026-10-20T17:17:40.957474+00:00",
-    "git_commit": "357e2ebc05af26f53fbbcb8aa87350c4177861bd",
+    "timestamp_iso": "2026-11-25T13:15:53.459093+00:00",
+    "git_commit": "4fc3d30310adebc24fc5380d281753c93a3fc39f",
     "env_params": {
       "slot_clearance": 0.00015,
       "initial_tilt_deg": 10.0
