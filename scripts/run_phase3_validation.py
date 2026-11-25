@@ -196,6 +196,7 @@ def run_single_episode(
     max_steps: int = 550,
     use_action_chunk_policy: bool = True,
     trial_seed: int = 42,
+    tactile_transform=None,
 ) -> Dict[str, Any]:
     """Runs a single deterministic insertion episode wrapping the 20 Hz nominal policy."""
     obs, info = env.reset(seed=trial_seed, ood_tilt_deg=tilt_deg, ood_offset_mm=offset_mm)
@@ -214,7 +215,8 @@ def run_single_episode(
 
     for step in range(max_steps):
         u_nominal = nom_policy.get_action(obs) if use_action_chunk_policy else u_const
-        u_cmd, diag = controller.compute_safe_action(u_nominal, obs)
+        controller_obs = tactile_transform(obs, step) if tactile_transform else obs
+        u_cmd, diag = controller.compute_safe_action(u_nominal, controller_obs)
         obs, reward, term, trunc, info = env.step(u_cmd)
 
         forces.append(float(info["current_force_n"]))
@@ -237,6 +239,8 @@ def run_single_episode(
 
     return {
         "trial_seed": int(trial_seed),
+        "final_stage": diag.get("stage"),
+        "rim_arrest_latched": diag.get("rim_arrest_latched"),
         "tilt_deg": list(tilt_deg),
         "offset_mm": list(offset_mm),
         "initial_tilt_norm_deg": float(np.hypot(tilt_deg[0], tilt_deg[1])),

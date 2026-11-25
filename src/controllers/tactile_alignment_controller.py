@@ -44,6 +44,10 @@ class TactileAlignmentController:
         enable_unwedge_cbf: bool = True,  # Ablation flag: Anti-jamming un-wedging micro-retraction
         enable_energy_tank: bool = True,  # Ablation flag: Energy-tank passivity supervisor
         enable_slip_cbf: bool = True,     # Ablation flag: Incipient slip shear barrier
+        enable_tensor_modulation: bool = True,
+        rim_brake_force: float = 4.2,
+        rim_latch_force: float = 6.5,
+        rim_damping: float = 52.0,
     ):
         self.f_max = f_max
         self.gamma_jam = gamma_jam
@@ -65,6 +69,10 @@ class TactileAlignmentController:
         self.enable_unwedge_cbf = enable_unwedge_cbf
         self.enable_energy_tank = enable_energy_tank
         self.enable_slip_cbf = enable_slip_cbf
+        self.enable_tensor_modulation = enable_tensor_modulation
+        self.rim_brake_force = rim_brake_force
+        self.rim_latch_force = rim_latch_force
+        self.rim_damping = rim_damping
 
         # Pre-initialize OSQP solver template for 6D wrench filtering
         # Objective: min 1/2 (u - u_des)^T W (u - u_des) + 1/2 lambda * delta^2
@@ -233,6 +241,8 @@ class TactileAlignmentController:
         else:
             c_norm_mat = np.eye(2)
         k_rot_mat = self.kp_rot * kappa_c * c_norm_mat
+        if not self.enable_tensor_modulation:
+            k_rot_mat = self.kp_rot * np.eye(2)
 
         # -------------------------------------------------------------
         # 2. Compute Stage-Conditioned Tactile Alignment Wrench & CBF Bounds
@@ -304,10 +314,10 @@ class TactileAlignmentController:
                 # 4.2 N unlatched brake, 6.5 N latch on vertical contact force) is a hand-tuned heuristic.
                 # Its constants were selected while observing the 50 structured OOD_SCENARIOS; unbiased
                 # performance is reported on held-out random trials (scripts/run_heldout_validation.py).
-                d_z_stage3 = 52.0 if (-0.0055 < ee_pos[2] < -0.0015) else 5.0
-                if self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > 6.5:
+                d_z_stage3 = self.rim_damping if (-0.0055 < ee_pos[2] < -0.0015) else 5.0
+                if self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > self.rim_latch_force:
                     self._rim_obstructed = True
-                if self._rim_obstructed or (self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > 4.2):
+                if self._rim_obstructed or (self.enable_unwedge_cbf and ee_pos[2] > -0.0058 and abs(raw_ext_force[2]) > self.rim_brake_force):
                     # Aligned peg encountered flat rim outside chamfer capture cone -> arrest safely (< 15 N)
                     uz_cbf_min = 260.0 * (0.005 - ee_pos[2]) - 18.0 * ee_linvel[2] + 3.5 * f_norm
                     uz_cbf_max = uz_cbf_min
@@ -339,7 +349,7 @@ class TactileAlignmentController:
         u_target = u_nom.copy()
         u_target[0] = fx_align
         u_target[1] = fy_align
-        u_target[2] = -8.0 - (52.0 if (-0.0055 < ee_pos[2] < -0.0015) else 5.0) * ee_linvel[2]
+        u_target[2] = -8.0 - (self.rim_damping if (-0.0055 < ee_pos[2] < -0.0015) else 5.0) * ee_linvel[2]
         u_target[3] = tx_align
         u_target[4] = ty_align
         u_target[5] = tz_align
@@ -431,6 +441,8 @@ class TactileAlignmentController:
             "tilt_deg": float(tilt_deg),
             "tilt_rad_est": float(tilt_rad),
             "contact_engaged": bool(self._contact_step is not None),
+            "stage": 1 if self._contact_step is None else 2 if self._realign_step is None else 3,
+            "rim_arrest_latched": bool(self._rim_obstructed),
             "is_intervened": is_intervened,
             "tank_energy_j": float(self.tank_energy),
             "solve_time_ms": float(solve_time_ms),
