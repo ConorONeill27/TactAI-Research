@@ -1,0 +1,39 @@
+{
+  "files": {
+    "src/controllers/tactile_alignment_controller.py": "ea63696f9bc0304b3d6110afeb4b2bdae8adcf460af9b1ed6a067707c4c15563",
+    "src/controllers/insertion_protocol.py": "815eed281c2c1a4e165325c7cb7167abda11c0d60401960d54d2c5ec51cff102",
+    "src/envs/franka_slot_env.py": "6660433e0b3b194f0059494997ca8712512f56908ce0842925593bde911e1775",
+    "src/envs/unknown_grasp_env.py": "fe18dde7bc9348e8af4d9b64e5d0fb08480fdeb5c2043b6808304b810650d658",
+    "src/sensors/gelsight_sensor.py": "79326709375ef8ca8cd66870d68c7192581ca23ba31c12ed0253e74fbd9c1aa4",
+    "src/controllers/baseline_controllers.py": "5c161abfdaac30316a83ce1fedaddbb2c06d99e6157cdd22080a74413d4d2e01",
+    "src/controllers/learned_policy.py": "702465bfdcd64a0276234ee88e9f3b043969ada591d9a5c8fb7c6e3eeb5722e6",
+    "data/learned_policy/weights.pt": "d224439b099f8343331df520f10715ef26b17d7b4ed240bb456891baf0c758ba"
+  },
+  "a1_seed": 1524526683,
+  "n": 50,
+  "a1": {
+    "learned_approach": true,
+    "rim_damping": 125,
+    "rim_band_lower": -0.0063,
+    "settle_ticks": 115,
+    "force_trigger_fraction": 0.75,
+    "retraction_floor": 4,
+    "kp_lat": 2000,
+    "centering_damping": 75,
+    "deep_insertion_push": 16
+  },
+  "a2": {
+    "learned_approach": true,
+    "rim_damping": 185.0,
+    "rim_band_lower": -0.0063,
+    "settle_ticks": 115,
+    "force_trigger_fraction": 0.75,
+    "retraction_floor": 4,
+    "kp_lat": 2000,
+    "centering_damping": 75,
+    "deep_insertion_push": 16,
+    "unknown_grasp_mode": true
+  },
+  "a2_horizon": 850,
+  "a2_seed": 2085994374
+}

@@ -50,9 +50,8 @@ def main():
     steps = []
     if not args.compile_only:
         steps.extend([
-            ("scripts.run_heldout_validation",),
-            ("scripts.run_phase3_validation",),
-            ("scripts.run_contact_audit", "--workers", str(args.workers)),
+            ("scripts.run_phase3_validation", "--only", "contour-slip"),
+            ("scripts.plot_unified_grasp",),
             ("scripts.run_phase2_validation",),
             ("scripts.render_visual_snapshots",),
             ("scripts.draw_controller_architecture",),
@@ -62,6 +61,8 @@ def main():
         print(f"\n== {' '.join(step)} ==", flush=True)
         subprocess.run([sys.executable, "-m", *step], cwd=ROOT, env=env, check=True)
     compile_paper(latexmk or tectonic, tectonic is not None)
+    subprocess.run([sys.executable, "-m", "scripts.check_manuscript_consistency"],
+                   cwd=ROOT, env=env, check=True)
     print(f"Built {DOCS / 'research_paper.pdf'}")
 
 

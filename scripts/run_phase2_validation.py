@@ -1,8 +1,5 @@
 """
-Phase 2 Benchmark & Scientific Validation Script.
-Demonstrates the tactile supervisory safety filter and alignment controller
-achieving 100% insertion success across severe out-of-distribution misalignments
-where the unconstrained baseline suffers catastrophic jamming.
+Illustrative paired 10-degree comparison of the learned policy with and without TactAI.
 
 Outputs:
 - Binary episode trajectories (.npz) and JSON summaries in data/phase2_validation/
@@ -11,9 +8,6 @@ Outputs:
 
 import os
 import sys
-import json
-import time
-import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -21,7 +15,8 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.envs.franka_slot_env import FrankaSlotEnv
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
+from src.controllers.insertion_protocol import tactai
+from src.controllers.learned_policy import LearnedChunkPolicy
 from src.utils.logger import EpisodeLogger
 
 
@@ -33,13 +28,8 @@ def run_benchmark():
 
     logger = EpisodeLogger(log_dir=out_dir)
     env = FrankaSlotEnv(seed=42)
-    controller = TactileAlignmentController(
-        f_max=15.0,
-        gamma_jam=2.0,
-        kp_rot=35.0,
-        kd_rot=1.5,
-        dt=env.dt
-    )
+    controller = tactai(env.dt)
+    policy = LearnedChunkPolicy()
 
     print("=" * 80)
     print("  TACTAI: PHASE 2 SCIENTIFIC VALIDATION BENCHMARK")
@@ -57,22 +47,21 @@ def run_benchmark():
         env_params={"slot_clearance": env.slot_clearance, "initial_tilt_deg": 10.0}
     )
     obs, info = env.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-    u_down = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
-
     b_times, b_forces, b_depths, b_tilts = [], [], [], []
-    for step in range(150):
+    for step in range(550):
+        u_down = policy.get_action(obs)
         obs, r, term, trunc, info = env.step(u_down)
         logger.log_step(obs, u_down, r, info)
-        b_times.append(step * env.dt * 1e3)
+        b_times.append((step + 1) * env.dt * 1e3)
         b_forces.append(info["current_force_n"])
         b_depths.append(info["insertion_depth_m"] * 1e3)
         b_tilts.append(info["tilt_deg"])
-        if info["is_jammed"] or term:
+        if term or trunc:
             break
 
     b_summary = logger.finish_episode(info, save_prefix="case1_baseline_jamming")
-    print(f"  [RESULT] Status: {'JAMMED' if info['is_jammed'] else 'TERMINATED'}")
-    print(f"  Peak Force:    {b_summary['kpis']['peak_force_n']:.2f} N (Failure > 40 N)")
+    print(f"  [RESULT] Status: {'JAMMED' if info['is_jammed'] else 'ENDED'}")
+    print(f"  Peak Force:    {b_summary['kpis']['peak_force_n']:.2f} N")
     print(f"  Final Depth:   {b_summary['kpis']['final_insertion_depth_mm']:.2f} mm")
     print(f"  Duration:      {b_summary['kpis']['cycle_time_s']*1e3:.1f} ms")
 
@@ -82,30 +71,30 @@ def run_benchmark():
     print("\n>>> RUNNING CASE 2: TactAI Tactile Alignment Controller (+10° Tilt)")
     logger.start_episode(
         episode_id="tactai_controller_tilt_10deg",
-        controller_name="tactai_phase2_controller",
+        controller_name="tactai_frozen",
         seed=42,
         env_params={"slot_clearance": env.slot_clearance, "initial_tilt_deg": 10.0}
     )
     obs, info = env.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
     controller.reset()
+    policy.reset()
 
     c_times, c_forces, c_depths, c_tilts = [], [], [], []
-    u_nom = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
-
-    for step in range(500):
+    for step in range(550):
+        u_nom = policy.get_action(obs)
         u_safe, diag = controller.compute_safe_action(u_nom, obs)
         obs, r, term, trunc, info = env.step(u_safe)
         logger.log_step(obs, u_safe, r, info)
-        c_times.append(step * env.dt * 1e3)
+        c_times.append((step + 1) * env.dt * 1e3)
         c_forces.append(info["current_force_n"])
         c_depths.append(info["insertion_depth_m"] * 1e3)
         c_tilts.append(info["tilt_deg"])
-        if info["is_success"]:
+        if term or trunc:
             break
 
     c_summary = logger.finish_episode(info, save_prefix="case2_tactai_success")
     print(f"  [RESULT] Status: {'SUCCESS' if info['is_success'] else 'COMPLETED'}")
-    print(f"  Peak Force:    {c_summary['kpis']['peak_force_n']:.2f} N (Baseline Jammed at 44.05 N)")
+    print(f"  Peak Force:    {c_summary['kpis']['peak_force_n']:.2f} N")
     print(f"  Final Depth:   {c_summary['kpis']['final_insertion_depth_mm']:.2f} mm (Deep Clearance Entry)")
     print(f"  Final Tilt:    {info['tilt_deg']:.3f}° (Aligned from +10.0°)")
     print(f"  Duration:      {c_summary['kpis']['cycle_time_s']*1e3:.1f} ms")
@@ -117,12 +106,13 @@ def run_benchmark():
     plt.subplots_adjust(hspace=0.35)
 
     # Subplot 1: Contact Force
-    axes[0].plot(b_times, b_forces, "r-", linewidth=2.2, label="Unconstrained Baseline (Catastrophic Jamming)")
-    axes[0].plot(c_times, c_forces, "b-", linewidth=2.2, label="TactAI Closed-Loop Tactile Controller (CBF-QP)")
-    axes[0].axhline(40.0, color="red", linestyle=":", linewidth=1.5, label="Jamming Failure Threshold (40 N)")
-    axes[0].axhline(controller.f_max, color="green", linestyle="--", linewidth=1.5, label=f"CBF Force Safety Limit ({controller.f_max:.0f} N)")
+    axes[0].plot(b_times, b_forces, "r-", linewidth=2.2, label="Unconstrained learned policy")
+    axes[0].plot(c_times, c_forces, "b-", linewidth=2.2, label="TactAI")
+    axes[0].axhline(40.0, color="red", linestyle=":", linewidth=1.5, label="Simulator force stop (40 N)")
+    axes[0].axhline(controller.f_max, color="green", linestyle="--", linewidth=1.5, label=f"Force target ({controller.f_max:.0f} N)")
     axes[0].set_ylabel("Contact Force (N)", fontsize=11, fontweight="bold")
-    axes[0].set_title("TactAI Phase 2 Validation: Closed-Loop Tactile Alignment vs. Jamming (+10° Misalignment)", fontsize=13, fontweight="bold")
+    tilt = c_summary["metadata"]["env_params"]["initial_tilt_deg"]
+    axes[0].set_title(f"Tactile alignment vs. wedging ({tilt:+g}° tilt)", fontsize=13, fontweight="bold")
     axes[0].grid(True, linestyle="--", alpha=0.6)
     axes[0].legend(loc="upper right", framealpha=0.9)
 
@@ -147,11 +137,15 @@ def run_benchmark():
 
     for ax, values in zip(axes, (b_forces, b_tilts, b_depths)):
         ax.plot(b_times[-1], values[-1], "rx", markersize=9, markeredgewidth=2)
-    axes[0].annotate("Jam termination", (b_times[-1], b_forces[-1]),
-                     xytext=(10, 10), textcoords="offset points")
+    end_label = "Jam termination" if b_summary["kpis"]["is_jammed"] else "Baseline timeout"
+    axes[0].annotate(end_label, (b_times[-1], b_forces[-1]), xytext=(0.48, 0.46),
+                     textcoords="axes fraction", zorder=7,
+                     bbox=dict(facecolor="white", edgecolor="none", pad=1),
+                     arrowprops=dict(arrowstyle="-", color="#555555"))
 
     fig_path = os.path.join(fig_dir, "phase2_validation_benchmark.png")
     plt.savefig(fig_path, dpi=200, bbox_inches="tight")
+    fig.savefig(os.path.splitext(fig_path)[0] + ".pdf", bbox_inches="tight")
     plt.close()
     print(f"\n[SAVED] Benchmark telemetry chart saved to: {fig_path}")
 
@@ -160,11 +154,11 @@ def run_benchmark():
     print("=" * 80)
     print(f"  Metric                     | Baseline (Unconstrained) | TactAI (Phase 2)")
     print(f"  ---------------------------+--------------------------+--------------------")
-    print(f"  Insertion Success          | {'FAIL (Jammed)':<24} | {'SUCCESS (100%)':<18}")
+    print(f"  Insertion success          | {str(b_summary['kpis']['is_success']):<24} | {str(c_summary['kpis']['is_success']):<18}")
     print(f"  Peak Contact Force         | {b_summary['kpis']['peak_force_n']:<24.2f} N | {c_summary['kpis']['peak_force_n']:<18.2f} N")
     print(f"  Final Insertion Depth      | {b_summary['kpis']['final_insertion_depth_mm']:<24.2f} mm| {c_summary['kpis']['final_insertion_depth_mm']:<18.2f} mm")
     print(f"  Final Tilt Angle           | {b_tilts[-1]:<24.2f}° | {info['tilt_deg']:<18.3f}°")
-    print(f"  Jamming Prevention         | {'FAILED (Wedged)':<24} | {'SUCCESS (Prevented)':<18}")
+    print(f"  Simulator jam              | {str(b_summary['kpis']['is_jammed']):<24} | {str(c_summary['kpis']['is_jammed']):<18}")
     print("=" * 80)
 
 

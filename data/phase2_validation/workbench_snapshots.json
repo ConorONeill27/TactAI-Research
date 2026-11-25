@@ -1,0 +1,15 @@
+{
+  "seed": 42,
+  "slot_clearance_mm": 0.15,
+  "stiffness_n_m": 10000.0,
+  "rate_hz": 1000.0,
+  "aligned": {
+    "insertion_depth_m": 0.02022866033307114,
+    "peak_force_n": 0.0
+  },
+  "wedged": {
+    "insertion_depth_m": 9.948756718278218e-05,
+    "peak_force_n": 38.83915890414157,
+    "rendered_at_peak": true
+  }
+}

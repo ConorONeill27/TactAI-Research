@@ -12,24 +12,22 @@ Sampling (per trial):
   dx, dy           ~ U(-0.92, 0.92) mm
 In-basin is defined a priori as |theta|_2 <= 15 deg and max(|dx|,|dy|) <= 0.80 mm.
 
-Output: data/phase3_validation/heldout_summary.json
+Output: data/phase3_validation/learned_heldout_summary.json
 """
 
 import os
 import sys
 import json
 import argparse
+import hashlib
+from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.envs.franka_slot_env import FrankaSlotEnv
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
-from src.controllers.baseline_controllers import (
-    UnconstrainedPolicyBaseline,
-    WristFTAdmittanceController,
-    FixedIsotropicImpedanceController,
-)
+from src.controllers.insertion_protocol import DATA, frozen_parameters, insertion_controllers
+from src.controllers.learned_policy import CHECKPOINT
 from scripts.run_phase3_validation import run_single_episode
 
 
@@ -78,21 +76,32 @@ def summarize(trials):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--n", type=int, default=50)
-    ap.add_argument("--seed", type=int, default=20261020)
-    ap.add_argument("--ours-only", action="store_true")
+    ap.add_argument("--seed", type=int, required=True)
+    ap.add_argument("--output", type=Path,
+                    default=Path("data/phase3_validation/learned_heldout_summary.json"))
     args = ap.parse_args()
 
-    conds = sample_conditions(args.n, args.seed)
+    if args.output.exists():
+        ap.error(f"Refusing to overwrite {args.output}")
+    if args.seed == 20261020:
+        ap.error("The historical held-out seed is reserved.")
+    tuning_path = DATA / "development_tuning.json"
+    tuning = json.loads(tuning_path.read_text(encoding="utf-8"))
+    manifest = json.loads((DATA / "freeze_manifest.json").read_text(encoding="utf-8"))
+    if args.seed != manifest["heldout_seed"]:
+        ap.error("The seed must match the frozen evaluation manifest.")
+    if hashlib.sha256(tuning_path.read_bytes()).hexdigest() != manifest["tuning_sha256"]:
+        ap.error("Development tuning data differs from the frozen manifest.")
+    digest = hashlib.sha256(CHECKPOINT.read_bytes()).hexdigest()
+    if tuning["checkpoint_sha256"] != digest:
+        ap.error("The checkpoint differs from the one used during structured development.")
+    conds = sample_conditions(50, args.seed)
     env = FrankaSlotEnv()
-    controllers = {"tactile_safety_filter_ours": TactileAlignmentController()}
-    if not args.ours_only:
-        controllers["unconstrained_policy"] = UnconstrainedPolicyBaseline()
-        controllers["wrist_ft_admittance"] = WristFTAdmittanceController()
-        controllers["fixed_impedance_k200"] = FixedIsotropicImpedanceController()
+    controllers = insertion_controllers(env.dt)
 
-    out = {"seed": args.seed, "n": args.n, "controllers": {}}
-    for name, ctrl in controllers.items():
+    out = {"seed": args.seed, "n": len(conds), "checkpoint_sha256": digest,
+           "controller_parameters": frozen_parameters(), "controllers": {}}
+    for name, (label, ctrl) in controllers.items():
         trials = []
         for i, (tilt, off) in enumerate(conds):
             r = run_single_episode(env, ctrl, tilt, off, trial_seed=args.seed + i)
@@ -103,6 +112,7 @@ def main():
         in_b = [t for t in trials if t["in_basin"]]
         out_b = [t for t in trials if not t["in_basin"]]
         out["controllers"][name] = {
+            "label": label,
             "all": summarize(trials),
             "in_basin": summarize(in_b),
             "out_of_basin": summarize(out_b),
@@ -116,10 +126,10 @@ def main():
               f"in-basin {s['in_basin']['success']}/{s['in_basin']['n']}, "
               f"out-of-basin {s['out_of_basin']['success']}/{s['out_of_basin']['n']}")
 
-    os.makedirs("data/phase3_validation", exist_ok=True)
-    with open("data/phase3_validation/heldout_summary.json", "w") as f:
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("x", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
-    print("Saved data/phase3_validation/heldout_summary.json")
+    print(f"Saved {args.output}")
 
 
 if __name__ == "__main__":

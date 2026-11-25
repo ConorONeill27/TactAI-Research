@@ -1,24 +1,9 @@
 """
-Phase 3 Comprehensive Benchmark, Ablation & Robustness Validation Suite (arXiv Edition).
+Structured insertion, contour, slip, ablation and environmental robustness benchmarks.
 
-Executes the complete empirical protocol for the TactAI peer-reviewed paper:
-1. Benchmark A (Table I): 50-trial Out-of-Distribution (OOD) angular misalignment
-   (+-3 deg to +-15 deg) and lateral offset (0.0 to 0.90 mm) sweep in 0.15 mm clearance
-   slot insertion, wrapping a 20 Hz StochasticActionChunkingPolicy (FARM proxy) across:
-   - Unconstrained Diffusion Policy (FARM Baseline)
-   - Fixed Isotropic Impedance (K = 200 N/m)
-   - 6-Axis Wrist F/T Admittance Filter
-   - Tactile Safety Filter + FARM (Ours, 1 kHz OSQP CBF-QP + Energy Tank)
-2. Benchmarks B & C (Table II, N = 20 trials each):
-   - Benchmark B: Non-Planar Stiff Contour Tracking (K_env = 10^4 N/m, v = 0.05 m/s, 25 ms delay)
-   - Benchmark C: Dynamic Tool Manipulation under Incipient Slip (mu in [0.22, 0.58])
-3. Component Ablation Study & Multi-Seed Environmental Robustness Sweep (Table III):
-   - Ablations of Differential CoP / Constraint Tensor C, Anti-Jamming CBF h_jam,
-     Energy Tank Passivity T(t), and Incipient Slip CBF h_slip (N = 20 trials)
-   - Surface Stiffness K_env in {10^2, 10^3, 10^4, 10^5} N/m
-   - Friction Coefficient mu in {0.15, 0.30, 0.50, 0.85}
-   - Tactile Perception Latency in {10, 20, 35, 50} ms
-   - Each robustness point evaluates 5 fixed scenarios x 5 seeded repeats (25 episodes)
+Insertion uses the archived learned checkpoint and frozen development settings.
+This driver consumes the archived primary held-out results only when drawing figures.
+The contour and slip tasks use independent task-specific references.
 
 Outputs (anchored to PROJECT_ROOT):
 - data/phase3_validation/benchmark_a_summary.json
@@ -48,14 +33,9 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from src.envs.franka_slot_env import FrankaSlotEnv
+from src.controllers.insertion_protocol import insertion_controllers, tactai
 from src.envs.tactile_benchmarks_env import NonPlanarContourEnv, IncipientSlipManipulationEnv
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
-from src.controllers.baseline_controllers import (
-    UnconstrainedPolicyBaseline,
-    FixedIsotropicImpedanceController,
-    WristFTAdmittanceController,
-)
-from src.controllers.nominal_policies import StochasticActionChunkingPolicy
+from src.controllers.baseline_controllers import UnconstrainedPolicyBaseline
 
 
 # 50 deterministic Out-of-Distribution (OOD) misalignment scenarios:
@@ -163,6 +143,7 @@ def summarize_episode_set(episodes: List[Dict[str, Any]]) -> Dict[str, Any]:
     success = binary_summary([e["is_success"] for e in episodes])
     jam = binary_summary([e["is_jammed"] for e in episodes])
     safe = binary_summary([e["is_safe_force"] for e in episodes])
+    solve_times = [e["mean_solve_time_ms"] for e in episodes if e.get("mean_solve_time_ms") is not None]
     return {
         "num_trials": n,
         "success_count": success["successes"],
@@ -184,7 +165,7 @@ def summarize_episode_set(episodes: List[Dict[str, Any]]) -> Dict[str, Any]:
         "mean_successful_cycle_time_s": round(float(np.mean(success_duration)), 4) if len(success_duration) else None,
         "std_successful_cycle_time_s": round(float(np.std(success_duration, ddof=1)), 4) if len(success_duration) > 1 else None,
         "num_successful_cycle_times": int(len(success_duration)),
-        "mean_solve_time_ms": round(float(np.mean([e["mean_solve_time_ms"] for e in episodes])), 4) if n else None,
+        "mean_solve_time_ms": round(float(np.mean(solve_times)), 4) if solve_times else None,
     }
 
 
@@ -197,12 +178,17 @@ def run_single_episode(
     use_action_chunk_policy: bool = True,
     trial_seed: int = 42,
     tactile_transform=None,
+    policy_factory=None,
 ) -> Dict[str, Any]:
     """Runs a single deterministic insertion episode wrapping the 20 Hz nominal policy."""
     obs, info = env.reset(seed=trial_seed, ood_tilt_deg=tilt_deg, ood_offset_mm=offset_mm)
     controller.reset()
-    nom_policy = StochasticActionChunkingPolicy(seed=trial_seed)
-    nom_policy.reset(seed=trial_seed)
+    if use_action_chunk_policy:
+        if policy_factory is None:
+            from src.controllers.learned_policy import LearnedChunkPolicy
+            policy_factory = LearnedChunkPolicy
+        nom_policy = policy_factory()
+        nom_policy.reset(seed=trial_seed)
     u_const = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
 
     forces: List[float] = []
@@ -211,12 +197,16 @@ def run_single_episode(
     solve_times: List[float] = []
     stick_ratios: List[float] = []
     tank_energies: List[float] = []
+    stages = []
+    velocities = []
+    first_contact = None
     ever_jammed = False
 
     for step in range(max_steps):
         u_nominal = nom_policy.get_action(obs) if use_action_chunk_policy else u_const
         controller_obs = tactile_transform(obs, step) if tactile_transform else obs
         u_cmd, diag = controller.compute_safe_action(u_nominal, controller_obs)
+        approach_speed = float(-obs["ee_linvel"][2])
         obs, reward, term, trunc, info = env.step(u_cmd)
 
         forces.append(float(info["current_force_n"]))
@@ -225,6 +215,10 @@ def run_single_episode(
         solve_times.append(float(diag.get("solve_time_ms", 0.0)))
         stick_ratios.append(float(obs["tactile"]["stick_ratio"]))
         tank_energies.append(float(diag.get("tank_energy_j", 1.0)))
+        stages.append(diag.get("stage"))
+        velocities.append(approach_speed)
+        if first_contact is None and forces[-1] > 0.1:
+            first_contact = step + 1
 
         if info["is_jammed"]:
             ever_jammed = True
@@ -235,11 +229,16 @@ def run_single_episode(
     peak_force = float(max(forces)) if forces else 0.0
     final_depth = float(depths[-1]) if depths else 0.0
     is_success = bool(info["is_success"])
+    peak_index = int(np.argmax(forces))
     is_jammed_or_wedged = bool(ever_jammed or (not is_success and peak_force > 22.0 and final_depth < 10.0))
 
     return {
         "trial_seed": int(trial_seed),
         "final_stage": diag.get("stage"),
+        "stage_at_peak": stages[peak_index],
+        "first_contact_step": first_contact,
+        "approach_speed_at_first_contact_m_s": velocities[first_contact - 1] if first_contact else None,
+        "peak_force_step": peak_index + 1,
         "rim_arrest_latched": diag.get("rim_arrest_latched"),
         "tilt_deg": list(tilt_deg),
         "offset_mm": list(offset_mm),
@@ -271,30 +270,13 @@ def run_single_episode(
 
 
 def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
-    """Executes Table I: 50-trial OOD sweep across all 4 controllers."""
+    """Run the five insertion controllers on the structured development panel."""
     print("=" * 84)
     print(f"  BENCHMARK A (TABLE I): {len(OOD_SCENARIOS)}-TRIAL OOD MISALIGNMENT SWEEP (+-3° to +-15°)")
     print("=" * 84)
 
     env = FrankaSlotEnv(seed=42)
-    controllers = {
-        "unconstrained_farm": (
-            "Unconstrained Diffusion Policy (FARM)",
-            UnconstrainedPolicyBaseline(dt=env.dt),
-        ),
-        "wrist_ft_admittance": (
-            "Wrist F/T Admittance Filter",
-            WristFTAdmittanceController(dt=env.dt),
-        ),
-        "fixed_impedance_k200": (
-            "Fixed Isotropic Impedance (K=200)",
-            FixedIsotropicImpedanceController(k_trans=200.0, dt=env.dt),
-        ),
-        "tactile_safety_filter_ours": (
-            "Tactile Safety Filter + FARM (Ours)",
-            TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env.dt),
-        ),
-    }
+    controllers = insertion_controllers(env.dt)
 
     summary: Dict[str, Any] = {}
     npz_payload: Dict[str, np.ndarray] = {}
@@ -352,7 +334,7 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     print("\n>>> [Benchmark B] Non-Planar Stiff Contour Tracking (K_env = 10^4 N/m, 25 ms delay)...")
     contour_env = NonPlanarContourEnv(stiffness_env=1.0e4, seed=42)
     bench_b_ctrls = [
-        ("unconstrained_farm", "Unconstrained Policy (FARM)"),
+        ("unconstrained_farm", "Unconstrained contour reference"),
         ("fixed_impedance_k200", "Fixed Impedance (K=200)"),
         ("wrist_ft_admittance", "Wrist F/T Admittance"),
         ("tactai_ours", "TactAI Safety Filter (Ours)"),
@@ -396,7 +378,7 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     print("\n>>> [Benchmark C] Incipient Slip Dynamic Tool Manipulation (mu in [0.22, 0.58])...")
     slip_env = IncipientSlipManipulationEnv(seed=42)
     bench_c_ctrls = [
-        ("unconstrained_farm", "Unconstrained Policy (FARM)"),
+        ("unconstrained_farm", "Unconstrained manipulation reference"),
         ("fixed_impedance_k200", "Fixed Impedance (K=200)"),
         ("wrist_ft_admittance", "Wrist F/T Admittance"),
         ("tactai_ours", "TactAI Slip-CBF (Ours)"),
@@ -441,10 +423,11 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     env = FrankaSlotEnv(seed=42)
 
     ablations = [
-        ("tactai_full", "Full TactAI Safety Filter (Ours)", TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env.dt)),
-        ("tactai_no_cop_tensor", "Ablation 1: w/o CoP Delta_rc & Tensor C", TactileAlignmentController(f_max=15.0, enable_tactile_rot=False, dt=env.dt)),
-        ("tactai_no_jam_cbf", "Ablation 2: w/o Stage 2 Un-Wedging h_jam", TactileAlignmentController(f_max=15.0, enable_unwedge_cbf=False, dt=env.dt)),
-        ("tactai_no_tank", "Ablation 3: w/o Energy Tank Passivity T(t)", TactileAlignmentController(f_max=15.0, enable_energy_tank=False, dt=env.dt)),
+        ("tactai_full", "Full TactAI", tactai(env.dt)),
+        ("tactai_no_cop_tensor", "Without proportional rotational alignment",
+         tactai(env.dt, enable_tactile_rot=False)),
+        ("tactai_no_jam_cbf", "Without Stage 2", tactai(env.dt, enable_unwedge_cbf=False)),
+        ("tactai_no_tank", "Without energy tank", tactai(env.dt, enable_energy_tank=False)),
     ]
 
     ablation_summary: Dict[str, Any] = {}
@@ -457,6 +440,8 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
         ablation_summary[ab_key] = {
             "label": ab_label,
             **stats,
+            "trials": [{k: v for k, v in trial.items() if not k.endswith("_trace")}
+                       for trial in episodes],
         }
         print(f"  {ab_label:45s} -> Succ: {stats['success_rate_pct']:5.1f}% | Peak: {stats['mean_peak_force_n']:5.2f} ± {stats['std_peak_force_n']:4.2f} N | Jam: {stats['jamming_rate_pct']:5.1f}%")
 
@@ -477,117 +462,77 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     return payload
 
 
-def run_table2_robustness(out_dir: str, n_seeds: int = 5) -> Dict[str, Any]:
-    """Paired robustness sweeps across Stiffness, Friction, and Latency (5 scenarios x n_seeds)."""
-    print("\n" + "=" * 84)
-    print(f"  ROBUSTNESS SWEEPS ({len(ROBUSTNESS_SCENARIOS)} scenarios x {n_seeds} seeds per point = {len(ROBUSTNESS_SCENARIOS) * n_seeds} episodes)")
-    print("=" * 84)
+ROBUSTNESS_POINTS = {
+    "stiffness_n_per_m": (1.0e2, 1.0e3, 1.0e4, 1.0e5),
+    "friction_mu": (0.15, 0.30, 0.50, 0.85),
+    "latency_ms": (10.0, 20.0, 35.0, 50.0),
+}
 
-    stiffnesses = [1.0e2, 1.0e3, 1.0e4, 1.0e5]
-    frictions = [0.15, 0.30, 0.50, 0.85]
-    latencies = [10.0, 20.0, 35.0, 50.0]
+
+def run_robustness_point(task):
+    field, value, repeats = task
     base_seed = 42000
-
-    def run_paired(env: FrankaSlotEnv, controller: Any, controller_key: str) -> List[Dict[str, Any]]:
-        episodes = []
-        for scenario_idx, (tilt, offset) in enumerate(ROBUSTNESS_SCENARIOS):
-            for seed_idx in range(n_seeds):
-                trial_seed = base_seed + scenario_idx * 1000 + seed_idx
-                ep = run_single_episode(
-                    env, controller, tilt, offset, max_steps=550,
-                    use_action_chunk_policy=True, trial_seed=trial_seed,
-                )
-                ep["scenario_id"] = f"robust_{scenario_idx:02d}"
-                ep["repeat_index"] = seed_idx
-                ep["controller_key"] = controller_key
-                episodes.append(ep)
-        return episodes
-
-    def metric_fields(prefix: str, eps: List[Dict[str, Any]]) -> Dict[str, Any]:
-        st = summarize_episode_set(eps)
-        return {
-            f"{prefix}_num_trials": st["num_trials"],
-            f"{prefix}_success_count": st["success_count"],
-            f"{prefix}_success_rate_pct": st["success_rate_pct"],
-            f"{prefix}_success_rate_wilson_95_ci_pct": st["success_rate_wilson_95_ci_pct"],
-            f"{prefix}_peak_force_n": st["mean_peak_force_n"],
-            f"{prefix}_std_force_n": st["std_peak_force_n"],
-            f"{prefix}_max_force_n": st["max_peak_force_n"],
-            f"{prefix}_safe_force_rate_pct": st["safe_force_rate_pct"],
-            f"{prefix}_safe_force_wilson_95_ci_pct": st["safe_force_rate_wilson_95_ci_pct"],
-            f"{prefix}_jamming_rate_pct": st["jamming_rate_pct"],
-            f"{prefix}_episode_duration_s": st["mean_episode_duration_s"],
-            f"{prefix}_successful_cycle_time_s": st["mean_successful_cycle_time_s"],
-        }
-
-    stiffness_results = []
-    for k_env in stiffnesses:
-        env_k = FrankaSlotEnv(stiffness_env=k_env, seed=base_seed)
-        controllers = {
-            "baseline": UnconstrainedPolicyBaseline(dt=env_k.dt),
-            "wrist_ft": WristFTAdmittanceController(dt=env_k.dt),
-            "tactai": TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_k.dt),
-        }
-        eps = {key: run_paired(env_k, ctrl, key) for key, ctrl in controllers.items()}
-        row = {"stiffness_n_per_m": float(k_env), "num_scenarios": len(ROBUSTNESS_SCENARIOS), "seeds_per_scenario": n_seeds}
-        for key, trials in eps.items():
-            row.update(metric_fields(key, trials))
-        row["tactai_min_tank_j"] = round(float(min(e["min_tank_energy_j"] for e in eps["tactai"])), 4)
-        row["episode_results"] = {key: [{k: v for k, v in e.items() if not k.endswith("_trace")} for e in trials] for key, trials in eps.items()}
-        stiffness_results.append(row)
-        print(f"  K={k_env:7.0f}: TactAI success {row['tactai_success_rate_pct']:.1f}% ({row['tactai_success_count']}/{row['tactai_num_trials']}), peak force {row['tactai_peak_force_n']:.2f} ± {row['tactai_std_force_n']:.2f} N")
-
-    friction_results = []
-    for mu in frictions:
-        env_mu = FrankaSlotEnv(friction_env=mu, seed=base_seed)
-        controllers = {
-            "baseline": UnconstrainedPolicyBaseline(dt=env_mu.dt),
-            "tactai": TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_mu.dt),
-        }
-        eps = {key: run_paired(env_mu, ctrl, key) for key, ctrl in controllers.items()}
-        row = {"friction_mu": float(mu), "num_scenarios": len(ROBUSTNESS_SCENARIOS), "seeds_per_scenario": n_seeds}
-        for key, trials in eps.items():
-            row.update(metric_fields(key, trials))
-        row["tactai_mean_stick_ratio"] = round(float(np.mean([e["mean_stick_ratio"] for e in eps["tactai"]])), 4)
-        row["episode_results"] = {key: [{k: v for k, v in e.items() if not k.endswith("_trace")} for e in trials] for key, trials in eps.items()}
-        friction_results.append(row)
-        print(f"  mu={mu:.2f}: TactAI success {row['tactai_success_rate_pct']:.1f}% ({row['tactai_success_count']}/{row['tactai_num_trials']}), peak force {row['tactai_peak_force_n']:.2f} ± {row['tactai_std_force_n']:.2f} N")
-
-    latency_results = []
-    env_lat = FrankaSlotEnv(seed=base_seed)
-    for latency in latencies:
-        controllers = {
-            "baseline": UnconstrainedPolicyBaseline(dt=env_lat.dt, latency_ms=latency),
-            "wrist_ft": WristFTAdmittanceController(dt=env_lat.dt, latency_ms=latency),
-            "tactai": TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_lat.dt, latency_ms=latency),
-        }
-        eps = {key: run_paired(env_lat, ctrl, key) for key, ctrl in controllers.items()}
-        row = {"latency_ms": float(latency), "num_scenarios": len(ROBUSTNESS_SCENARIOS), "seeds_per_scenario": n_seeds}
-        for key, trials in eps.items():
-            row.update(metric_fields(key, trials))
-        row["tactai_min_tank_j"] = round(float(min(e["min_tank_energy_j"] for e in eps["tactai"])), 4)
-        row["episode_results"] = {key: [{k: v for k, v in e.items() if not k.endswith("_trace")} for e in trials] for key, trials in eps.items()}
-        latency_results.append(row)
-        print(f"  latency={latency:4.1f} ms: TactAI success {row['tactai_success_rate_pct']:.1f}% ({row['tactai_success_count']}/{row['tactai_num_trials']}), peak force {row['tactai_peak_force_n']:.2f} ± {row['tactai_std_force_n']:.2f} N")
-
-    robustness_summary = {
-        "protocol": {
-            "n_seeds_per_scenario": n_seeds,
-            "scenario_count": len(ROBUSTNESS_SCENARIOS),
-            "episodes_per_controller_per_parameter_point": n_seeds * len(ROBUSTNESS_SCENARIOS),
-            "seed_scope": "Passed to FrankaSlotEnv.reset and StochasticActionChunkingPolicy.",
-            "confidence_interval": "95% Wilson score interval for binary success and force-safety rates.",
-        },
-        "stiffness_sweep": stiffness_results,
-        "friction_sweep": friction_results,
-        "latency_sweep": latency_results,
+    env_args = {
+        "stiffness_n_per_m": {"stiffness_env": value},
+        "friction_mu": {"friction_env": value},
+        "latency_ms": {},
     }
+    env = FrankaSlotEnv(seed=base_seed, **env_args[field])
+    # Delay only the supervisory sensor path. The learned policy uses live proprioception.
+    latency = value if field == "latency_ms" else 0.0
+    controllers = {
+        "baseline": UnconstrainedPolicyBaseline(dt=env.dt),
+        "tactai": tactai(env.dt, latency_ms=latency),
+    }
+    if field != "friction_mu":
+        controllers["wrist_ft"] = tactai(env.dt, latency_ms=latency, wrist_ft_only=True)
+    row = {field: value, "num_scenarios": len(ROBUSTNESS_SCENARIOS),
+           "seeds_per_scenario": repeats, "episode_results": {}}
+    fields = {
+        "num_trials": "num_trials", "success_count": "success_count",
+        "success_rate_pct": "success_rate_pct",
+        "success_rate_wilson_95_ci_pct": "success_rate_wilson_95_ci_pct",
+        "peak_force_n": "mean_peak_force_n", "std_force_n": "std_peak_force_n",
+        "max_force_n": "max_peak_force_n", "safe_force_rate_pct": "safe_force_rate_pct",
+        "safe_force_wilson_95_ci_pct": "safe_force_rate_wilson_95_ci_pct",
+        "jamming_rate_pct": "jamming_rate_pct", "episode_duration_s": "mean_episode_duration_s",
+        "successful_cycle_time_s": "mean_successful_cycle_time_s",
+    }
+    for key, controller in controllers.items():
+        trials = []
+        for i, (tilt, offset) in enumerate(ROBUSTNESS_SCENARIOS):
+            for j in range(repeats):
+                trial = run_single_episode(env, controller, tilt, offset,
+                                           trial_seed=base_seed + i * 1000 + j)
+                trials.append(dict(scenario_id=i, repeat_index=j,
+                                   **{k: v for k, v in trial.items() if not k.endswith("_trace")}))
+        row["episode_results"][key] = trials
+        summary = summarize_episode_set(trials)
+        row.update({f"{key}_{name}": summary[metric] for name, metric in fields.items()})
+    return field, row
 
-    json_path = os.path.join(out_dir, "table2_robustness_summary.json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(robustness_summary, f, indent=2)
 
-    return robustness_summary
+def run_table2_robustness(out_dir: str, n_seeds: int = 5) -> Dict[str, Any]:
+    """Run the paired stress cases across independent MuJoCo processes."""
+    from concurrent.futures import ProcessPoolExecutor
+
+    output_keys = {"stiffness_n_per_m": "stiffness_sweep", "friction_mu": "friction_sweep",
+                   "latency_ms": "latency_sweep"}
+    summary = {key: [] for key in output_keys.values()}
+    tasks = [(field, value, n_seeds) for field, values in ROBUSTNESS_POINTS.items()
+             for value in values]
+    with ProcessPoolExecutor(max_workers=4) as pool:
+        for field, row in pool.map(run_robustness_point, tasks):
+            summary[output_keys[field]].append(row)
+            print(field, row[field], row["tactai_success_count"], row["tactai_max_force_n"], flush=True)
+    summary["protocol"] = {
+        "n_seeds_per_scenario": n_seeds,
+        "scenario_count": len(ROBUSTNESS_SCENARIOS),
+        "episodes_per_controller_per_parameter_point": n_seeds * len(ROBUSTNESS_SCENARIOS),
+    }
+    with open(os.path.join(out_dir, "table2_robustness_summary.json"), "w", encoding="utf-8") as stream:
+        json.dump(summary, stream, indent=2)
+    return summary
 
 
 def generate_phase3_figure(
@@ -597,64 +542,37 @@ def generate_phase3_figure(
 ) -> None:
     """Generates Figure 1: Benchmark A Insertion & Multi-Seed Robustness with Held-Out support."""
     fig, axes = plt.subplots(2, 2, figsize=(13, 9), dpi=220)
-    plt.subplots_adjust(hspace=0.65, wspace=0.26)
+    plt.subplots_adjust(top=0.82, hspace=0.81, wspace=0.26)
 
-    keys = [
-        "unconstrained_farm",
-        "fixed_impedance_k200",
-        "wrist_ft_admittance",
-        "tactile_safety_filter_ours",
-    ]
-    short_labels = [
-        "Unconstrained\npolicy proxy",
-        "Fixed Impedance\n($K=200$ N/m)",
-        "Wrist F/T\nAdmittance",
-        "TactAI filter",
-    ]
+    from textwrap import fill
 
-    # Check for held-out evaluation dataset (N=50, seed 20261020)
-    heldout_file = os.path.join(PROJECT_ROOT, "data", "phase3_validation", "heldout_summary.json")
-    heldout_data = None
-    if os.path.exists(heldout_file):
-        try:
-            with open(heldout_file, "r", encoding="utf-8") as f:
-                heldout_data = json.load(f)
-        except Exception:
-            heldout_data = None
+    heldout_file = os.path.join(PROJECT_ROOT, "data", "phase3_validation", "learned_heldout_summary.json")
+    with open(heldout_file, encoding="utf-8") as stream:
+        heldout_data = json.load(stream)
+    runs = heldout_data["controllers"]
+    keys = list(runs)
+    short_labels = [fill(runs[key]["label"], width=11) for key in keys]
 
-    # Panel A: Success Rate vs. Jamming Rate (%)
     ax = axes[0, 0]
     x = np.arange(len(keys))
     width = 0.36
-    if heldout_data and "controllers" in heldout_data:
-        h_ctrls = heldout_data["controllers"]
-        h_map = {
-            "unconstrained_farm": "unconstrained_policy",
-            "fixed_impedance_k200": "fixed_impedance_k200",
-            "wrist_ft_admittance": "wrist_ft_admittance",
-            "tactile_safety_filter_ours": "tactile_safety_filter_ours",
-        }
-        succ_vals = [h_ctrls[h_map[k]]["all"]["success_rate"] * 100.0 for k in keys]
-        jam_vals = [h_ctrls[h_map[k]]["all"]["jam_rate"] * 100.0 for k in keys]
-        title_a = r"(A) Benchmark A: Held-Out Set ($N=50$, Unused Seed)"
-    else:
-        succ_vals = [bench_a[k]["success_rate_pct"] for k in keys]
-        jam_vals = [bench_a[k]["jamming_rate_pct"] for k in keys]
-        title_a = r"(A) Benchmark A (Structured Set, $N=50$)"
-
+    succ_vals = [100 * runs[k]["all"]["success_rate"] for k in keys]
+    jam_vals = [100 * runs[k]["all"]["jam_rate"] for k in keys]
+    title_a = f"(A) Held-out insertion ($N={heldout_data['n']}$)"
     bars1 = ax.bar(x - width / 2, succ_vals, width, label="Insertion Success (%)", color="#10B981", edgecolor="#065F46")
     bars2 = ax.bar(x + width / 2, jam_vals, width, label="Jamming / Wedging (%)", color="#EF4444", edgecolor="#991B1B")
     ax.set_xticks(x)
-    ax.set_xticklabels(short_labels, fontsize=8.5, fontweight="bold")
+    ax.set_xticklabels(short_labels, fontsize=7.8, fontweight="bold")
     ax.set_ylabel("Rate (%)", fontsize=9.5, fontweight="bold")
     ax.set_ylim(0, 118)
     ax.set_title(title_a, fontsize=10, fontweight="bold")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
-    ax.legend(loc="upper center", ncol=2, fontsize=8)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.24), ncol=2, fontsize=8)
     for idx_b, b in enumerate(bars1):
         k = keys[idx_b]
-        if k == "tactile_safety_filter_ours" and heldout_data:
-            txt = f"{b.get_height():.1f}%\n(96.9% Basin)"
+        if k == "tactile_safety_filter_ours":
+            basin = runs[k]["in_basin"]
+            txt = f"{b.get_height():.1f}%\n({100 * basin['success'] / basin['n']:.1f}% Basin)"
             ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, txt, ha="center", fontsize=7.2, fontweight="bold", color="#065F46")
         else:
             ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.1f}%", ha="center", fontsize=7.8, fontweight="bold", color="#065F46")
@@ -664,10 +582,11 @@ def generate_phase3_figure(
     # Panel B: Peak Contact Force across OOD Tilt Angles
     ax = axes[0, 1]
     colors_map = {
-        "unconstrained_farm": ("#DC2626", "o-", "Unconstrained policy proxy"),
-        "fixed_impedance_k200": ("#D97706", "s--", "Fixed Impedance ($K=200$)"),
-        "wrist_ft_admittance": ("#2563EB", "^-.", "Wrist F/T Admittance"),
-        "tactile_safety_filter_ours": ("#059669", "D-", "TactAI Safety Filter (Ours)"),
+        "unconstrained_policy": ("#DC2626", "o-"),
+        "fixed_impedance_k200": ("#D97706", "s--"),
+        "ft_cbf_qp": ("#2563EB", "^-."),
+        "impedance_spiral": ("#7C3AED", "v:"),
+        "tactile_safety_filter_ours": ("#059669", "D-"),
     }
     for k in keys:
         trials = bench_a[k]["trials"]
@@ -680,7 +599,8 @@ def generate_phase3_figure(
             np.std([t["peak_force_n"] for t in trials if int(round(t["initial_tilt_norm_deg"])) == tb])
             for tb in tilt_bins
         ])
-        col, style, lbl = colors_map[k]
+        col, style = colors_map[k]
+        lbl = bench_a[k]["label"]
         ax.plot(tilt_bins, mean_f, style, color=col, linewidth=2.0, markersize=5.0, label=lbl)
         ax.fill_between(tilt_bins, mean_f - std_f, mean_f + std_f, color=col, alpha=0.14)
         ax.scatter(
@@ -689,8 +609,8 @@ def generate_phase3_figure(
             color=col, s=9, alpha=0.45, zorder=3,
         )
 
-    ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
-    ax.axhline(40.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Jamming Failure (40 N)")
+    ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="Force target (15 N)")
+    ax.axhline(40.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Simulator force stop (40 N)")
     ax.set_xlabel(r"Initial 2-Axis OOD Tilt Norm $\|\theta_0\|_2$ (deg)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
     ax.set_title(r"(B) Peak Contact Force vs. 2-Axis OOD Tilt Norm ($\mu \pm 1\sigma$)", fontsize=10, fontweight="bold")
@@ -710,16 +630,17 @@ def generate_phase3_figure(
     t_k_std = np.array([r["tactai_std_force_n"] for r in stiff_rows])
 
     ax.set_xscale("log")
-    ax.plot(k_vals, b_k, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy (Jammed)")
+    ax.plot(k_vals, b_k, "o-", color="#DC2626", linewidth=2.0, label=runs["unconstrained_policy"]["label"])
     ax.fill_between(k_vals, b_k - b_k_std, b_k + b_k_std, color="#DC2626", alpha=0.15)
-    ax.plot(k_vals, w_k, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
+    ax.plot(k_vals, w_k, "^-.", color="#2563EB", linewidth=2.0, label=runs["ft_cbf_qp"]["label"])
     ax.fill_between(k_vals, w_k - w_k_std, w_k + w_k_std, color="#2563EB", alpha=0.15)
-    ax.plot(k_vals, t_k, "D-", color="#059669", linewidth=2.2, label="TactAI Filter (100% Safe)")
+    ax.plot(k_vals, t_k, "D-", color="#059669", linewidth=2.2, label="TactAI Filter (Ours)")
     ax.fill_between(k_vals, t_k - t_k_std, t_k + t_k_std, color="#059669", alpha=0.18)
     ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Force Limit (15 N)")
     ax.set_xlabel(r"Environment Stiffness $K_{\mathrm{env}}$ (N/m)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title(r"(C) Stiffness Robustness ($10^2$ to $10^5$ N/m, $N=5$ Seeds)", fontsize=10, fontweight="bold")
+    ax.set_title(f"(C) Stiffness sweep ({len(stiff_rows[0]['episode_results']['tactai'])} episodes per point)",
+                 fontsize=10, fontweight="bold")
     ax.set_ylim(0, 54)
     ax.grid(True, which="both", linestyle=":", alpha=0.6)
     ax.legend(loc="center right", fontsize=8)
@@ -735,22 +656,23 @@ def generate_phase3_figure(
     t_l = np.array([r["tactai_peak_force_n"] for r in lat_rows])
     t_l_std = np.array([r["tactai_std_force_n"] for r in lat_rows])
 
-    ax.plot(lat_vals, b_l, "o-", color="#DC2626", linewidth=2.0, label="Unconstrained Policy")
+    ax.plot(lat_vals, b_l, "o-", color="#DC2626", linewidth=2.0, label=runs["unconstrained_policy"]["label"])
     ax.fill_between(lat_vals, b_l - b_l_std, b_l + b_l_std, color="#DC2626", alpha=0.15)
-    ax.plot(lat_vals, w_l, "^-.", color="#2563EB", linewidth=2.0, label="Wrist F/T Admittance")
+    ax.plot(lat_vals, w_l, "^-.", color="#2563EB", linewidth=2.0, label=runs["ft_cbf_qp"]["label"])
     ax.fill_between(lat_vals, w_l - w_l_std, w_l + w_l_std, color="#2563EB", alpha=0.15)
-    ax.plot(lat_vals, t_l, "D-", color="#059669", linewidth=2.2, label="TactAI Filter + Energy Tank (Ours)")
+    ax.plot(lat_vals, t_l, "D-", color="#059669", linewidth=2.2, label="TactAI Filter (Ours)")
     ax.fill_between(lat_vals, t_l - t_l_std, t_l + t_l_std, color="#059669", alpha=0.18)
-    ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="CBF Safety Limit (15 N)")
+    ax.axhline(15.0, color="#059669", linestyle="--", linewidth=1.2, label="Force target (15 N)")
     ax.set_xlabel(r"Perception Latency $\tau_{\mathrm{delay}}$ (ms)", fontsize=9.5, fontweight="bold")
     ax.set_ylabel("Peak Contact Force (N)", fontsize=9.5, fontweight="bold")
-    ax.set_title(r"(D) Perception Latency Robustness (10–50 ms, $N=5$ Seeds)", fontsize=10, fontweight="bold")
+    ax.set_title(f"(D) Latency sweep ({len(lat_rows[0]['episode_results']['tactai'])} episodes per point)",
+                 fontsize=10, fontweight="bold")
     ax.set_ylim(0, 58)
     ax.grid(True, linestyle=":", alpha=0.6)
     ax.legend(loc="center right", fontsize=8)
 
     fig.suptitle(
-        "TactAI Benchmark A & Multi-Seed Robustness: OOD Slot Insertion ($N=50$, 20 Hz Action-Chunk Policy)",
+        "Learned-policy insertion and robustness",
         fontsize=12,
         fontweight="bold",
         y=0.98,
@@ -782,7 +704,7 @@ def generate_bc_ablation_figure(
         if key in traces_b:
             trace = traces_b[key][:600]
             ax.plot(np.arange(len(trace)), trace, color=color, linestyle=style,
-                    label=f"{label} ({np.max(trace):.1f} N)")
+                    label=f"{label} ({bc_ablation['benchmark_b_contour'][key]['trials'][0]['peak_force_n']:.1f} N)")
 
     ax.axhline(15.0, color="#059669", linestyle=":", linewidth=1.2, label="CBF Safety Bound (15.0 N)")
     ax.axhline(8.0, color="#475569", linestyle="--", linewidth=1.0, alpha=0.8, label="Target Force (8.0 N)")
@@ -806,7 +728,7 @@ def generate_bc_ablation_figure(
         if key in traces_c:
             trace = traces_c[key][:400]
             ax.plot(t_c[:len(trace)], trace, color=color, linestyle=style,
-                    label=f"{label} ({trace[-1]:.2f} mm)")
+                    label=f"{label} ({bc_ablation['benchmark_c_slip'][key.removesuffix('_slip')]['mean_slip_mm']:.2f} mm)")
 
     ax.axhline(2.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Gross Slip / Drop Limit (2.0 mm)")
     ax.set_xlabel("Time (ms)", fontsize=9.5, fontweight="bold")
@@ -820,7 +742,7 @@ def generate_bc_ablation_figure(
     ax = axes[2]
     ab_dict = bc_ablation.get("ablation_study", {})
     ab_keys = ["tactai_full", "tactai_no_cop_tensor", "tactai_no_jam_cbf", "tactai_no_tank"]
-    ab_labels = ["Full TactAI\n(Ours)", "w/o Diff. CoP\n& Tensor C", r"w/o Stage 2" "\n" r"CBF $h_{\mathrm{jam}}$", "w/o Energy\nTank $T(t)$"]
+    ab_labels = ["Full\nTactAI", "No prop.\nalign.", "No Stage 2", "No energy\ntank"]
 
     succ_rates = [ab_dict.get(k, {}).get("success_rate_pct", 0.0) for k in ab_keys]
     peak_f = [ab_dict.get(k, {}).get("mean_peak_force_n", 0.0) for k in ab_keys]
@@ -852,15 +774,37 @@ def generate_bc_ablation_figure(
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only", choices=("insertion", "contour-slip", "robustness", "plots"))
+    args = parser.parse_args()
     t_start = time.perf_counter()
     out_dir = os.path.join(PROJECT_ROOT, "data", "phase3_validation")
     fig_dir = os.path.join(PROJECT_ROOT, "docs", "figures")
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(fig_dir, exist_ok=True)
 
-    bench_a = run_benchmark_a(out_dir)
-    bc_ablation = run_benchmarks_bc_and_ablations(out_dir)
-    table2 = run_table2_robustness(out_dir, n_seeds=5)
+    if args.only in (None, "insertion"):
+        run_benchmark_a(out_dir)
+    if args.only in (None, "contour-slip"):
+        run_benchmarks_bc_and_ablations(out_dir)
+    if args.only in (None, "robustness"):
+        run_table2_robustness(out_dir)
+    if args.only not in (None, "plots"):
+        return
+
+    def load(filename):
+        with open(os.path.join(out_dir, filename), encoding="utf-8") as stream:
+            return json.load(stream)
+
+    bench_a = load("benchmark_a_summary.json")
+    bc_ablation = load("benchmarks_bc_ablation_summary.json")
+    table2 = load("table2_robustness_summary.json")
+    with np.load(os.path.join(out_dir, "benchmark_bc_plot_traces.npz")) as traces:
+        bc_ablation["_traces_b"] = {k.removeprefix("contour_"): traces[k]
+                                  for k in traces if k.startswith("contour_")}
+        bc_ablation["_traces_c"] = {k: traces[k] for k in traces if not k.startswith("contour_")}
 
     fig1_path = os.path.join(fig_dir, "phase3_benchmark_comparison.png")
     fig2_path = os.path.join(fig_dir, "phase3_benchmarks_bc_ablation.png")
@@ -876,9 +820,9 @@ def main():
         "robustness_scenario_count": len(ROBUSTNESS_SCENARIOS),
         "robustness_seeds_per_scenario": 5,
         "notes": [
-            "Full suite recomputed; no partial-update mixing.",
+            "Figures generated from saved simulation logs.",
             "95% Wilson intervals are reported for binary success and force-safety rates.",
-            "Held-out randomized evaluation (N=50, seed 20261020) loaded from heldout_summary.json.",
+            "Held-out randomized evaluation loaded from learned_heldout_summary.json.",
             "Simulation results are not hardware-validation results.",
         ],
     }

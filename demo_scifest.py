@@ -8,18 +8,18 @@ import mujoco
 import numpy as np
 
 from src.controllers.baseline_controllers import UnconstrainedPolicyBaseline
-from src.controllers.nominal_policies import StochasticActionChunkingPolicy
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
-from src.envs.franka_slot_env import FrankaSlotEnv
+from src.controllers.learned_policy import LearnedChunkPolicy
+from src.controllers.insertion_protocol import tactai
+from src.envs.unknown_grasp_env import UnknownGraspEnv
+from scripts.run_grasp_development import A2_DEV_QP, A2_STEPS
 
 
 class Episode:
-    def __init__(self, enabled):
-        self.env = FrankaSlotEnv(seed=42)
+    def __init__(self, mode):
+        self.env = UnknownGraspEnv(seed=42)
         self.env.model.geom_rgba[self.env.peg_geom_id] = [0.02, 0.65, 0.83, 1]
-        self.controller = (TactileAlignmentController(dt=self.env.dt) if enabled
-                           else UnconstrainedPolicyBaseline())
-        self.policy = StochasticActionChunkingPolicy(seed=42)
+        self.select(mode)
+        self.policy = LearnedChunkPolicy()
         self.camera = mujoco.MjvCamera()
         self.camera.type = mujoco.mjtCamera.mjCAMERA_FREE
         self.camera.lookat[:] = [0, 0, 0.025]
@@ -27,14 +27,20 @@ class Episode:
         self.camera.azimuth = 125
         self.camera.elevation = -14
 
-    def reset(self, tilt, offset):
+    def select(self, mode):
+        self.mode = mode
+        self.controller = (UnconstrainedPolicyBaseline() if mode == "Unconstrained" else
+                           tactai(self.env.dt, unknown_grasp_mode=True,
+                                  wrist_ft_only=mode == "Wrist F/T-only QP", **A2_DEV_QP))
+
+    def reset(self, tilt, offset, grasp):
         self.obs, self.info = self.env.reset(seed=42, ood_tilt_deg=(tilt, 0),
-                                            ood_offset_mm=(offset, 0))
+                                            ood_offset_mm=(offset, 0), grasp_tilt_deg=(grasp, 0))
         self.controller.reset()
         self.policy.reset(seed=42)
         self.time_ms = [0]
         self.forces = [0.0]
-        self.stage = 1 if isinstance(self.controller, TactileAlignmentController) else None
+        self.stage = 1 if self.mode != "Unconstrained" else None
         self.status = "Running"
 
     def tick(self):
@@ -50,7 +56,7 @@ class Episode:
             self.status = "Jammed"
         elif self.info["is_success"]:
             self.status = "Inserted"
-        elif terminal or truncated or len(self.time_ms) > 550:
+        elif terminal or truncated or len(self.time_ms) > A2_STEPS:
             self.status = "Trial ended"
 
 
@@ -58,14 +64,14 @@ class Dashboard:
     def __init__(self):
         self.fig, self.axes = plt.subplots(3, 2, figsize=(12, 8),
                                            gridspec_kw={"height_ratios": [1.7, 1, 1.1]})
-        self.fig.subplots_adjust(bottom=0.21, top=0.91, hspace=0.52, wspace=0.26)
+        self.fig.subplots_adjust(bottom=0.25, top=0.91, hspace=0.52, wspace=0.26)
         self.fig.suptitle("TactAI · Peg insertion under misalignment", fontsize=17)
         manager = self.fig.canvas.manager
         manager.set_window_title("SciFest | TactAI")
-        self.episodes = [Episode(False), Episode(True)]
+        self.episodes = [Episode("Wrist F/T-only QP"), Episode("TactAI")]
         self.renderers = []
         self.artists = []
-        for col, name in enumerate(("TactAI Filter: OFF", "TactAI Filter: ON")):
+        for col, name in enumerate(("Wrist F/T-only QP", "TactAI")):
             episode = self.episodes[col]
             renderer = mujoco.Renderer(episode.env.model, height=200, width=320)
             self.renderers.append(renderer)
@@ -78,7 +84,7 @@ class Dashboard:
             line, = force.plot([], [], color="#2563eb", linewidth=1.8)
             force.axhline(15, linestyle="--", color="#b45309", label="15 N limit")
             force.axhline(40, linestyle=":", color="#b91c1c", label="40 N jam")
-            force.set(xlim=(0, 550), ylim=(0, 55), xlabel="Simulated time (ms)",
+            force.set(xlim=(0, A2_STEPS), ylim=(0, 55), xlabel="Simulated time (ms)",
                       ylabel="Contact force (N)")
             force.legend(loc="upper right", ncol=2, fontsize=8)
             force.grid(alpha=0.2)
@@ -92,14 +98,16 @@ class Dashboard:
             self.fig.colorbar(image, ax=tactile, label="kPa", fraction=0.05, pad=0.04)
             self.artists.append((view, telemetry, line, image, marker))
 
-        self.tilt = Slider(self.fig.add_axes([0.16, 0.13, 0.44, 0.025]),
-                           "Initial tilt (°)", -15, 15, valinit=10, valstep=0.5)
-        self.offset = Slider(self.fig.add_axes([0.16, 0.078, 0.44, 0.025]),
+        self.tilt = Slider(self.fig.add_axes([0.19, 0.17, 0.44, 0.025]),
+                           "Initial tilt (°)", -15, 15, valinit=3, valstep=0.5)
+        self.offset = Slider(self.fig.add_axes([0.19, 0.12, 0.44, 0.025]),
                              "Lateral offset (mm)", -0.92, 0.92, valinit=0, valstep=0.02)
-        self.mode = RadioButtons(self.fig.add_axes([0.65, 0.058, 0.13, 0.105]),
-                                 ["Compare", "OFF only", "ON only"])
-        self.replay = Button(self.fig.add_axes([0.8, 0.105, 0.13, 0.048]), "Run / restart")
-        self.pause = Button(self.fig.add_axes([0.8, 0.051, 0.13, 0.048]), "Pause")
+        self.grasp = Slider(self.fig.add_axes([0.19, 0.068, 0.44, 0.025]),
+                            "In-hand grasp tilt (?)", -10, 10, valinit=7, valstep=.5)
+        self.mode = RadioButtons(self.fig.add_axes([0.67, 0.055, 0.17, 0.14]),
+                                 ["Unconstrained", "Wrist F/T-only QP", "TactAI"], active=1)
+        self.replay = Button(self.fig.add_axes([0.85, 0.137, 0.13, 0.048]), "Run / restart")
+        self.pause = Button(self.fig.add_axes([0.85, 0.078, 0.13, 0.048]), "Pause")
         self.replay.on_clicked(self.reset)
         self.pause.on_clicked(self.toggle_pause)
         self.mode.on_clicked(self.reset)
@@ -110,12 +118,10 @@ class Dashboard:
         self.reset()
 
     def reset(self, _=None):
-        active = {"Compare": (True, True), "OFF only": (True, False),
-                  "ON only": (False, True)}[self.mode.value_selected]
-        for episode, selected in zip(self.episodes, active):
-            episode.reset(self.tilt.val, self.offset.val)
-            if not selected:
-                episode.status = "Inactive"
+        self.episodes[0].select(self.mode.value_selected)
+        self.axes[0, 0].set_title(self.mode.value_selected, fontweight="bold")
+        for episode in self.episodes:
+            episode.reset(self.tilt.val, self.offset.val, self.grasp.val)
         self.paused = False
         self.pause.label.set_text("Pause")
         self.draw()
@@ -151,6 +157,8 @@ class Dashboard:
             line.set_data(episode.time_ms, episode.forces)
             self.axes[1, col].set_ylim(0, upper)
             stage = f"Stage {episode.stage}" if episode.stage is not None else "Automaton off"
+            wrist = np.rad2deg(episode.obs["ee_rpy"][0])
+            peg = np.rad2deg(episode.env.peg_tilt_rad()[0])
             text.set_text(f"{episode.status}  ·  {stage}  ·  Tilt {episode.info['tilt_deg']:.2f}°\n"
                           f"Force {episode.forces[-1]:.1f} N  ·  Peak {max(episode.forces):.1f} N")
             image.set_data(pressures[col])
@@ -182,11 +190,12 @@ def main():
             dashboard.draw()
             for episode in dashboard.episodes:
                 print(f"{episode.status}: peak {max(episode.forces):.2f} N")
-            assert [episode.status for episode in dashboard.episodes] == ["Jammed", "Inserted"]
-            dashboard.mode.set_active(1)
-            assert dashboard.episodes[1].status == "Inactive"
+            assert dashboard.episodes[0].status != "Inserted"
+            assert dashboard.episodes[1].status == "Inserted"
+            dashboard.mode.set_active(0)
+            assert dashboard.episodes[0].mode == "Unconstrained"
             dashboard.mode.set_active(2)
-            assert dashboard.episodes[0].status == "Inactive"
+            assert dashboard.episodes[0].mode == "TactAI"
         finally:
             dashboard.close()
         return

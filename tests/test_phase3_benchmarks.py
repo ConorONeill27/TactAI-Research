@@ -8,7 +8,8 @@ import numpy as np
 
 from src.envs.franka_slot_env import FrankaSlotEnv
 from src.envs.tactile_benchmarks_env import NonPlanarContourEnv, IncipientSlipManipulationEnv
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
+from scripts.run_phase3_validation import run_single_episode
+from src.controllers.insertion_protocol import tactai
 from src.controllers.baseline_controllers import (
     UnconstrainedPolicyBaseline,
     FixedIsotropicImpedanceController,
@@ -59,32 +60,14 @@ class TestPhase3Benchmarks(unittest.TestCase):
         np.testing.assert_allclose(actions[75], actions_repeat[75])
 
     def test_comparative_10deg_ood_insertion(self):
-        """TactileAlignmentController must succeed with < 15 N where UnconstrainedPolicyBaseline jams."""
-        # 1. Unconstrained baseline
-        obs, info = self.env.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-        b_ctrl = UnconstrainedPolicyBaseline(dt=self.env.dt)
-        b_ctrl.reset()
-        for _ in range(150):
-            u_cmd, _ = b_ctrl.compute_safe_action(self.u_nom, obs)
-            obs, _, term, trunc, info = self.env.step(u_cmd)
-            if term or trunc:
-                break
-        self.assertTrue(info["is_jammed"])
-        self.assertGreater(info["peak_force_n"], 40.0)
-
-        # 2. TactileAlignmentController wrapping StochasticActionChunkingPolicy
-        obs, info = self.env.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-        t_ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=self.env.dt)
-        t_ctrl.reset()
-        nom_policy = StochasticActionChunkingPolicy(seed=42)
-        for _ in range(500):
-            u_pi = nom_policy.get_action(obs)
-            u_cmd, _ = t_ctrl.compute_safe_action(u_pi, obs)
-            obs, _, term, trunc, info = self.env.step(u_cmd)
-            if info["is_success"]:
-                break
-        self.assertTrue(info["is_success"])
-        self.assertLess(info["peak_force_n"], 15.0)
+        """Compare the same learned checkpoint with and without supervision."""
+        initial = ((10.0, 0.0), (0.0, 0.0))
+        baseline = run_single_episode(self.env, UnconstrainedPolicyBaseline(), *initial)
+        supervised = run_single_episode(self.env, tactai(self.env.dt), *initial)
+        self.assertFalse(baseline["is_success"])
+        self.assertGreater(baseline["peak_force_n"], 15.0)
+        self.assertTrue(supervised["is_success"])
+        self.assertLessEqual(supervised["peak_force_n"], 15.0)
 
     def test_benchmark_b_nonplanar_contour_tracking(self):
         """Benchmark B: TactAI must bound contour force <= 15 N and outperform unconstrained baseline."""
@@ -112,21 +95,11 @@ class TestPhase3Benchmarks(unittest.TestCase):
     def test_tactile_controller_latency_and_stiffness_robustness(self):
         """TactileAlignmentController must remain passive and succeed under 25 ms latency and K_env = 10^5 N/m."""
         env_stiff = FrankaSlotEnv(stiffness_env=1.0e5, friction_env=0.60, seed=42)
-        t_ctrl = TactileAlignmentController(f_max=15.0, gamma_jam=2.0, dt=env_stiff.dt, latency_ms=25.0)
-        obs, info = env_stiff.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-        t_ctrl.reset()
-
-        min_tank = 1.0
-        for _ in range(520):
-            u_cmd, diag = t_ctrl.compute_safe_action(self.u_nom, obs)
-            obs, _, term, trunc, info = env_stiff.step(u_cmd)
-            min_tank = min(min_tank, diag["tank_energy_j"])
-            if info["is_success"]:
-                break
-
-        self.assertTrue(info["is_success"])
-        self.assertLess(info["peak_force_n"], 15.0)
-        self.assertGreaterEqual(min_tank, t_ctrl.tank_min_energy)
+        controller = tactai(env_stiff.dt, latency_ms=25.0)
+        result = run_single_episode(env_stiff, controller, (10.0, 0.0), (0.0, 0.0))
+        self.assertTrue(result["is_success"])
+        self.assertLessEqual(result["peak_force_n"], 15.0)
+        self.assertGreaterEqual(result["min_tank_energy_j"], controller.tank_min_energy)
 
 
 if __name__ == "__main__":

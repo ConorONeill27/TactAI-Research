@@ -10,11 +10,11 @@ import numpy as np
 
 from scripts.run_heldout_validation import sample_conditions
 from scripts.run_phase3_validation import run_single_episode, summarize_episode_set
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
+from src.controllers.insertion_protocol import frozen_parameters, tactai
 from src.envs.franka_slot_env import FrankaSlotEnv
 
 
-HELDOUT_SEED = 20261020
+GUARD_AUDIT_SEED = 20261020  # Historical comparison panel. Never used to select gains.
 STRESS_SEEDS = (73101, 73102)
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -78,7 +78,9 @@ def cases():
     ):
         yield "tensor", label, gains, None
     yield "guard", "default", {}, None
-    for name, nominal in (("rim_brake_force", 4.2), ("rim_latch_force", 6.5), ("rim_damping", 52)):
+    params = frozen_parameters()
+    for name, default in (("rim_brake_force", 4.2), ("rim_latch_force", 6.5), ("rim_damping", 52)):
+        nominal = params.get(name, default)
         for factor in (0.8, 1.2):
             yield "guard", f"{name}_{factor - 1:+.0%}", {name: nominal * factor}, None
 
@@ -86,15 +88,15 @@ def cases():
 def run_case(case):
     group, label, gains, errors = case
     if group == "guard":
-        conditions = [(HELDOUT_SEED + i, tilt, off)
-                      for i, (tilt, off) in enumerate(sample_conditions(50, HELDOUT_SEED))]
+        conditions = [(GUARD_AUDIT_SEED + i, tilt, off)
+                      for i, (tilt, off) in enumerate(sample_conditions(50, GUARD_AUDIT_SEED))]
     else:
         conditions = []
         for seed in STRESS_SEEDS:
             eligible = [(tilt, off) for tilt, off in sample_conditions(50, seed) if in_basin(tilt, off)]
             conditions.extend((seed * 100 + i, tilt, off) for i, (tilt, off) in enumerate(eligible[:6]))
     env = FrankaSlotEnv()
-    ctrl = TactileAlignmentController(dt=env.dt, **gains)
+    ctrl = tactai(env.dt, **gains)
     trials = []
     for seed, tilt, offset in conditions:
         transform = TactilePerturbation(seed, **errors) if errors is not None else None
@@ -122,10 +124,11 @@ def plot(results):
                 height=0.32, label="Insertion")
         ax.barh(y + 0.17, [runs[n]["summary"]["jamming_rate_pct"] for n in names],
                 height=0.32, label="Jam")
-        ax.set(yticks=y, yticklabels=[n.replace("_", " ") for n in names], xlim=(0, 100),
+        labels = {"without_cop_tensor": "Without proportional rotational alignment"}
+        ax.set(yticks=y, yticklabels=[labels.get(n, n.replace("_", " ")) for n in names], xlim=(0, 100),
                xlabel="Episodes (%)", title=group.capitalize(), ylim=(len(names) - 0.5, -0.5))
         if i == 0:
-            ax.legend(loc="lower right")
+            ax.legend(loc="lower left", bbox_to_anchor=(0.0, 1.13), ncol=2, frameon=False)
         for row, name in enumerate(names):
             force_ax.scatter([t["peak_force_n"] for t in runs[name]["trials"]],
                              np.full(len(runs[name]["trials"]), row), s=10, alpha=0.4)
@@ -147,10 +150,9 @@ def main():
         for group, label, result in pool.map(run_case, cases()):
             results[group][label] = result
             print(group, label, result["summary"]["success_count"], flush=True)
-    failures = [t for t in results["guard"]["default"]["trials"] if not t["is_success"]]
     path = ROOT / "data" / "phase3_validation" / "contact_audit.json"
-    path.write_text(json.dumps(dict(heldout_seed=HELDOUT_SEED, stress_seeds=STRESS_SEEDS,
-                                    results=results, heldout_failures=failures), indent=2),
+    path.write_text(json.dumps(dict(guard_audit_seed=GUARD_AUDIT_SEED, stress_seeds=STRESS_SEEDS,
+                                    results=results), indent=2),
                     encoding="utf-8")
     plot(results)
 

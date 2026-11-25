@@ -9,6 +9,8 @@ Generates high-resolution images of:
 
 import os
 import sys
+import json
+from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -21,7 +23,8 @@ from src.envs.franka_slot_env import FrankaSlotEnv
 
 
 def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22,
-                 lookat=(0.0, 0.0, 0.030), width=960, height=720, show_contacts=False):
+                 lookat=(0.0, 0.0, 0.030), width=960, height=720, show_contacts=False,
+                 contact_closeup=False):
     camera = mujoco.MjvCamera()
     camera.type = mujoco.mjtCamera.mjCAMERA_FREE
     camera.lookat = list(lookat)
@@ -29,9 +32,18 @@ def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22,
     camera.azimuth = azimuth
     camera.elevation = elevation
     
-    env.model.geom_rgba[env.peg_geom_id] = (0.02, 0.65, 0.83, 1.0)
+    env.model.geom_rgba[env.peg_geom_id] = (0.04, 0.88, 0.86, 1.0)
+    for wall in ("wall_left", "wall_right", "wall_back", "wall_front"):
+        geom = env.model.geom(wall)
+        geom.rgba[:3] = (0.17, 0.19, 0.22)
+        if contact_closeup:
+            geom.rgba[3] = 0.24
+    options = mujoco.MjvOption()
+    if contact_closeup:
+        env.model.geom_group[env.model.geom_type == mujoco.mjtGeom.mjGEOM_MESH] = 3
+        options.geomgroup[3] = 0
     with mujoco.Renderer(env.model, height, width) as renderer:
-        renderer.update_scene(env.data, camera)
+        renderer.update_scene(env.data, camera, scene_option=options)
         if show_contacts:
             for i in range(env.data.ncon):
                 contact = env.data.contact[i]
@@ -48,8 +60,9 @@ def render_scene(env, camera_distance=0.22, azimuth=135, elevation=-22,
                 mujoco.mjv_initGeom(arrow, mujoco.mjtGeom.mjGEOM_ARROW,
                                     np.zeros(3), np.zeros(3), np.eye(3).ravel(),
                                     np.array([1.0, 0.65, 0.05, 1.0], dtype=np.float32))
-                mujoco.mjv_connector(arrow, mujoco.mjtGeom.mjGEOM_ARROW, 0.001,
-                                     contact.pos - normal * 0.012, contact.pos)
+                arrow.emission = 0.65
+                mujoco.mjv_connector(arrow, mujoco.mjtGeom.mjGEOM_ARROW, 0.0025,
+                                     contact.pos - normal * 0.020, contact.pos)
                 renderer.scene.ngeom += 1
         return renderer.render()
 
@@ -67,17 +80,24 @@ def main():
         obs_a, _, term, _, info_a = env_aligned.step(action_down)
         if term:
             break
-    img_aligned = render_scene(env_aligned, camera_distance=0.18, azimuth=140, elevation=-20, lookat=(0.0, 0.0, 0.025))
+    img_aligned = render_scene(env_aligned, camera_distance=0.14, azimuth=125,
+                               elevation=-14, lookat=(0.0, 0.0, 0.021),
+                               contact_closeup=True)
 
     # 2. Tilted Misaligned Jammed State
-    env_tilted = FrankaSlotEnv(seed=42)
-    obs_t, info_t = env_tilted.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-    for _ in range(35):
-        obs_t, _, term, _, info_t = env_tilted.step(action_down)
-        if term:
-            break
-    img_tilted = render_scene(env_tilted, camera_distance=0.16, azimuth=125,
-                              elevation=-14, lookat=(0.0, 0.0, 0.020), show_contacts=True)
+    telemetry = Path("data/phase2_validation")
+    logged = json.loads((telemetry / "case1_baseline_jamming_summary.json").read_text(encoding="utf-8"))
+    tilt = logged["metadata"]["env_params"]["initial_tilt_deg"]
+    env_tilted = FrankaSlotEnv(seed=logged["metadata"]["seed"])
+    obs_t, info_t = env_tilted.reset(ood_tilt_deg=(tilt, 0.0), ood_offset_mm=(0.0, 0.0))
+    with np.load(telemetry / "case1_baseline_jamming.npz") as trace:
+        peak_index = np.linalg.norm(trace["ext_forces"], axis=1).argmax()
+        for action in trace["actions"][:peak_index + 1]:
+            obs_t, _, _, _, info_t = env_tilted.step(action)
+    kpis = logged["kpis"]
+    img_tilted = render_scene(env_tilted, camera_distance=0.135, azimuth=125,
+                              elevation=-14, lookat=(0.0, 0.0, 0.021), show_contacts=True,
+                              contact_closeup=True)
 
     # 3. Overview Perspective (Peg above slot in ready position)
     env_ready = FrankaSlotEnv(seed=42)
@@ -88,6 +108,15 @@ def main():
     tactile_data = obs_t["tactile"]["left_pad"]
     # Normal pressure
     fz_pad = env_tilted.left_pad_pressure / 1e3
+    snapshots = {
+        "seed": 42, "slot_clearance_mm": env_ready.slot_clearance * 1000,
+        "stiffness_n_m": env_ready.stiffness_env, "rate_hz": 1 / env_ready.dt,
+        "aligned": {k: float(info_a[k]) for k in ("insertion_depth_m", "peak_force_n")},
+        "wedged": {"insertion_depth_m": kpis["final_insertion_depth_mm"] / 1000,
+                   "peak_force_n": kpis["peak_force_n"], "rendered_at_peak": True},
+    }
+    (Path("data") / "phase2_validation" / "workbench_snapshots.json").write_text(
+        json.dumps(snapshots, indent=2), encoding="utf-8")
 
     # Create composite 2x2 dashboard
     fig = plt.figure(figsize=(16, 12), dpi=200)
@@ -99,7 +128,8 @@ def main():
     ax1.set_title("1. 3D Simulation Workbench (Franka Arm, GelSight Mini Pads, Slot)", color="#38BDF8", fontsize=13, weight="bold", pad=10)
     ax1.axis("off")
     # Annotations
-    ax1.text(0.04, 0.92, "Clearance: 0.15 mm per side\nStiffness: K_env = 10,000 N/m (10 N/mm)\nFrequency: 1,000 Hz",
+    ax1.text(0.04, 0.92, f"Clearance: {snapshots['slot_clearance_mm']:.2f} mm per side\n"
+             f"Stiffness: {snapshots['stiffness_n_m']:,.0f} N/m\nFrequency: {snapshots['rate_hz']:,.0f} Hz",
              transform=ax1.transAxes, color="#F8FAFC", fontsize=10,
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#1E293B", edgecolor="#38BDF8", alpha=0.9))
 
@@ -117,7 +147,7 @@ def main():
     ax3.imshow(img_tilted)
     ax3.set_title("3. Tilted Push (+10° Tilt) — WEDGING / FORCE SURGE", color="#F87171", fontsize=13, weight="bold", pad=10)
     ax3.axis("off")
-    ax3.text(0.04, 0.92, f"Peak force: {info_t['peak_force_n']:.1f} N\nGold arrows: peg contact normals\nDepth: {info_t['insertion_depth_m']*1e3:.2f} mm",
+    ax3.text(0.04, 0.92, f"Peak force: {kpis['peak_force_n']:.1f} N\nGold arrows: peg contact normals\nFinal depth: {kpis['final_insertion_depth_mm']:.2f} mm",
              transform=ax3.transAxes, color="#F8FAFC", fontsize=10,
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#7F1D1D", edgecolor="#F87171", alpha=0.9))
 
@@ -146,6 +176,8 @@ def main():
     plt.tight_layout()
     dashboard_path = os.path.join(figures_dir, "simulation_3d_overview.png")
     plt.savefig(dashboard_path, dpi=200, facecolor=fig.get_facecolor(), bbox_inches="tight")
+    fig.savefig(os.path.splitext(dashboard_path)[0] + ".pdf", dpi=180,
+                facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close()
 
     print(f"Saved 3D simulation dashboard to: {dashboard_path}")

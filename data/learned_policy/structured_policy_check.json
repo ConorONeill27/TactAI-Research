@@ -1,0 +1,272 @@
+[
+  {
+    "scenario_index": 16,
+    "trial_seed": 58,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      8.0,
+      0.0
+    ],
+    "offset_mm": [
+      0.0,
+      0.2
+    ],
+    "initial_tilt_norm_deg": 8.0,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 39.222176875277796,
+    "final_depth_mm": 0.10501684758182361,
+    "final_tilt_deg": 2.0160476069667745,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.01032800015474839,
+    "mean_stick_ratio": 0.11808498208288222,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 24,
+    "trial_seed": 66,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      10.0,
+      0.0
+    ],
+    "offset_mm": [
+      0.0,
+      0.0
+    ],
+    "initial_tilt_norm_deg": 10.0,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 38.83915890414157,
+    "final_depth_mm": 0.09948756718278218,
+    "final_tilt_deg": 3.074561357658953,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.009894363538478501,
+    "mean_stick_ratio": 0.10254911224828854,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 25,
+    "trial_seed": 67,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      -10.0,
+      0.0
+    ],
+    "offset_mm": [
+      0.0,
+      0.0
+    ],
+    "initial_tilt_norm_deg": 10.0,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 34.40511528074218,
+    "final_depth_mm": 0.08507426816223296,
+    "final_tilt_deg": 3.090676431714029,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.010529090868658386,
+    "mean_stick_ratio": 0.08638348830656523,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 30,
+    "trial_seed": 72,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      8.0,
+      8.0
+    ],
+    "offset_mm": [
+      0.25,
+      0.25
+    ],
+    "initial_tilt_norm_deg": 11.313708498984761,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 36.2654799065067,
+    "final_depth_mm": 0.0,
+    "final_tilt_deg": 4.339795324301575,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.011953090883749113,
+    "mean_stick_ratio": 0.11968896789485024,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 36,
+    "trial_seed": 78,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      12.0,
+      0.0
+    ],
+    "offset_mm": [
+      0.0,
+      0.3
+    ],
+    "initial_tilt_norm_deg": 12.0,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 37.94450744901568,
+    "final_depth_mm": 0.024091701155373735,
+    "final_tilt_deg": 4.558301583533723,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.010673090959740379,
+    "mean_stick_ratio": 0.09904941366019208,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 44,
+    "trial_seed": 86,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      15.0,
+      0.0
+    ],
+    "offset_mm": [
+      0.0,
+      0.0
+    ],
+    "initial_tilt_norm_deg": 15.0,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 35.39813237165767,
+    "final_depth_mm": 0.0,
+    "final_tilt_deg": 6.713697751223778,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.010716909098184922,
+    "mean_stick_ratio": 0.09322223106595989,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 47,
+    "trial_seed": 89,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      14.0,
+      -11.0
+    ],
+    "offset_mm": [
+      0.88,
+      -0.82
+    ],
+    "initial_tilt_norm_deg": 17.804493814764857,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 33.17389627187997,
+    "final_depth_mm": 0.0,
+    "final_tilt_deg": 9.403916459343167,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.010440363667757165,
+    "mean_stick_ratio": 0.07099362098239005,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 48,
+    "trial_seed": 90,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      -14.5,
+      11.5
+    ],
+    "offset_mm": [
+      -0.9,
+      0.85
+    ],
+    "initial_tilt_norm_deg": 18.506755523321747,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 33.12153608339394,
+    "final_depth_mm": 0.0,
+    "final_tilt_deg": 9.831700983868403,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.010413636356877925,
+    "mean_stick_ratio": 0.09917680782059228,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  },
+  {
+    "scenario_index": 49,
+    "trial_seed": 91,
+    "final_stage": null,
+    "rim_arrest_latched": null,
+    "tilt_deg": [
+      15.0,
+      12.0
+    ],
+    "offset_mm": [
+      0.92,
+      0.88
+    ],
+    "initial_tilt_norm_deg": 19.209372712298546,
+    "is_success": false,
+    "is_jammed": true,
+    "is_safe_force": false,
+    "force_limit_exceeded": true,
+    "termination_reason": "jammed",
+    "peak_force_n": 32.16440807198722,
+    "final_depth_mm": 0.0,
+    "final_tilt_deg": 10.85815120374558,
+    "cycle_time_s": 0.55,
+    "episode_duration_s": 0.55,
+    "steps": 550,
+    "mean_solve_time_ms": 0.009964909067176368,
+    "mean_stick_ratio": 0.10997770479897176,
+    "min_stick_ratio": 0.0,
+    "min_tank_energy_j": 1.0
+  }
+]

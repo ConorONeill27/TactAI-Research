@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-11-25T13:34:22.910789+00:00",
+  "generated_at_utc": "2026-11-25T18:48:24.746544+00:00",
   "python_version": "3.12.7",
   "numpy_version": "2.2.3",
   "benchmark_script": "run_phase3_validation.py",
@@ -7,9 +7,9 @@
   "robustness_scenario_count": 5,
   "robustness_seeds_per_scenario": 5,
   "notes": [
-    "Full suite recomputed; no partial-update mixing.",
+    "Figures generated from saved simulation logs.",
     "95% Wilson intervals are reported for binary success and force-safety rates.",
-    "Held-out randomized evaluation (N=50, seed 20261020) loaded from heldout_summary.json.",
+    "Held-out randomized evaluation loaded from learned_heldout_summary.json.",
     "Simulation results are not hardware-validation results."
   ]
 }

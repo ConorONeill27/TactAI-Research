@@ -1,0 +1,16 @@
+{
+  "heldout_seed": 1524526683,
+  "checkpoint_sha256": "d224439b099f8343331df520f10715ef26b17d7b4ed240bb456891baf0c758ba",
+  "tuning_sha256": "0169167710b3544d91686223b26eb7b24fb72d2bb503fd407c18da1fb6e23823",
+  "controller_parameters": {
+    "learned_approach": true,
+    "rim_damping": 125,
+    "rim_band_lower": -0.0063,
+    "settle_ticks": 115,
+    "force_trigger_fraction": 0.75,
+    "retraction_floor": 4,
+    "kp_lat": 2000,
+    "centering_damping": 75,
+    "deep_insertion_push": 16
+  }
+}

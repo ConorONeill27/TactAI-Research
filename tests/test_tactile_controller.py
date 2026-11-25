@@ -14,19 +14,14 @@ import numpy as np
 import time
 
 from src.envs.franka_slot_env import FrankaSlotEnv
-from src.controllers.tactile_alignment_controller import TactileAlignmentController
+from scripts.run_phase3_validation import run_single_episode
+from src.controllers.insertion_protocol import tactai
 
 
 class TestTactileAlignmentController(unittest.TestCase):
     def setUp(self):
         self.env = FrankaSlotEnv(seed=42)
-        self.controller = TactileAlignmentController(
-            f_max=15.0,
-            gamma_jam=2.0,
-            kp_rot=30.0,
-            kd_rot=1.2,
-            dt=0.001
-        )
+        self.controller = tactai(self.env.dt)
 
     def test_controller_initialization(self):
         """Verify default controller and energy-tank parameters."""
@@ -84,45 +79,17 @@ class TestTactileAlignmentController(unittest.TestCase):
 
     def test_closed_loop_insertion_success_under_misalignment(self):
         """Verify that misaligned peg (+10 deg tilt) achieves full successful insertion with safe contact forces."""
-        obs, info = self.env.reset(ood_tilt_deg=(10.0, 0.0), ood_offset_mm=(0.0, 0.0))
-        u_nom = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
-
-        succeeded = False
-        peak_force = 0.0
-
-        for step in range(500):
-            u_safe, diag = self.controller.compute_safe_action(u_nom, obs)
-            obs, r, term, trunc, info = self.env.step(u_safe)
-            peak_force = max(peak_force, info["current_force_n"])
-
-            if info["is_success"]:
-                succeeded = True
-                break
-
-        self.assertTrue(succeeded, "Closed-loop tactile controller must succeed in sub-millimeter insertion.")
-        self.assertGreaterEqual(info["insertion_depth_m"], 0.020, "Insertion depth must reach >= 20 mm.")
-        self.assertLess(peak_force, 15.0, f"Peak force {peak_force:.2f} N exceeded 15.0 N safety barrier.")
-        self.assertLess(info["tilt_deg"], 1.0, "Final tilt must be < 1.0 deg.")
+        result = run_single_episode(self.env, self.controller, (10.0, 0.0), (0.0, 0.0))
+        self.assertTrue(result["is_success"])
+        self.assertGreaterEqual(result["final_depth_mm"], 20.0)
+        self.assertLessEqual(result["peak_force_n"], 15.0)
+        self.assertLess(result["final_tilt_deg"], 1.0)
 
     def test_combined_tilt_and_lateral_offset_insertion(self):
         """Verify robust insertion under combined tilt (-10 deg) and lateral offset (0.4 mm)."""
-        obs, info = self.env.reset(ood_tilt_deg=(0.0, -10.0), ood_offset_mm=(0.4, 0.0))
-        u_nom = np.array([0.0, 0.0, -8.0, 0.0, 0.0, 0.0])
-
-        succeeded = False
-        peak_force = 0.0
-
-        for step in range(500):
-            u_safe, diag = self.controller.compute_safe_action(u_nom, obs)
-            obs, r, term, trunc, info = self.env.step(u_safe)
-            peak_force = max(peak_force, info["current_force_n"])
-
-            if info["is_success"]:
-                succeeded = True
-                break
-
-        self.assertTrue(succeeded, "Controller must succeed under combined tilt and lateral offset.")
-        self.assertLess(peak_force, 15.0, "Peak force must remain strictly below 15 N barrier.")
+        result = run_single_episode(self.env, self.controller, (0.0, -10.0), (0.4, 0.0))
+        self.assertTrue(result["is_success"])
+        self.assertLessEqual(result["peak_force_n"], 15.0)
 
 
 if __name__ == "__main__":

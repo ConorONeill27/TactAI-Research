@@ -1,53 +1,74 @@
-"""Draw the supervisory controller and its contact-state guards as a vector PDF."""
+﻿"""Draw the learned-policy supervisor and hybrid automaton as a vector PDF."""
 
 from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, PathPatch
+from matplotlib.path import Path as PlotPath
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(10, 3.4), layout="constrained")
-    ax.set(xlim=(-0.6, 10.6), ylim=(-0.3, 3.6))
+    fig, ax = plt.subplots(figsize=(11.8, 4.25), layout="constrained")
+    ax.set(xlim=(0, 15.1), ylim=(0, 6.5))
     ax.axis("off")
+    ink = "#25374d"
+    inputs, compute, stages = "#e8f2fc", "#dff3e9", "#ffefce"
 
-    def box(x, y, label, color):
-        ax.text(x, y, label, ha="center", va="center", fontsize=10,
-                bbox=dict(boxstyle="round,pad=0.5", facecolor=color, edgecolor="#334155"))
+    def box(x, y, width, height, label, color):
+        ax.add_patch(FancyBboxPatch((x - width / 2, y - height / 2), width, height,
+                                  boxstyle="round,pad=0.02,rounding_size=0.11",
+                                  facecolor=color, edgecolor=ink, linewidth=1))
+        ax.text(x, y, label, ha="center", va="center", fontsize=9.5, color=ink)
 
-    def arrow(x0, y0, x1, y1):
-        ax.annotate("", (x1, y1), (x0, y0),
-                    arrowprops=dict(arrowstyle="->", color="#334155", lw=1.2))
+    def route(*points):
+        if len(points) > 2:
+            ax.add_patch(PathPatch(PlotPath(points[:-1]), fill=False, color=ink, linewidth=1.15))
+        ax.add_patch(FancyArrowPatch(points[-2], points[-1], arrowstyle="-|>",
+                                     mutation_scale=10, linewidth=1.15, color=ink,
+                                     shrinkA=0, shrinkB=1))
 
-    inputs, compute, stages = "#e0f2fe", "#dcfce7", "#fef3c7"
-    box(0.55, 3.1, "20 Hz policy\nproxy", inputs)
-    box(0.55, 2.25, "25–50 Hz target\ntactile invariants", inputs)
-    box(0.55, 1.4, "1 kHz wrist pose\nand wrench", inputs)
-    box(3.15, 2.0, "Complementary\nobserver + latch", compute)
-    box(5.55, 2.6, "7-variable OSQP\nwrench filter", compute)
-    box(5.55, 1.5, "Grip barrier\nseparate channel", compute)
-    box(8.2, 2.6, "Net-wrench energy tank\nand actuator limits", compute)
-    arrow(1.15, 3.1, 4.85, 2.78)
-    arrow(1.42, 2.25, 2.38, 2.1)
-    arrow(1.47, 1.4, 2.38, 1.86)
-    arrow(3.94, 2.11, 4.85, 2.5)
-    arrow(3.94, 1.89, 4.78, 1.56)
-    arrow(6.28, 2.6, 7.17, 2.6)
-    arrow(9.16, 2.6, 9.65, 2.6)
-    ax.text(9.72, 2.6, "Arm\nwrench", va="center", fontsize=9)
+    box(1.55, 5.8, 2.65, .84, "20 Hz learned policy\n(MLP action chunks)", inputs)
+    box(1.55, 4.35, 2.65, .84, "25–50 Hz target\nTactile invariants", inputs)
+    box(1.55, 3.15, 2.65, .84, "1 kHz wrist pose\nand wrench", inputs)
+    box(5.0, 4.25, 2.6, .88, "Complementary\nobserver + latch", compute)
+    box(8.25, 5.8, 2.6, .84, "7-variable OSQP\nwrench filter", compute)
+    box(11.65, 5.8, 2.75, .84, "Net-wrench energy tank\nand actuator limits", compute)
+    box(1.40, 1.55, 2.50, .74, "Grip barrier\n(separate channel)", compute)
+    route((4.20, 3.79), (4.20, 2.72), (1.40, 2.72), (1.40, 1.94))
+    ax.text(2.30, 2.48, r"$\hat{\rho}_{\mathrm{stick}},\,\hat{\mathbf{F}}_{xy}$",
+            va="center", ha="center", fontsize=9, color=ink)
+    route((2.89, 5.8), (6.93, 5.8))
+    route((2.89, 4.35), (3.67, 4.35))
+    route((2.89, 3.15), (3.22, 3.15), (3.22, 4.04), (3.67, 4.04))
+    route((6.32, 4.42), (7.1, 4.42), (7.1, 5.37))
+    route((9.58, 5.8), (10.25, 5.8))
+    route((13.05, 5.8), (13.57, 5.8))
+    route((1.40, 1.16), (1.40, .76))
+    ax.text(13.65, 5.8, "Arm wrench", va="center", color=ink, fontsize=9.5)
+    ax.text(1.40, .56, "Grip force", va="center", ha="center", color=ink, fontsize=9.5)
 
-    box(0.55, 0.37, "Stage 1\nApproach", stages)
-    box(5.55, 0.37, "Stage 2\nUn-wedge", stages)
-    box(9.45, 0.37, "Stage 3\nAlign and insert", stages)
-    arrow(1.1, 0.37, 4.97, 0.37)
-    arrow(6.12, 0.37, 8.63, 0.37)
-    arrow(6.26, 0.71, 6.26, 2.17)
-    ax.text(3.02, 0.49, r"$G_{1\to2}$: force $>0.1$ N and" "\n"
+    ax.add_patch(FancyBboxPatch((2.8, .25), 10.90, 2.35,
+                               boxstyle="round,pad=0.01,rounding_size=0.13",
+                               fill=False, edgecolor=ink, linestyle=(0, (5, 4)), linewidth=1.1))
+    ax.text(8.25, 2.25, "3-Stage Hybrid Automaton", ha="center",
+            va="center", fontsize=10.5, weight="bold", color=ink)
+    route((8.25, 2.62), (8.25, 5.37))
+    route((5.0, 3.79), (5.0, 2.62))
+    ax.text(5.18, 3.26, r"$\hat{\mathbf{F}},\,\hat{\boldsymbol{\theta}}_{\rm est},\,h_{\rm jam}$",
+            ha="left", va="center", fontsize=9, color=ink)
+
+    for x, label in [(4.0, "Stage 1\nApproach"), (7.93, "Stage 2\nUn-wedge"),
+                     (11.91, "Stage 3\nAlign & insert")]:
+        box(x, .94, 1.78, .75, label, stages)
+    route((4.92, .94), (7.0, .94))
+    route((8.85, .94), (10.98, .94))
+    ax.text(5.98, 1.1, r"$G_{1\to2}$: force $>0.1$ N and" "\n"
             r"($h_{\rm jam}<0$ or tilt $\geq0.65^\circ$)",
-            ha="center", va="bottom", fontsize=9)
-    ax.text(7.47, 0.49, r"$G_{2\to3}$: $z>-3.2$ mm" "\n"
-            "and dwell elapsed", ha="center", va="bottom", fontsize=9)
+            ha="center", va="bottom", fontsize=7.6, color=ink)
+    ax.text(9.91, 1.1, r"$G_{2\to3}$: $z>-3.2$ mm" "\n" "and dwell elapsed",
+            ha="center", va="bottom", fontsize=7.6, color=ink)
     fig.savefig(Path(__file__).resolve().parents[1] / "docs/figures/controller_architecture.pdf")
     plt.close(fig)
 

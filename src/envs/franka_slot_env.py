@@ -417,7 +417,7 @@ class FrankaSlotEnv:
         self.data.qpos[5] = 0.0
 
         # Zero relative deflection of grasped peg
-        self.data.qpos[6:12] = 0.0
+        self._reset_peg_mount()
         self.data.qvel[:] = 0.0
         self.data.ctrl[:] = 0.0
 
@@ -458,14 +458,13 @@ class FrankaSlotEnv:
         self.peak_contact_force = max(self.peak_contact_force, ext_force_mag)
 
         # Check task completion and constraints
-        peg_z_bottom = obs["peg_pos"][2] - self.peg_half_l
+        peg_z_bottom, tilt_deg = self._insertion_pose()
         # Slot rim is at z = 0.025 m; slot table bottom is at z = 0.0 m
         # Insertion depth: distance penetrated below the rim
         insertion_depth = max(0.0, self.slot_depth - peg_z_bottom)
 
         # Termination conditions:
         # 1. Success: inserted >= 20 mm into slot with low force (< 20 N) and low tilt (< 2 deg)
-        tilt_deg = np.rad2deg(np.linalg.norm(obs["ee_rpy"][:2]))
         is_success = (insertion_depth >= 0.020) and (ext_force_mag < 20.0) and (tilt_deg < 2.0)
 
         # 2. Jammed: peak contact force exceeds 40 N or Jamming Index drops below 1.5 with high force
@@ -562,6 +561,17 @@ class FrankaSlotEnv:
 
         return net_force, net_torque
 
+    def _reset_peg_mount(self):
+        self.data.qpos[6:12] = 0.0
+
+    def _insertion_pose(self):
+        return (float(self.data.geom_xpos[self.peg_geom_id, 2] - self.peg_half_l),
+                float(np.rad2deg(np.linalg.norm(self.data.qpos[3:5]))))
+
+    def peg_tilt_rad(self):
+        axis = self.data.geom_xmat[self.peg_geom_id].reshape(3, 3)[:, 2]
+        return np.array([np.arctan2(-axis[1], axis[2]), np.arcsin(np.clip(axis[0], -1, 1))])
+
     def _compute_tactile_invariants(
         self,
         peg_deflection: np.ndarray,
@@ -573,8 +583,8 @@ class FrankaSlotEnv:
         Synthesizes the continuous 3D traction fields on Left and Right GelSight pads
         and extracts contact invariants.
         """
-        peg_dx, peg_dy, peg_dz, peg_drx, peg_dry, peg_drz = peg_deflection
-        peg_vx, peg_vy, peg_vz, peg_wrx, peg_wry, peg_wrz = peg_deflection_vel
+        peg_dx = peg_deflection[0]
+        peg_vy, peg_vz, peg_wrx = peg_deflection_vel[1:4]
 
         # Nominal pre-indentation delta_0 (0.5 mm) corresponding to 15 N grip
         delta_0 = 0.0005
@@ -588,8 +598,9 @@ class FrankaSlotEnv:
         # produce opposing Center-of-Pressure shifts across the Left and Right elastomeric pads.
         f_ext_mag = float(np.linalg.norm(ext_force))
         contact_engagement = 1.0 if f_ext_mag >= 0.10 else 0.0
-        eff_rx = contact_engagement * float(self.data.qpos[3] + peg_drx)
-        eff_ry = contact_engagement * float(self.data.qpos[4] + peg_dry)
+        roll, pitch = self.peg_tilt_rad()
+        eff_rx = contact_engagement * roll
+        eff_ry = contact_engagement * pitch
         tilt_mag = float(np.hypot(eff_rx, eff_ry))
         tilt_orient = float(np.arctan2(eff_ry, eff_rx))
         offset_u_left = 0.006 * np.sin(eff_rx)
@@ -597,7 +608,8 @@ class FrankaSlotEnv:
         offset_u_right = -offset_u_left
         offset_v_right = -offset_v_left
         is_line_contact = (tilt_mag > 0.02) and (f_ext_mag > 0.1)
-        c_type = "line_edge" if is_line_contact else "flat_circle"
+        # A tapered pressure patch has a continuous centroid as it crosses taxel boundaries.
+        c_type = "elliptical" if is_line_contact else "flat_circle"
         c_aspect = 2.5 if is_line_contact else 1.0
 
         # Generate traction fields for both pads
@@ -687,10 +699,8 @@ class FrankaSlotEnv:
 
     def _get_info(self) -> Dict[str, Any]:
         """Diagnostics and environment metadata."""
-        peg_pos = self.data.geom_xpos[self.peg_geom_id]
-        peg_z_bottom = float(peg_pos[2] - self.peg_half_l)
+        peg_z_bottom, tilt_deg = self._insertion_pose()
         insertion_depth = float(max(0.0, self.slot_depth - peg_z_bottom))
-        tilt_deg = float(np.rad2deg(np.linalg.norm(self.data.qpos[3:5])))
         
         ext_force, _ = self._compute_external_contact_wrench()
         ext_force_mag = float(np.linalg.norm(ext_force))
