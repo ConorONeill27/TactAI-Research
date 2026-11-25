@@ -30,7 +30,8 @@ class GelSightSensor:
         ly: float = 0.0154,
         youngs_modulus: float = 1.5e5,
         friction_coeff: float = 0.40,
-        noise_std_pa: float = 50.0
+        noise_std_pa: float = 50.0,
+        rng: np.random.Generator | None = None,
     ):
         self.grid_h = grid_h
         self.grid_w = grid_w
@@ -39,6 +40,7 @@ class GelSightSensor:
         self.E = youngs_modulus
         self.mu = friction_coeff
         self.noise_std = noise_std_pa
+        self.rng = rng if rng is not None else np.random
 
         # Spatial coordinates in sensor frame: origin at pad center
         self.xs = np.linspace(-self.lx / 2.0, self.lx / 2.0, self.grid_w)
@@ -141,9 +143,9 @@ class GelSightSensor:
 
         # Add physical sensor noise (Gaussian in Pascals)
         if self.noise_std > 0:
-            noise_z = np.random.normal(0, self.noise_std, fz.shape)
-            noise_x = np.random.normal(0, self.noise_std, qx.shape)
-            noise_y = np.random.normal(0, self.noise_std, qy.shape)
+            noise_z = self.rng.normal(0, self.noise_std, fz.shape)
+            noise_x = self.rng.normal(0, self.noise_std, qx.shape)
+            noise_y = self.rng.normal(0, self.noise_std, qy.shape)
             # Only add noise to active or near-contact regions
             active_region = fz > 0
             fz[active_region] = np.maximum(0.0, fz[active_region] + noise_z[active_region])

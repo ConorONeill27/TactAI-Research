@@ -30,10 +30,12 @@
     "mean_successful_cycle_time_s": 0.067,
     "std_successful_cycle_time_s": 0.0,
     "num_successful_cycle_times": 3,
-    "mean_solve_time_ms": 0.0043,
+    "mean_solve_time_ms": 0.0115,
     "trials": [
       {
         "trial_seed": 42,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.5,
           0.0
@@ -54,13 +56,15 @@
         "cycle_time_s": 0.067,
         "episode_duration_s": 0.067,
         "steps": 67,
-        "mean_solve_time_ms": 0.005570149966585103,
-        "mean_stick_ratio": 0.004527781595059209,
+        "mean_solve_time_ms": 0.009092537321697847,
+        "mean_stick_ratio": 0.005326284890004752,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 43,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -0.5,
           0.0
@@ -81,13 +85,15 @@
         "cycle_time_s": 0.067,
         "episode_duration_s": 0.067,
         "steps": 67,
-        "mean_solve_time_ms": 0.005591045648081979,
-        "mean_stick_ratio": 0.006205781791653339,
+        "mean_solve_time_ms": 0.008385074620288032,
+        "mean_stick_ratio": 0.0061132666437589776,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 44,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.6,
           0.0
@@ -108,13 +114,15 @@
         "cycle_time_s": 0.067,
         "episode_duration_s": 0.067,
         "steps": 67,
-        "mean_solve_time_ms": 0.004970150610515431,
-        "mean_stick_ratio": 0.012117146602525141,
+        "mean_solve_time_ms": 0.00932835820067475,
+        "mean_stick_ratio": 0.012966147446127174,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 45,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           3.0,
           0.0
@@ -135,13 +143,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004137498763157055,
-        "mean_stick_ratio": 0.04107568878142973,
+        "mean_solve_time_ms": 0.012400000002799061,
+        "mean_stick_ratio": 0.040527533128636065,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 46,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -3.0,
           0.0
@@ -162,13 +172,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003796878445427865,
-        "mean_stick_ratio": 0.0381269371653987,
+        "mean_solve_time_ms": 0.008900000018741139,
+        "mean_stick_ratio": 0.03812033319244858,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 47,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           5.0,
           0.0
@@ -189,13 +201,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004349996743258089,
-        "mean_stick_ratio": 0.007242357001972386,
+        "mean_solve_time_ms": 0.008234374995197413,
+        "mean_stick_ratio": 0.005943588836696851,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 48,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -5.0,
           0.0
@@ -216,13 +230,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0037312602216843516,
-        "mean_stick_ratio": 0.036078604888701044,
+        "mean_solve_time_ms": 0.009759374982820646,
+        "mean_stick_ratio": 0.036446226049591426,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 49,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           5.0
@@ -243,13 +259,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0037406280171126127,
-        "mean_stick_ratio": 0.005375633981403212,
+        "mean_solve_time_ms": 0.011653125007171639,
+        "mean_stick_ratio": 0.004087859256128487,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 50,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -5.0
@@ -270,13 +288,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003737506631296128,
-        "mean_stick_ratio": 0.00594687764158918,
+        "mean_solve_time_ms": 0.012137500000619639,
+        "mean_stick_ratio": 0.006126298754983692,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 51,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           4.0,
           3.0
@@ -297,13 +317,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004349996743258089,
-        "mean_stick_ratio": 0.004090060580445195,
+        "mean_solve_time_ms": 0.012365624982635381,
+        "mean_stick_ratio": 0.0065005107072414765,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 52,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           0.0
@@ -324,13 +346,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003812507202383131,
-        "mean_stick_ratio": 0.005573753169907015,
+        "mean_solve_time_ms": 0.008375000007276867,
+        "mean_stick_ratio": 0.006133990208509439,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 53,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           0.0
@@ -351,13 +375,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0037125028029549867,
-        "mean_stick_ratio": 0.05846938812507251,
+        "mean_solve_time_ms": 0.010118749997900522,
+        "mean_stick_ratio": 0.058391228162862775,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 54,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           6.0
@@ -378,13 +404,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004049994458910078,
-        "mean_stick_ratio": 0.006499410045083122,
+        "mean_solve_time_ms": 0.012046875013993485,
+        "mean_stick_ratio": 0.009471236719539887,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 55,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -6.0
@@ -405,13 +433,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0037562531360890716,
-        "mean_stick_ratio": 0.044617568276380457,
+        "mean_solve_time_ms": 0.012106249990040396,
+        "mean_stick_ratio": 0.044995159676296546,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 56,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           7.0,
           0.0
@@ -432,13 +462,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0038499892980325967,
-        "mean_stick_ratio": 0.037559072731137504,
+        "mean_solve_time_ms": 0.010121875000379532,
+        "mean_stick_ratio": 0.0373872921949845,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 57,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -7.0,
           0.0
@@ -459,13 +491,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003834367817034945,
-        "mean_stick_ratio": 0.013741767047055507,
+        "mean_solve_time_ms": 0.013075000040885243,
+        "mean_stick_ratio": 0.011334618906734291,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 58,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           0.0
@@ -486,13 +520,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004156241629971191,
-        "mean_stick_ratio": 0.008355217552067066,
+        "mean_solve_time_ms": 0.013978125018354604,
+        "mean_stick_ratio": 0.010585067976894898,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 59,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           0.0
@@ -513,13 +549,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003999994078185409,
-        "mean_stick_ratio": 0.004643693646097491,
+        "mean_solve_time_ms": 0.012868749983852013,
+        "mean_stick_ratio": 0.0051984273739081426,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 60,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           8.0
@@ -540,13 +578,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0038562393456231803,
-        "mean_stick_ratio": 0.005764180672268907,
+        "mean_solve_time_ms": 0.008953124996935458,
+        "mean_stick_ratio": 0.005200628698224852,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 61,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -8.0
@@ -567,13 +607,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0041656094253994524,
-        "mean_stick_ratio": 0.006880252333456501,
+        "mean_solve_time_ms": 0.009693750030237425,
+        "mean_stick_ratio": 0.006674454175161189,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 62,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           -5.0
@@ -594,13 +636,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.003984365321230143,
-        "mean_stick_ratio": 0.008726062540400776,
+        "mean_solve_time_ms": 0.009790625007610743,
+        "mean_stick_ratio": 0.008919766131304593,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 63,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           5.0
@@ -621,13 +665,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0038437610783148557,
-        "mean_stick_ratio": 0.038123635178923636,
+        "mean_solve_time_ms": 0.01337499999465308,
+        "mean_stick_ratio": 0.04072126308270536,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 64,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           9.0,
           0.0
@@ -648,13 +694,15 @@
         "cycle_time_s": 0.031,
         "episode_duration_s": 0.031,
         "steps": 31,
-        "mean_solve_time_ms": 0.003993537487281907,
-        "mean_stick_ratio": 0.005558170968330069,
+        "mean_solve_time_ms": 0.0097258064582298,
+        "mean_stick_ratio": 0.005942195786022947,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 65,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -9.0,
           0.0
@@ -675,13 +723,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0038156395021360368,
-        "mean_stick_ratio": 0.011136551514096763,
+        "mean_solve_time_ms": 0.011984374957307864,
+        "mean_stick_ratio": 0.012636781096947866,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 66,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           0.0
@@ -702,13 +752,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0059875164879485965,
-        "mean_stick_ratio": 0.007065216302390992,
+        "mean_solve_time_ms": 0.01137500001391345,
+        "mean_stick_ratio": 0.007608890449670992,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 67,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           0.0
@@ -729,13 +781,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004456258466234431,
-        "mean_stick_ratio": 0.006135090870667793,
+        "mean_solve_time_ms": 0.01358437500442733,
+        "mean_stick_ratio": 0.006130727068934082,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 68,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           10.0
@@ -756,13 +810,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004868757969234139,
-        "mean_stick_ratio": 0.01096479642152719,
+        "mean_solve_time_ms": 0.014750000019603249,
+        "mean_stick_ratio": 0.012640004226542687,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 69,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -10.0
@@ -783,13 +839,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0044406224333215505,
-        "mean_stick_ratio": 0.009847650693962876,
+        "mean_solve_time_ms": 0.013515625013837962,
+        "mean_stick_ratio": 0.007797090729783037,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 70,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           -6.0
@@ -810,13 +868,15 @@
         "cycle_time_s": 0.031,
         "episode_duration_s": 0.031,
         "steps": 31,
-        "mean_solve_time_ms": 0.003964523784816265,
-        "mean_stick_ratio": 0.03993855606758832,
+        "mean_solve_time_ms": 0.009564516139723691,
+        "mean_stick_ratio": 0.03973859060707695,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 71,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           6.0
@@ -837,13 +897,15 @@
         "cycle_time_s": 0.031,
         "episode_duration_s": 0.031,
         "steps": 31,
-        "mean_solve_time_ms": 0.004770970272441064,
-        "mean_stick_ratio": 0.03801729701233423,
+        "mean_solve_time_ms": 0.00950967740121292,
+        "mean_stick_ratio": 0.037244703187631234,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 72,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           8.0
@@ -864,13 +926,15 @@
         "cycle_time_s": 0.031,
         "episode_duration_s": 0.031,
         "steps": 31,
-        "mean_solve_time_ms": 0.004409673443484691,
-        "mean_stick_ratio": 0.045304674647106406,
+        "mean_solve_time_ms": 0.008477419375976165,
+        "mean_stick_ratio": 0.04415373708177678,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 73,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           -8.0
@@ -891,13 +955,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004734381946036592,
-        "mean_stick_ratio": 0.007801493378416455,
+        "mean_solve_time_ms": 0.01584375002039451,
+        "mean_stick_ratio": 0.007257818998520288,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 74,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           11.0,
           0.0
@@ -918,13 +984,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004099991201655939,
-        "mean_stick_ratio": 0.031793727106227104,
+        "mean_solve_time_ms": 0.01374999998660087,
+        "mean_stick_ratio": 0.030128451623802267,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 75,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -11.0,
           0.0
@@ -945,13 +1013,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004281260771676898,
-        "mean_stick_ratio": 0.004644794308255846,
+        "mean_solve_time_ms": 0.014124999978548658,
+        "mean_stick_ratio": 0.0037125334601296137,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 76,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           11.0
@@ -972,13 +1042,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004168756277067587,
-        "mean_stick_ratio": 0.010394692270399283,
+        "mean_solve_time_ms": 0.01232187499056181,
+        "mean_stick_ratio": 0.010034736897717667,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 77,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -11.0
@@ -999,13 +1071,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0043906402424909174,
-        "mean_stick_ratio": 0.015628631293427266,
+        "mean_solve_time_ms": 0.011393750007471226,
+        "mean_stick_ratio": 0.014481438380635179,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 78,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           12.0,
           0.0
@@ -1026,13 +1100,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004150002496317029,
-        "mean_stick_ratio": 0.03663333861651169,
+        "mean_solve_time_ms": 0.01529374998909816,
+        "mean_stick_ratio": 0.03644402472527472,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 79,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -12.0,
           0.0
@@ -1053,13 +1129,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004193763743387535,
-        "mean_stick_ratio": 0.04146417119269492,
+        "mean_solve_time_ms": 0.012906250006494702,
+        "mean_stick_ratio": 0.040716795224006765,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 80,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           12.0
@@ -1080,13 +1158,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.00412188092013821,
-        "mean_stick_ratio": 0.00520503134685827,
+        "mean_solve_time_ms": 0.00938124998128842,
+        "mean_stick_ratio": 0.008733754226542687,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 81,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -12.0
@@ -1107,13 +1187,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004309360519982874,
-        "mean_stick_ratio": 0.004829705550859396,
+        "mean_solve_time_ms": 0.013640624985100658,
+        "mean_stick_ratio": 0.00538555288979497,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 82,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           13.0,
           0.0
@@ -1134,13 +1216,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004353132680989802,
-        "mean_stick_ratio": 0.038495658988447444,
+        "mean_solve_time_ms": 0.013337500007537528,
+        "mean_stick_ratio": 0.03867067745320854,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 83,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -13.0,
           0.0
@@ -1161,13 +1245,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004546876880340278,
-        "mean_stick_ratio": 0.03589259298393914,
+        "mean_solve_time_ms": 0.011765625018256287,
+        "mean_stick_ratio": 0.03477762221752606,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 84,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           0.0
@@ -1188,13 +1274,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.004678120603784919,
-        "mean_stick_ratio": 0.004824202240067624,
+        "mean_solve_time_ms": 0.008696874999714055,
+        "mean_stick_ratio": 0.004644794308255847,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 85,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.0,
           0.0
@@ -1215,13 +1303,15 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.00621212265369567,
-        "mean_stick_ratio": 0.038225663225663224,
+        "mean_solve_time_ms": 0.012142424235538452,
+        "mean_stick_ratio": 0.03588718973334358,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 86,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           0.0
@@ -1242,13 +1332,15 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.004384846595877951,
-        "mean_stick_ratio": 0.0349799772876696,
+        "mean_solve_time_ms": 0.013057575718751954,
+        "mean_stick_ratio": 0.03516568901184286,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 87,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -15.0,
           0.0
@@ -1269,13 +1361,15 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.004724239591847767,
-        "mean_stick_ratio": 0.03679226756149833,
+        "mean_solve_time_ms": 0.010451515139941352,
+        "mean_stick_ratio": 0.0369651715805562,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 88,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           14.0
@@ -1296,13 +1390,15 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.004778799572677323,
-        "mean_stick_ratio": 0.008108344646806183,
+        "mean_solve_time_ms": 0.009293939387355225,
+        "mean_stick_ratio": 0.009555640889127762,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 89,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           -11.0
@@ -1323,13 +1419,15 @@
         "cycle_time_s": 0.032,
         "episode_duration_s": 0.032,
         "steps": 32,
-        "mean_solve_time_ms": 0.0048156325647141784,
-        "mean_stick_ratio": 0.037196903772138475,
+        "mean_solve_time_ms": 0.011525000026324506,
+        "mean_stick_ratio": 0.03867286559594252,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 90,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.5,
           11.5
@@ -1350,13 +1448,15 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.0044969757172194395,
-        "mean_stick_ratio": 0.011350828658520967,
+        "mean_solve_time_ms": 0.013121212119089747,
+        "mean_stick_ratio": 0.014396927858466321,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 91,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           12.0
@@ -1377,8 +1477,8 @@
         "cycle_time_s": 0.033,
         "episode_duration_s": 0.033,
         "steps": 33,
-        "mean_solve_time_ms": 0.004245458650543835,
-        "mean_stick_ratio": 0.03607290145751684,
+        "mean_solve_time_ms": 0.012754545430266951,
+        "mean_stick_ratio": 0.03571855494932418,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       }
@@ -1415,10 +1515,12 @@
     "mean_successful_cycle_time_s": 0.4283,
     "std_successful_cycle_time_s": 0.0158,
     "num_successful_cycle_times": 10,
-    "mean_solve_time_ms": 0.0242,
+    "mean_solve_time_ms": 0.0728,
     "trials": [
       {
         "trial_seed": 42,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.5,
           0.0
@@ -1439,13 +1541,15 @@
         "cycle_time_s": 0.402,
         "episode_duration_s": 0.402,
         "steps": 402,
-        "mean_solve_time_ms": 0.025022888454186976,
-        "mean_stick_ratio": 0.42329788678232977,
+        "mean_solve_time_ms": 0.0687788557150777,
+        "mean_stick_ratio": 0.4232383159599433,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 43,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -0.5,
           0.0
@@ -1466,13 +1570,15 @@
         "cycle_time_s": 0.398,
         "episode_duration_s": 0.398,
         "steps": 398,
-        "mean_solve_time_ms": 0.02382738672515106,
-        "mean_stick_ratio": 0.4133158853996085,
+        "mean_solve_time_ms": 0.07500427134962949,
+        "mean_stick_ratio": 0.4134033897383437,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 44,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.6,
           0.0
@@ -1493,13 +1599,15 @@
         "cycle_time_s": 0.433,
         "episode_duration_s": 0.433,
         "steps": 433,
-        "mean_solve_time_ms": 0.02316050645497393,
-        "mean_stick_ratio": 0.668845174537181,
+        "mean_solve_time_ms": 0.07193025403393374,
+        "mean_stick_ratio": 0.6686243312835128,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 45,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           3.0,
           0.0
@@ -1520,13 +1628,15 @@
         "cycle_time_s": 0.429,
         "episode_duration_s": 0.429,
         "steps": 429,
-        "mean_solve_time_ms": 0.02346247204499089,
-        "mean_stick_ratio": 0.6601777510149593,
+        "mean_solve_time_ms": 0.06981911421371266,
+        "mean_stick_ratio": 0.6603144963761356,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 46,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -3.0,
           0.0
@@ -1547,13 +1657,15 @@
         "cycle_time_s": 0.439,
         "episode_duration_s": 0.439,
         "steps": 439,
-        "mean_solve_time_ms": 0.023093162335726964,
-        "mean_stick_ratio": 0.6589758427492939,
+        "mean_solve_time_ms": 0.06805580865655508,
+        "mean_stick_ratio": 0.6600885595405219,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 47,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           5.0,
           0.0
@@ -1574,13 +1686,15 @@
         "cycle_time_s": 0.427,
         "episode_duration_s": 0.427,
         "steps": 427,
-        "mean_solve_time_ms": 0.025726461115639997,
-        "mean_stick_ratio": 0.631517164234611,
+        "mean_solve_time_ms": 0.0724370023417322,
+        "mean_stick_ratio": 0.6309330852856151,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 48,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -5.0,
           0.0
@@ -1601,13 +1715,15 @@
         "cycle_time_s": 0.442,
         "episode_duration_s": 0.442,
         "steps": 442,
-        "mean_solve_time_ms": 0.024068100026037494,
-        "mean_stick_ratio": 0.6262767861832812,
+        "mean_solve_time_ms": 0.06555814479210666,
+        "mean_stick_ratio": 0.6267121425766821,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 49,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           5.0
@@ -1628,13 +1744,15 @@
         "cycle_time_s": 0.433,
         "episode_duration_s": 0.433,
         "steps": 433,
-        "mean_solve_time_ms": 0.023271362071396573,
-        "mean_stick_ratio": 0.7073364784300786,
+        "mean_solve_time_ms": 0.07688383372601125,
+        "mean_stick_ratio": 0.7074841144889584,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 50,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -5.0
@@ -1655,13 +1773,15 @@
         "cycle_time_s": 0.441,
         "episode_duration_s": 0.441,
         "steps": 441,
-        "mean_solve_time_ms": 0.02295147525167722,
-        "mean_stick_ratio": 0.7022368682272119,
+        "mean_solve_time_ms": 0.06967959184459147,
+        "mean_stick_ratio": 0.7020114854528077,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 51,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           4.0,
           3.0
@@ -1682,13 +1802,15 @@
         "cycle_time_s": 0.439,
         "episode_duration_s": 0.439,
         "steps": 439,
-        "mean_solve_time_ms": 0.02323371142887241,
-        "mean_stick_ratio": 0.6551602482456232,
+        "mean_solve_time_ms": 0.06484373576584772,
+        "mean_stick_ratio": 0.655271524997399,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 52,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           0.0
@@ -1709,13 +1831,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024135817604308777,
-        "mean_stick_ratio": 0.09234829949992385,
+        "mean_solve_time_ms": 0.06854145455277334,
+        "mean_stick_ratio": 0.09252018114922173,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 53,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           0.0
@@ -1736,13 +1860,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024438184389675207,
-        "mean_stick_ratio": 0.08664662260816107,
+        "mean_solve_time_ms": 0.07525109090651809,
+        "mean_stick_ratio": 0.08647237301313765,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 54,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           6.0
@@ -1763,13 +1889,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024052363481711258,
-        "mean_stick_ratio": 0.09821505191640936,
+        "mean_solve_time_ms": 0.07249199999891558,
+        "mean_stick_ratio": 0.09833012910626913,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 55,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -6.0
@@ -1790,13 +1918,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024249632631174543,
-        "mean_stick_ratio": 0.1040186073353494,
+        "mean_solve_time_ms": 0.07446545454596079,
+        "mean_stick_ratio": 0.10389628987625303,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 56,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           7.0,
           0.0
@@ -1817,13 +1947,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02396436408162117,
-        "mean_stick_ratio": 0.0995713365346639,
+        "mean_solve_time_ms": 0.0750158181794673,
+        "mean_stick_ratio": 0.09928866154715886,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 57,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -7.0,
           0.0
@@ -1844,13 +1976,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024326911026781254,
-        "mean_stick_ratio": 0.09581912538337779,
+        "mean_solve_time_ms": 0.06951763636607211,
+        "mean_stick_ratio": 0.09604798541631171,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 58,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           0.0
@@ -1871,13 +2005,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024842178364369003,
-        "mean_stick_ratio": 0.11759855453746858,
+        "mean_solve_time_ms": 0.07512381818246054,
+        "mean_stick_ratio": 0.11773521350444427,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 59,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           0.0
@@ -1898,13 +2034,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02401181920008226,
-        "mean_stick_ratio": 0.09210065424771308,
+        "mean_solve_time_ms": 0.06757727273328452,
+        "mean_stick_ratio": 0.09211090267198864,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 60,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           8.0
@@ -1925,13 +2063,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02407254884019494,
-        "mean_stick_ratio": 0.14917888971064522,
+        "mean_solve_time_ms": 0.07249654545706687,
+        "mean_stick_ratio": 0.14911282627628783,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 61,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -8.0
@@ -1952,13 +2092,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024051640013402157,
-        "mean_stick_ratio": 0.09675394741005601,
+        "mean_solve_time_ms": 0.07374709090444495,
+        "mean_stick_ratio": 0.0968132188324496,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 62,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           -5.0
@@ -1979,13 +2121,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024514911399984903,
-        "mean_stick_ratio": 0.09778298989283796,
+        "mean_solve_time_ms": 0.07087327273066793,
+        "mean_stick_ratio": 0.09802905973297472,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 63,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           5.0
@@ -2006,13 +2150,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024971270044757563,
-        "mean_stick_ratio": 0.12845995747271569,
+        "mean_solve_time_ms": 0.08726381818550263,
+        "mean_stick_ratio": 0.12849104373984435,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 64,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           9.0,
           0.0
@@ -2033,13 +2179,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02424508947032419,
-        "mean_stick_ratio": 0.08804182843104999,
+        "mean_solve_time_ms": 0.08564218182155772,
+        "mean_stick_ratio": 0.08791439329900869,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 65,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -9.0,
           0.0
@@ -2060,13 +2208,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024609454822811214,
-        "mean_stick_ratio": 0.08929768342223975,
+        "mean_solve_time_ms": 0.07767545454870825,
+        "mean_stick_ratio": 0.08931945806832683,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 66,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           0.0
@@ -2087,13 +2237,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02415254923769019,
-        "mean_stick_ratio": 0.10105029509105973,
+        "mean_solve_time_ms": 0.07534436363750335,
+        "mean_stick_ratio": 0.10111510361280053,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 67,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           0.0
@@ -2114,13 +2266,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.023919454225423662,
-        "mean_stick_ratio": 0.08753272293317543,
+        "mean_solve_time_ms": 0.07558909090800046,
+        "mean_stick_ratio": 0.08731672098640422,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 68,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           10.0
@@ -2141,13 +2295,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.0249172753485089,
-        "mean_stick_ratio": 0.11539693976014322,
+        "mean_solve_time_ms": 0.0762807272712962,
+        "mean_stick_ratio": 0.11548778220271433,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 69,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -10.0
@@ -2168,13 +2324,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.023858905558220365,
-        "mean_stick_ratio": 0.13371100053792362,
+        "mean_solve_time_ms": 0.07438000000216892,
+        "mean_stick_ratio": 0.13366814658932347,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 70,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           -6.0
@@ -2195,13 +2353,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024342907973649828,
-        "mean_stick_ratio": 0.09567208206574723,
+        "mean_solve_time_ms": 0.07266781817551501,
+        "mean_stick_ratio": 0.09570436049621571,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 71,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           6.0
@@ -2222,13 +2382,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.025011091704734346,
-        "mean_stick_ratio": 0.10528665407039461,
+        "mean_solve_time_ms": 0.06948418181722942,
+        "mean_stick_ratio": 0.10558829276234306,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 72,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           8.0
@@ -2249,13 +2411,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024309275798838247,
-        "mean_stick_ratio": 0.10968812236857066,
+        "mean_solve_time_ms": 0.0705974545499802,
+        "mean_stick_ratio": 0.10966775989392621,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 73,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           -8.0
@@ -2276,13 +2440,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02496927786110477,
-        "mean_stick_ratio": 0.10977179682554103,
+        "mean_solve_time_ms": 0.07036127271889696,
+        "mean_stick_ratio": 0.10990025640591777,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 74,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           11.0,
           0.0
@@ -2303,13 +2469,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024432727897709065,
-        "mean_stick_ratio": 0.08674287021131794,
+        "mean_solve_time_ms": 0.07088418181948244,
+        "mean_stick_ratio": 0.08659174309853043,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 75,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -11.0,
           0.0
@@ -2330,13 +2498,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02410509136759422,
-        "mean_stick_ratio": 0.104145785573428,
+        "mean_solve_time_ms": 0.07003163636578723,
+        "mean_stick_ratio": 0.10386574585447429,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 76,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           11.0
@@ -2357,13 +2527,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024058359717442232,
-        "mean_stick_ratio": 0.09663477548092932,
+        "mean_solve_time_ms": 0.07020290909870462,
+        "mean_stick_ratio": 0.09636414715151811,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 77,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -11.0
@@ -2384,13 +2556,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.023876001677391203,
-        "mean_stick_ratio": 0.1062756298860053,
+        "mean_solve_time_ms": 0.07145654545390491,
+        "mean_stick_ratio": 0.10613255411102027,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 78,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           12.0,
           0.0
@@ -2411,13 +2585,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024424366525967012,
-        "mean_stick_ratio": 0.11209156079061518,
+        "mean_solve_time_ms": 0.06625418182259389,
+        "mean_stick_ratio": 0.11214106406414098,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 79,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -12.0,
           0.0
@@ -2438,13 +2614,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024285276462747293,
-        "mean_stick_ratio": 0.11312802579326543,
+        "mean_solve_time_ms": 0.07440018182065118,
+        "mean_stick_ratio": 0.11309702964009735,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 80,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           12.0
@@ -2465,13 +2643,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02415454861792651,
-        "mean_stick_ratio": 0.1473609395747811,
+        "mean_solve_time_ms": 0.07192545454803291,
+        "mean_stick_ratio": 0.14741154527975794,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 81,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -12.0
@@ -2492,13 +2672,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02413581633432345,
-        "mean_stick_ratio": 0.10741199430283141,
+        "mean_solve_time_ms": 0.0745910909125252,
+        "mean_stick_ratio": 0.10753683740844373,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 82,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           13.0,
           0.0
@@ -2519,13 +2701,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024283999915827404,
-        "mean_stick_ratio": 0.10864949911997113,
+        "mean_solve_time_ms": 0.07474854545803696,
+        "mean_stick_ratio": 0.10868912299936224,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 83,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -13.0,
           0.0
@@ -2546,13 +2730,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024368545590815218,
-        "mean_stick_ratio": 0.10452899664438126,
+        "mean_solve_time_ms": 0.07889527272213441,
+        "mean_stick_ratio": 0.10461666538589613,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 84,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           0.0
@@ -2573,13 +2759,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024171637328849596,
-        "mean_stick_ratio": 0.09029272010041241,
+        "mean_solve_time_ms": 0.06934709090976619,
+        "mean_stick_ratio": 0.09044455089712088,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 85,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.0,
           0.0
@@ -2600,13 +2788,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024123816877942194,
-        "mean_stick_ratio": 0.10448724052566141,
+        "mean_solve_time_ms": 0.07434199999972241,
+        "mean_stick_ratio": 0.10442941218967447,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 86,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           0.0
@@ -2627,13 +2817,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02408418275246566,
-        "mean_stick_ratio": 0.11009867808061917,
+        "mean_solve_time_ms": 0.07192490909388156,
+        "mean_stick_ratio": 0.11022900554796942,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 87,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -15.0,
           0.0
@@ -2654,13 +2846,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024471821221099657,
-        "mean_stick_ratio": 0.09944811598657753,
+        "mean_solve_time_ms": 0.08083054545750201,
+        "mean_stick_ratio": 0.09942672258513427,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 88,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           14.0
@@ -2681,13 +2875,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024078909350051123,
-        "mean_stick_ratio": 0.12837563077947695,
+        "mean_solve_time_ms": 0.07462490909719319,
+        "mean_stick_ratio": 0.1284226975619191,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 89,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           -11.0
@@ -2708,13 +2904,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.02447145525366068,
-        "mean_stick_ratio": 0.0979019445528248,
+        "mean_solve_time_ms": 0.0663990909164237,
+        "mean_stick_ratio": 0.09783401063172587,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 90,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.5,
           11.5
@@ -2735,13 +2933,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.024208362341265787,
-        "mean_stick_ratio": 0.096137814627521,
+        "mean_solve_time_ms": 0.06922981817958564,
+        "mean_stick_ratio": 0.09633026178142677,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 91,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           12.0
@@ -2762,8 +2962,8 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.023928729774938387,
-        "mean_stick_ratio": 0.09177687546239584,
+        "mean_solve_time_ms": 0.07689181817940235,
+        "mean_stick_ratio": 0.09169010021959328,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       }
@@ -2800,10 +3000,12 @@
     "mean_successful_cycle_time_s": null,
     "std_successful_cycle_time_s": null,
     "num_successful_cycle_times": 0,
-    "mean_solve_time_ms": 0.0132,
+    "mean_solve_time_ms": 0.0405,
     "trials": [
       {
         "trial_seed": 42,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.5,
           0.0
@@ -2824,13 +3026,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.0135090906934982,
-        "mean_stick_ratio": 0.6863552435498137,
+        "mean_solve_time_ms": 0.042650000006109294,
+        "mean_stick_ratio": 0.6862576458496915,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 43,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -0.5,
           0.0
@@ -2851,13 +3055,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013068547599356283,
-        "mean_stick_ratio": 0.6859763938791494,
+        "mean_solve_time_ms": 0.039330545454587,
+        "mean_stick_ratio": 0.6860088621514774,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 44,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.6,
           0.0
@@ -2878,13 +3084,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012969269882887602,
-        "mean_stick_ratio": 0.6227309901110003,
+        "mean_solve_time_ms": 0.03837181818198587,
+        "mean_stick_ratio": 0.6226766778255199,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 45,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           3.0,
           0.0
@@ -2905,13 +3113,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013342906763269142,
-        "mean_stick_ratio": 0.5223176808108934,
+        "mean_solve_time_ms": 0.04174418181843397,
+        "mean_stick_ratio": 0.5223398984122966,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 46,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -3.0,
           0.0
@@ -2932,13 +3142,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012861634181304411,
-        "mean_stick_ratio": 0.5224366011062843,
+        "mean_solve_time_ms": 0.038982000007556715,
+        "mean_stick_ratio": 0.5222971229506118,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 47,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           5.0,
           0.0
@@ -2959,13 +3171,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012982724742455915,
-        "mean_stick_ratio": 0.5244171175729095,
+        "mean_solve_time_ms": 0.03517890909155209,
+        "mean_stick_ratio": 0.5243982201810256,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 48,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -5.0,
           0.0
@@ -2986,13 +3200,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013312911191447214,
-        "mean_stick_ratio": 0.5243101061834092,
+        "mean_solve_time_ms": 0.03907490908783406,
+        "mean_stick_ratio": 0.5243748528862058,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 49,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           5.0
@@ -3013,13 +3229,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01296072563325817,
-        "mean_stick_ratio": 0.5446011650491288,
+        "mean_solve_time_ms": 0.040718909095961535,
+        "mean_stick_ratio": 0.5445794590025359,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 50,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -5.0
@@ -3040,13 +3258,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013036176519976421,
-        "mean_stick_ratio": 0.5444938967511821,
+        "mean_solve_time_ms": 0.03694418182476511,
+        "mean_stick_ratio": 0.544472319535668,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 51,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           4.0,
           3.0
@@ -3067,13 +3287,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013150725175033916,
-        "mean_stick_ratio": 0.5320255095972837,
+        "mean_solve_time_ms": 0.042657090903462216,
+        "mean_stick_ratio": 0.5317001332440492,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 52,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           0.0
@@ -3094,13 +3316,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01317745540291071,
-        "mean_stick_ratio": 0.526083467814237,
+        "mean_solve_time_ms": 0.041512000002099245,
+        "mean_stick_ratio": 0.5261274577609419,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 53,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           0.0
@@ -3121,13 +3345,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013156547846103256,
-        "mean_stick_ratio": 0.5258786680755413,
+        "mean_solve_time_ms": 0.03861909090574045,
+        "mean_stick_ratio": 0.5262269013308924,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 54,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           6.0
@@ -3148,13 +3374,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013267818034033884,
-        "mean_stick_ratio": 0.5498937600860678,
+        "mean_solve_time_ms": 0.03802945454687936,
+        "mean_stick_ratio": 0.5498717948717948,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 55,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -6.0
@@ -3175,13 +3403,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012983270624483173,
-        "mean_stick_ratio": 0.549569462198462,
+        "mean_solve_time_ms": 0.03525236363739995,
+        "mean_stick_ratio": 0.5498503374453602,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 56,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           7.0,
           0.0
@@ -3202,13 +3432,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013072367503561756,
-        "mean_stick_ratio": 0.5473046131576357,
+        "mean_solve_time_ms": 0.038351454549725036,
+        "mean_stick_ratio": 0.5476173803436654,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 57,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -7.0,
           0.0
@@ -3229,13 +3461,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012925273569470102,
-        "mean_stick_ratio": 0.5471125684676502,
+        "mean_solve_time_ms": 0.035443454545119574,
+        "mean_stick_ratio": 0.5475439801107089,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 58,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           0.0
@@ -3256,13 +3490,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013150909534570846,
-        "mean_stick_ratio": 0.5260618212858033,
+        "mean_solve_time_ms": 0.03729818181744287,
+        "mean_stick_ratio": 0.5261489784725077,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 59,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           0.0
@@ -3283,13 +3519,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013211090329357168,
-        "mean_stick_ratio": 0.5261280341212061,
+        "mean_solve_time_ms": 0.039072727280737046,
+        "mean_stick_ratio": 0.5260415752769912,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 60,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           8.0
@@ -3310,13 +3548,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013181275518780405,
-        "mean_stick_ratio": 0.5743975240310487,
+        "mean_solve_time_ms": 0.04209399999705387,
+        "mean_stick_ratio": 0.57467524161359,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 61,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -8.0
@@ -3337,13 +3577,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013508183077316393,
-        "mean_stick_ratio": 0.5746914120811586,
+        "mean_solve_time_ms": 0.043664181812346214,
+        "mean_stick_ratio": 0.5745450497707691,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 62,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           6.0,
           -5.0
@@ -3364,13 +3606,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012996002015742388,
-        "mean_stick_ratio": 0.5248224487821183,
+        "mean_solve_time_ms": 0.038762727268807466,
+        "mean_stick_ratio": 0.5250950643231777,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 63,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -6.0,
           5.0
@@ -3391,13 +3635,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.012963453773409128,
-        "mean_stick_ratio": 0.5249614771745403,
+        "mean_solve_time_ms": 0.03925472727091388,
+        "mean_stick_ratio": 0.5251348056551505,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 64,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           9.0,
           0.0
@@ -3418,13 +3664,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013161638793958859,
-        "mean_stick_ratio": 0.5268824101856183,
+        "mean_solve_time_ms": 0.03865145454917431,
+        "mean_stick_ratio": 0.5269054000163005,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 65,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -9.0,
           0.0
@@ -3445,13 +3693,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013339451133188877,
-        "mean_stick_ratio": 0.5270856028934172,
+        "mean_solve_time_ms": 0.03761854545866134,
+        "mean_stick_ratio": 0.5268817065287654,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 66,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           0.0
@@ -3472,13 +3722,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013009633191607216,
-        "mean_stick_ratio": 0.546117525035046,
+        "mean_solve_time_ms": 0.03740363635725688,
+        "mean_stick_ratio": 0.546355051420703,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 67,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           0.0
@@ -3499,13 +3751,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013485090510750359,
-        "mean_stick_ratio": 0.546463022648543,
+        "mean_solve_time_ms": 0.03731599999644624,
+        "mean_stick_ratio": 0.5465171253949942,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 68,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           10.0
@@ -3526,13 +3780,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013099091381511906,
-        "mean_stick_ratio": 0.5424503831519489,
+        "mean_solve_time_ms": 0.037728909091625115,
+        "mean_stick_ratio": 0.5424291231016344,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 69,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -10.0
@@ -3553,13 +3809,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013131450607695362,
-        "mean_stick_ratio": 0.5426870489992662,
+        "mean_solve_time_ms": 0.03809527272840734,
+        "mean_stick_ratio": 0.5424936466380859,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 70,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           10.0,
           -6.0
@@ -3580,13 +3838,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013049635401164944,
-        "mean_stick_ratio": 0.512081314655684,
+        "mean_solve_time_ms": 0.040682909094688184,
+        "mean_stick_ratio": 0.5120790286938742,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 71,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -10.0,
           6.0
@@ -3607,13 +3867,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013199094047939236,
-        "mean_stick_ratio": 0.5124139577998832,
+        "mean_solve_time_ms": 0.04829999999856227,
+        "mean_stick_ratio": 0.5124563920691383,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 72,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           8.0,
           8.0
@@ -3634,13 +3896,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013280181341211904,
-        "mean_stick_ratio": 0.5237491744610265,
+        "mean_solve_time_ms": 0.039768181818958095,
+        "mean_stick_ratio": 0.5236923501162072,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 73,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -8.0,
           -8.0
@@ -3661,13 +3925,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01323654485697096,
-        "mean_stick_ratio": 0.5235526317448491,
+        "mean_solve_time_ms": 0.03883418181968326,
+        "mean_stick_ratio": 0.5237677874587348,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 74,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           11.0,
           0.0
@@ -3688,13 +3954,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013209637466140768,
-        "mean_stick_ratio": 0.5089413113011211,
+        "mean_solve_time_ms": 0.04208599999856233,
+        "mean_stick_ratio": 0.5087788433550519,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 75,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -11.0,
           0.0
@@ -3715,13 +3983,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013267090332440355,
-        "mean_stick_ratio": 0.5086824043091418,
+        "mean_solve_time_ms": 0.049219636371576184,
+        "mean_stick_ratio": 0.5087680901706831,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 76,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           11.0
@@ -3742,13 +4012,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013332000975920395,
-        "mean_stick_ratio": 0.5299579266886959,
+        "mean_solve_time_ms": 0.04134381818568562,
+        "mean_stick_ratio": 0.5297893531536878,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 77,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -11.0
@@ -3769,13 +4041,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01306672961535779,
-        "mean_stick_ratio": 0.5299736545235095,
+        "mean_solve_time_ms": 0.03870709090899089,
+        "mean_stick_ratio": 0.5298760635778188,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 78,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           12.0,
           0.0
@@ -3796,13 +4070,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013084545816210184,
-        "mean_stick_ratio": 0.5112290251226903,
+        "mean_solve_time_ms": 0.04067890909275527,
+        "mean_stick_ratio": 0.5112361235904181,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 79,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -12.0,
           0.0
@@ -3823,13 +4099,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013244362039999529,
-        "mean_stick_ratio": 0.5109006355499974,
+        "mean_solve_time_ms": 0.04208800000428296,
+        "mean_stick_ratio": 0.5110070027605184,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 80,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           12.0
@@ -3850,13 +4128,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013490540017797188,
-        "mean_stick_ratio": 0.5319061684921413,
+        "mean_solve_time_ms": 0.041227999998806227,
+        "mean_stick_ratio": 0.5318842710833661,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 81,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           -12.0
@@ -3877,13 +4157,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013323096473785963,
-        "mean_stick_ratio": 0.5319922309426197,
+        "mean_solve_time_ms": 0.040032363636286886,
+        "mean_stick_ratio": 0.5316473888102847,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 82,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           13.0,
           0.0
@@ -3904,13 +4186,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013297998812049627,
-        "mean_stick_ratio": 0.5305796676792557,
+        "mean_solve_time_ms": 0.04479836364267116,
+        "mean_stick_ratio": 0.5307796667887166,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 83,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -13.0,
           0.0
@@ -3931,13 +4215,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013161818496882915,
-        "mean_stick_ratio": 0.5306121389380934,
+        "mean_solve_time_ms": 0.04930527272831982,
+        "mean_stick_ratio": 0.5306325695285378,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 84,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           0.0
@@ -3958,13 +4244,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013522544494745407,
-        "mean_stick_ratio": 0.5414128744558608,
+        "mean_solve_time_ms": 0.044783999994913094,
+        "mean_stick_ratio": 0.5411640314012628,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 85,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.0,
           0.0
@@ -3985,13 +4273,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013180001300166954,
-        "mean_stick_ratio": 0.5410575321978444,
+        "mean_solve_time_ms": 0.037677636369980144,
+        "mean_stick_ratio": 0.5412768573809298,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 86,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           0.0
@@ -4012,13 +4302,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01350836299190467,
-        "mean_stick_ratio": 0.5459886214705625,
+        "mean_solve_time_ms": 0.04584345454118606,
+        "mean_stick_ratio": 0.5458859082094376,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 87,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -15.0,
           0.0
@@ -4039,13 +4331,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01322291029447859,
-        "mean_stick_ratio": 0.5461574323112784,
+        "mean_solve_time_ms": 0.04363272727583866,
+        "mean_stick_ratio": 0.5460534360329927,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 88,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           0.0,
           14.0
@@ -4066,13 +4360,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01316199798814275,
-        "mean_stick_ratio": 0.5660430092019865,
+        "mean_solve_time_ms": 0.037758363637708084,
+        "mean_stick_ratio": 0.5662348518480553,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 89,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           14.0,
           -11.0
@@ -4093,13 +4389,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013181272978809748,
-        "mean_stick_ratio": 0.5455191092191622,
+        "mean_solve_time_ms": 0.04356636363726549,
+        "mean_stick_ratio": 0.5454639396293798,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 90,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           -14.5,
           11.5
@@ -4120,13 +4418,15 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.01322999998757785,
-        "mean_stick_ratio": 0.5539996336396387,
+        "mean_solve_time_ms": 0.03999890908992463,
+        "mean_stick_ratio": 0.5539730606710741,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       },
       {
         "trial_seed": 91,
+        "final_stage": null,
+        "rim_arrest_latched": null,
         "tilt_deg": [
           15.0,
           12.0
@@ -4147,8 +4447,8 @@
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.013045632830736313,
-        "mean_stick_ratio": 0.5600832865559949,
+        "mean_solve_time_ms": 0.047275090909021274,
+        "mean_stick_ratio": 0.5601028772810155,
         "min_stick_ratio": 0.0,
         "min_tank_energy_j": 1.0
       }
@@ -4185,10 +4485,12 @@
     "mean_successful_cycle_time_s": 0.4649,
     "std_successful_cycle_time_s": 0.0782,
     "num_successful_cycle_times": 47,
-    "mean_solve_time_ms": 0.1128,
+    "mean_solve_time_ms": 0.301,
     "trials": [
       {
         "trial_seed": 42,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.5,
           0.0
@@ -4204,18 +4506,20 @@
         "force_limit_exceeded": false,
         "termination_reason": "success",
         "peak_force_n": 0.0,
-        "final_depth_mm": 20.046818495270536,
-        "final_tilt_deg": 0.017402409272836844,
+        "final_depth_mm": 20.046818494675016,
+        "final_tilt_deg": 0.01740267079992795,
         "cycle_time_s": 0.169,
         "episode_duration_s": 0.169,
         "steps": 169,
-        "mean_solve_time_ms": 0.12122839827024372,
-        "mean_stick_ratio": 0.807546266686272,
+        "mean_solve_time_ms": 0.3349366863871904,
+        "mean_stick_ratio": 0.8075182609258343,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8972452590130945
+        "min_tank_energy_j": 0.8972452617754241
       },
       {
         "trial_seed": 43,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -0.5,
           0.0
@@ -4231,18 +4535,20 @@
         "force_limit_exceeded": false,
         "termination_reason": "success",
         "peak_force_n": 0.0,
-        "final_depth_mm": 20.046821161206104,
-        "final_tilt_deg": 0.01740293496864044,
+        "final_depth_mm": 20.046821162093558,
+        "final_tilt_deg": 0.017402689646598885,
         "cycle_time_s": 0.169,
         "episode_duration_s": 0.169,
         "steps": 169,
-        "mean_solve_time_ms": 0.11378934898981329,
-        "mean_stick_ratio": 0.8078767451100044,
+        "mean_solve_time_ms": 0.34674497041145214,
+        "mean_stick_ratio": 0.8076669267157938,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8972452568247539
+        "min_tank_energy_j": 0.8972452540025789
       },
       {
         "trial_seed": 44,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.6,
           0.0
@@ -4258,18 +4564,20 @@
         "force_limit_exceeded": false,
         "termination_reason": "success",
         "peak_force_n": 0.0,
-        "final_depth_mm": 20.046915785954234,
-        "final_tilt_deg": 0.020882823259802157,
+        "final_depth_mm": 20.046915786352205,
+        "final_tilt_deg": 0.020883389999919122,
         "cycle_time_s": 0.169,
         "episode_duration_s": 0.169,
         "steps": 169,
-        "mean_solve_time_ms": 0.11698520858083251,
-        "mean_stick_ratio": 0.8065379182028892,
+        "mean_solve_time_ms": 0.26449171597970994,
+        "mean_stick_ratio": 0.806182572727457,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8971463256237313
+        "min_tank_energy_j": 0.8971463265207458
       },
       {
         "trial_seed": 45,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           3.0,
           0.0
@@ -4285,18 +4593,20 @@
         "force_limit_exceeded": true,
         "termination_reason": "success",
         "peak_force_n": 16.025301015346226,
-        "final_depth_mm": 20.154396811156534,
-        "final_tilt_deg": 0.012360468009147751,
+        "final_depth_mm": 20.154396784700065,
+        "final_tilt_deg": 0.01236029859523301,
         "cycle_time_s": 0.488,
         "episode_duration_s": 0.488,
         "steps": 488,
-        "mean_solve_time_ms": 0.11242397933946464,
-        "mean_stick_ratio": 0.6486923002713689,
+        "mean_solve_time_ms": 0.31652090162981683,
+        "mean_stick_ratio": 0.6490417026316174,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8758062333354302
+        "min_tank_energy_j": 0.8758063028306733
       },
       {
         "trial_seed": 46,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -3.0,
           0.0
@@ -4311,19 +4621,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.025131115401535,
-        "final_depth_mm": 20.154425771478348,
-        "final_tilt_deg": 0.012360481258094797,
+        "peak_force_n": 16.02513111540118,
+        "final_depth_mm": 20.15442581654805,
+        "final_tilt_deg": 0.012360540257634854,
         "cycle_time_s": 0.488,
         "episode_duration_s": 0.488,
         "steps": 488,
-        "mean_solve_time_ms": 0.1123215214513456,
-        "mean_stick_ratio": 0.6491692817330277,
+        "mean_solve_time_ms": 0.32230696721441865,
+        "mean_stick_ratio": 0.6487424075425757,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8758061838973404
+        "min_tank_energy_j": 0.8758062258353038
       },
       {
         "trial_seed": 47,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           5.0,
           0.0
@@ -4338,19 +4650,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.911163929240658,
-        "final_depth_mm": 20.19235941634294,
-        "final_tilt_deg": 0.010364411416532765,
+        "peak_force_n": 16.91116392924178,
+        "final_depth_mm": 20.192359434146542,
+        "final_tilt_deg": 0.010364482751479989,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11339999827337854,
-        "mean_stick_ratio": 0.6313864405277356,
+        "mean_solve_time_ms": 0.3112372427978601,
+        "mean_stick_ratio": 0.6312763075800976,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8592438493403295
+        "min_tank_energy_j": 0.8592435180592245
       },
       {
         "trial_seed": 48,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -5.0,
           0.0
@@ -4365,19 +4679,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.91116390553323,
-        "final_depth_mm": 20.19235946129391,
-        "final_tilt_deg": 0.010364454617198792,
+        "peak_force_n": 16.911163905535705,
+        "final_depth_mm": 20.192359468925034,
+        "final_tilt_deg": 0.010364331350668119,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11199073714621886,
-        "mean_stick_ratio": 0.6316141670495055,
+        "mean_solve_time_ms": 0.31405185184315243,
+        "mean_stick_ratio": 0.6317218687146754,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8592434840244954
+        "min_tank_energy_j": 0.8592437753427302
       },
       {
         "trial_seed": 49,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           5.0
@@ -4392,19 +4708,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.620376997429055,
-        "final_depth_mm": 20.20930434911042,
-        "final_tilt_deg": 0.009867313356568473,
+        "peak_force_n": 16.620376997416926,
+        "final_depth_mm": 20.2093043673131,
+        "final_tilt_deg": 0.009867235288991203,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11335705466004725,
-        "mean_stick_ratio": 0.7530735230040281,
+        "mean_solve_time_ms": 0.3299938650295965,
+        "mean_stick_ratio": 0.752464754460793,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8599889480673564
+        "min_tank_energy_j": 0.8599889759914092
       },
       {
         "trial_seed": 50,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -5.0
@@ -4419,19 +4737,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.62037720472199,
-        "final_depth_mm": 20.209304320546632,
-        "final_tilt_deg": 0.009867322718725733,
+        "peak_force_n": 16.620377204717695,
+        "final_depth_mm": 20.20930434105397,
+        "final_tilt_deg": 0.009867346288085237,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11222147295186734,
-        "mean_stick_ratio": 0.7526866509025114,
+        "mean_solve_time_ms": 0.34759243354065616,
+        "mean_stick_ratio": 0.7523208335406081,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8599889043867519
+        "min_tank_energy_j": 0.859988994252552
       },
       {
         "trial_seed": 51,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           4.0,
           3.0
@@ -4446,19 +4766,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.55320255165406,
-        "final_depth_mm": 20.05311899503962,
-        "final_tilt_deg": 0.016708223164706573,
+        "peak_force_n": 15.55320255150853,
+        "final_depth_mm": 20.05311887876957,
+        "final_tilt_deg": 0.016708211210928324,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11256499759232004,
-        "mean_stick_ratio": 0.5984295700683809,
+        "mean_solve_time_ms": 0.29839833332706195,
+        "mean_stick_ratio": 0.5981990145198556,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8600311275433015
+        "min_tank_energy_j": 0.8600310797850736
       },
       {
         "trial_seed": 52,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           6.0,
           0.0
@@ -4473,19 +4795,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 17.069426063110104,
-        "final_depth_mm": 20.011074091166925,
-        "final_tilt_deg": 0.009128072648650789,
+        "peak_force_n": 17.069426063109,
+        "final_depth_mm": 20.011074051324453,
+        "final_tilt_deg": 0.009128078122667728,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11238826744434703,
-        "mean_stick_ratio": 0.620965016756453,
+        "mean_solve_time_ms": 0.30198888889609543,
+        "mean_stick_ratio": 0.6206385756992311,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8500971443016705
+        "min_tank_energy_j": 0.8500973514972389
       },
       {
         "trial_seed": 53,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -6.0,
           0.0
@@ -4500,19 +4824,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 17.06942767612914,
-        "final_depth_mm": 20.011073817350905,
-        "final_tilt_deg": 0.009128108343318007,
+        "peak_force_n": 17.069427676118956,
+        "final_depth_mm": 20.01107385948943,
+        "final_tilt_deg": 0.00912806059688574,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.1102989717241024,
-        "mean_stick_ratio": 0.6236422233120642,
+        "mean_solve_time_ms": 0.30387222222586685,
+        "mean_stick_ratio": 0.6243186852594608,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.850096940824107
+        "min_tank_energy_j": 0.8500970680747403
       },
       {
         "trial_seed": 54,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           6.0
@@ -4527,19 +4853,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.46540994833904,
-        "final_depth_mm": 20.08008292139298,
-        "final_tilt_deg": 0.0090373094651031,
+        "peak_force_n": 16.465409948340348,
+        "final_depth_mm": 20.080082842138182,
+        "final_tilt_deg": 0.009037463953167986,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11227341608767129,
-        "mean_stick_ratio": 0.7475994477329244,
+        "mean_solve_time_ms": 0.3005709611452608,
+        "mean_stick_ratio": 0.7475964582808967,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8504283694332015
+        "min_tank_energy_j": 0.8504283356663813
       },
       {
         "trial_seed": 55,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -6.0
@@ -4554,19 +4882,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.46540970141944,
-        "final_depth_mm": 20.080083069397073,
-        "final_tilt_deg": 0.0090374091075467,
+        "peak_force_n": 16.465409701425617,
+        "final_depth_mm": 20.080083035693324,
+        "final_tilt_deg": 0.009037412177697966,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11242985685407383,
-        "mean_stick_ratio": 0.7474002456731971,
+        "mean_solve_time_ms": 0.30933292433057363,
+        "mean_stick_ratio": 0.7473511292711509,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8504286375383743
+        "min_tank_energy_j": 0.8504284143862106
       },
       {
         "trial_seed": 56,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           7.0,
           0.0
@@ -4581,19 +4911,21 @@
         "is_safe_force": true,
         "force_limit_exceeded": false,
         "termination_reason": "success",
-        "peak_force_n": 13.198059368434743,
-        "final_depth_mm": 20.119921027426255,
-        "final_tilt_deg": 0.0040845429925987315,
+        "peak_force_n": 13.198059368425737,
+        "final_depth_mm": 20.11992119414577,
+        "final_tilt_deg": 0.004084456342649226,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11396028629385334,
-        "mean_stick_ratio": 0.6176576822283273,
+        "mean_solve_time_ms": 0.344726748977681,
+        "mean_stick_ratio": 0.6174232326105177,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8395229527308303
+        "min_tank_energy_j": 0.839523077732775
       },
       {
         "trial_seed": 57,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -7.0,
           0.0
@@ -4608,19 +4940,21 @@
         "is_safe_force": true,
         "force_limit_exceeded": false,
         "termination_reason": "success",
-        "peak_force_n": 12.49575303135587,
-        "final_depth_mm": 20.134171454080256,
-        "final_tilt_deg": 0.0034251906138738643,
+        "peak_force_n": 12.495753031346169,
+        "final_depth_mm": 20.134171680197095,
+        "final_tilt_deg": 0.003425174303522146,
         "cycle_time_s": 0.487,
         "episode_duration_s": 0.487,
         "steps": 487,
-        "mean_solve_time_ms": 0.11274352687883364,
-        "mean_stick_ratio": 0.6073141455550574,
+        "mean_solve_time_ms": 0.2996767967162381,
+        "mean_stick_ratio": 0.6072624368847745,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.839871718836886
+        "min_tank_energy_j": 0.8398723784082545
       },
       {
         "trial_seed": 58,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           8.0,
           0.0
@@ -4635,19 +4969,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.989071676452813,
-        "final_depth_mm": 20.145363340166348,
-        "final_tilt_deg": 0.003545338995513568,
+        "peak_force_n": 15.98907167645248,
+        "final_depth_mm": 20.145363472608196,
+        "final_tilt_deg": 0.003545174845804099,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11264629745396015,
-        "mean_stick_ratio": 0.6001196309113908,
+        "mean_solve_time_ms": 0.31504156378720793,
+        "mean_stick_ratio": 0.5992225436055849,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8235184346804644
+        "min_tank_energy_j": 0.8235184315633498
       },
       {
         "trial_seed": 59,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -8.0,
           0.0
@@ -4662,19 +4998,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.9890716594984,
-        "final_depth_mm": 20.145363764178025,
-        "final_tilt_deg": 0.0035452582669672434,
+        "peak_force_n": 15.989071659517652,
+        "final_depth_mm": 20.145363526134783,
+        "final_tilt_deg": 0.0035452225584439033,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11161070124441642,
-        "mean_stick_ratio": 0.6006420095340168,
+        "mean_solve_time_ms": 0.27184423868782037,
+        "mean_stick_ratio": 0.6006019315287281,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8235187412791919
+        "min_tank_energy_j": 0.8235182551318303
       },
       {
         "trial_seed": 60,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           8.0
@@ -4689,19 +5027,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.64422352138089,
-        "final_depth_mm": 20.172052613679146,
-        "final_tilt_deg": 0.007297566018660945,
+        "peak_force_n": 16.644223521348298,
+        "final_depth_mm": 20.172052305703293,
+        "final_tilt_deg": 0.007297571357241116,
         "cycle_time_s": 0.487,
         "episode_duration_s": 0.487,
         "steps": 487,
-        "mean_solve_time_ms": 0.11134188927258738,
-        "mean_stick_ratio": 0.7478694894295522,
+        "mean_solve_time_ms": 0.2639342915809857,
+        "mean_stick_ratio": 0.7471088955306193,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8226685772509077
+        "min_tank_energy_j": 0.8226679496331464
       },
       {
         "trial_seed": 61,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -8.0
@@ -4716,19 +5056,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.644222669097786,
-        "final_depth_mm": 20.172052368401424,
-        "final_tilt_deg": 0.0072975514690873985,
+        "peak_force_n": 16.644222669050645,
+        "final_depth_mm": 20.17205294022928,
+        "final_tilt_deg": 0.007297420789694514,
         "cycle_time_s": 0.487,
         "episode_duration_s": 0.487,
         "steps": 487,
-        "mean_solve_time_ms": 0.11279568978770803,
-        "mean_stick_ratio": 0.7474905393252563,
+        "mean_solve_time_ms": 0.2675749486720904,
+        "mean_stick_ratio": 0.7475687764702232,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.822667872400932
+        "min_tank_energy_j": 0.8226683599744608
       },
       {
         "trial_seed": 62,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           6.0,
           -5.0
@@ -4743,19 +5085,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.434029104235924,
-        "final_depth_mm": 20.223085922040717,
-        "final_tilt_deg": 0.012728180698470941,
+        "peak_force_n": 15.434029104227193,
+        "final_depth_mm": 20.223086408793126,
+        "final_tilt_deg": 0.012728167158523705,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.12036625218267243,
-        "mean_stick_ratio": 0.5807870546351528,
+        "mean_solve_time_ms": 0.27704874999632995,
+        "mean_stick_ratio": 0.5804836990882406,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8262394229802873
+        "min_tank_energy_j": 0.8262396394443956
       },
       {
         "trial_seed": 63,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -6.0,
           5.0
@@ -4770,19 +5114,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.434029867528347,
-        "final_depth_mm": 20.223085563052493,
-        "final_tilt_deg": 0.012729450583090442,
+        "peak_force_n": 15.434029867528107,
+        "final_depth_mm": 20.223085436767654,
+        "final_tilt_deg": 0.012729577398870807,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11084958581098665,
-        "mean_stick_ratio": 0.5759207896654875,
+        "mean_solve_time_ms": 0.2708068750015021,
+        "mean_stick_ratio": 0.5763889570092408,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8262390868715154
+        "min_tank_energy_j": 0.826238873451706
       },
       {
         "trial_seed": 64,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           9.0,
           0.0
@@ -4797,19 +5143,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.786864488262726,
-        "final_depth_mm": 20.120468166262413,
-        "final_tilt_deg": 0.0037514284233822145,
+        "peak_force_n": 16.786864488257624,
+        "final_depth_mm": 20.12046807423959,
+        "final_tilt_deg": 0.0037514529420976427,
         "cycle_time_s": 0.484,
         "episode_duration_s": 0.484,
         "steps": 484,
-        "mean_solve_time_ms": 0.11379586788633268,
-        "mean_stick_ratio": 0.5643889070924346,
+        "mean_solve_time_ms": 0.271206611574215,
+        "mean_stick_ratio": 0.5645615978889785,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8070705792283553
+        "min_tank_energy_j": 0.8070706214663107
       },
       {
         "trial_seed": 65,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -9.0,
           0.0
@@ -4824,19 +5172,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.786876374527573,
-        "final_depth_mm": 20.120463934149655,
-        "final_tilt_deg": 0.0037515779796708205,
+        "peak_force_n": 16.786876374546065,
+        "final_depth_mm": 20.120464259285544,
+        "final_tilt_deg": 0.003751621069592529,
         "cycle_time_s": 0.484,
         "episode_duration_s": 0.484,
         "steps": 484,
-        "mean_solve_time_ms": 0.11221301830412189,
-        "mean_stick_ratio": 0.5666023900446663,
+        "mean_solve_time_ms": 0.26637623966085017,
+        "mean_stick_ratio": 0.5661056496622151,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.8070695106844428
+        "min_tank_energy_j": 0.8070692977077799
       },
       {
         "trial_seed": 66,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           10.0,
           0.0
@@ -4851,19 +5201,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.242051637038207,
-        "final_depth_mm": 20.21272916200143,
-        "final_tilt_deg": 0.001741566856165941,
+        "peak_force_n": 15.24205163704078,
+        "final_depth_mm": 20.21272924714449,
+        "final_tilt_deg": 0.001741597267552431,
         "cycle_time_s": 0.484,
         "episode_duration_s": 0.484,
         "steps": 484,
-        "mean_solve_time_ms": 0.11091549521935565,
-        "mean_stick_ratio": 0.5687562101723649,
+        "mean_solve_time_ms": 0.2775842975220558,
+        "mean_stick_ratio": 0.5690938243438447,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7896267580932663
+        "min_tank_energy_j": 0.7896273590356139
       },
       {
         "trial_seed": 67,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -10.0,
           0.0
@@ -4878,19 +5230,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.242035086891995,
-        "final_depth_mm": 20.21272353533663,
-        "final_tilt_deg": 0.0017404046292111034,
+        "peak_force_n": 15.242035086891226,
+        "final_depth_mm": 20.21272263919451,
+        "final_tilt_deg": 0.001740390182253041,
         "cycle_time_s": 0.484,
         "episode_duration_s": 0.484,
         "steps": 484,
-        "mean_solve_time_ms": 0.11288636548767898,
-        "mean_stick_ratio": 0.5672330958636587,
+        "mean_solve_time_ms": 0.2732696281020426,
+        "mean_stick_ratio": 0.5672364607157455,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7896316775716432
+        "min_tank_energy_j": 0.789629560874078
       },
       {
         "trial_seed": 68,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           10.0
@@ -4905,19 +5259,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.890357446231484,
-        "final_depth_mm": 20.072441066100186,
-        "final_tilt_deg": 0.0039800989676464955,
+        "peak_force_n": 15.890357446231212,
+        "final_depth_mm": 20.07244173584998,
+        "final_tilt_deg": 0.003979963720622902,
         "cycle_time_s": 0.485,
         "episode_duration_s": 0.485,
         "steps": 485,
-        "mean_solve_time_ms": 0.11332803981897142,
-        "mean_stick_ratio": 0.7406527287301183,
+        "mean_solve_time_ms": 0.2802936082450297,
+        "mean_stick_ratio": 0.7405678937071384,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7898797206429011
+        "min_tank_energy_j": 0.7898811053307435
       },
       {
         "trial_seed": 69,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -10.0
@@ -4932,19 +5288,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.890342600970916,
-        "final_depth_mm": 20.041754533067458,
-        "final_tilt_deg": 0.004337936266971127,
+        "peak_force_n": 15.890342600976947,
+        "final_depth_mm": 20.04175446122941,
+        "final_tilt_deg": 0.004337825700955559,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11177839488059343,
-        "mean_stick_ratio": 0.7401964798713533,
+        "mean_solve_time_ms": 0.2636390946485028,
+        "mean_stick_ratio": 0.7404576658871111,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7898799930173507
+        "min_tank_energy_j": 0.7898804621000391
       },
       {
         "trial_seed": 70,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           10.0,
           -6.0
@@ -4959,19 +5317,21 @@
         "is_safe_force": true,
         "force_limit_exceeded": false,
         "termination_reason": "success",
-        "peak_force_n": 14.70180168341046,
-        "final_depth_mm": 20.122099836868273,
-        "final_tilt_deg": 0.003935585686858477,
+        "peak_force_n": 14.701801683527759,
+        "final_depth_mm": 20.122100839893765,
+        "final_tilt_deg": 0.003935677472113859,
         "cycle_time_s": 0.47900000000000004,
         "episode_duration_s": 0.47900000000000004,
         "steps": 479,
-        "mean_solve_time_ms": 0.11279123654445178,
-        "mean_stick_ratio": 0.5431512645891811,
+        "mean_solve_time_ms": 0.3048248434216838,
+        "mean_stick_ratio": 0.5428321961114182,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7565710398781801
+        "min_tank_energy_j": 0.756570300006852
       },
       {
         "trial_seed": 71,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -10.0,
           6.0
@@ -4986,19 +5346,21 @@
         "is_safe_force": true,
         "force_limit_exceeded": false,
         "termination_reason": "success",
-        "peak_force_n": 14.701787622710688,
-        "final_depth_mm": 20.127404501050027,
-        "final_tilt_deg": 0.003985523083861354,
+        "peak_force_n": 14.701787622710574,
+        "final_depth_mm": 20.127404497475876,
+        "final_tilt_deg": 0.003985640611834467,
         "cycle_time_s": 0.47900000000000004,
         "episode_duration_s": 0.47900000000000004,
         "steps": 479,
-        "mean_solve_time_ms": 0.11154843590539221,
-        "mean_stick_ratio": 0.5450470884266604,
+        "mean_solve_time_ms": 0.26213423799430857,
+        "mean_stick_ratio": 0.5454395279576023,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7565686642181995
+        "min_tank_energy_j": 0.7565680709485201
       },
       {
         "trial_seed": 72,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           8.0,
           8.0
@@ -5013,19 +5375,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.338632309239292,
-        "final_depth_mm": 20.046812328732766,
-        "final_tilt_deg": 0.004157845405304581,
+        "peak_force_n": 15.33863230923782,
+        "final_depth_mm": 20.046812108490883,
+        "final_tilt_deg": 0.004157697332513529,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11205854243598878,
-        "mean_stick_ratio": 0.5572622233209017,
+        "mean_solve_time_ms": 0.27618187499740543,
+        "mean_stick_ratio": 0.5574360044806876,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.763787324658483
+        "min_tank_energy_j": 0.7637887970636501
       },
       {
         "trial_seed": 73,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -8.0,
           -8.0
@@ -5040,19 +5404,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.338632281852709,
-        "final_depth_mm": 20.04681190707685,
-        "final_tilt_deg": 0.004157309325389166,
+        "peak_force_n": 15.338632281856187,
+        "final_depth_mm": 20.04681185588051,
+        "final_tilt_deg": 0.004157386795769718,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11060625256504864,
-        "mean_stick_ratio": 0.5576184060740005,
+        "mean_solve_time_ms": 0.26387249999923296,
+        "mean_stick_ratio": 0.5573077828884273,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.763789929942473
+        "min_tank_energy_j": 0.7637908907296715
       },
       {
         "trial_seed": 74,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           11.0,
           0.0
@@ -5067,19 +5433,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.49631238480526,
-        "final_depth_mm": 20.146304534988037,
-        "final_tilt_deg": 5.639603614986805e-05,
+        "peak_force_n": 15.49631238480521,
+        "final_depth_mm": 20.1463051896435,
+        "final_tilt_deg": 5.631828682453069e-05,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11139979202804777,
-        "mean_stick_ratio": 0.5393634864564611,
+        "mean_solve_time_ms": 0.2720772916717351,
+        "mean_stick_ratio": 0.5389728143771711,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7703266173814515
+        "min_tank_energy_j": 0.7703273825278217
       },
       {
         "trial_seed": 75,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -11.0,
           0.0
@@ -5094,19 +5462,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.496316291057779,
-        "final_depth_mm": 20.146304899283926,
-        "final_tilt_deg": 5.6824808757056805e-05,
+        "peak_force_n": 15.49631629105393,
+        "final_depth_mm": 20.146303435434756,
+        "final_tilt_deg": 5.6632439409202684e-05,
         "cycle_time_s": 0.48,
         "episode_duration_s": 0.48,
         "steps": 480,
-        "mean_solve_time_ms": 0.11214895882100488,
-        "mean_stick_ratio": 0.5403301546354395,
+        "mean_solve_time_ms": 0.30671604167148797,
+        "mean_stick_ratio": 0.5406783662528424,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7703285678117667
+        "min_tank_energy_j": 0.7703272411340036
       },
       {
         "trial_seed": 76,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           11.0
@@ -5121,19 +5491,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.267204376204484,
-        "final_depth_mm": 20.166867114286372,
-        "final_tilt_deg": 0.002350052325854866,
+        "peak_force_n": 15.267204376206998,
+        "final_depth_mm": 20.16686806392698,
+        "final_tilt_deg": 0.0023498980614927705,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.1126987578570997,
-        "mean_stick_ratio": 0.738308757109004,
+        "mean_solve_time_ms": 0.3743010351978345,
+        "mean_stick_ratio": 0.7382345854130861,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7700319610592625
+        "min_tank_energy_j": 0.7700336325079078
       },
       {
         "trial_seed": 77,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -11.0
@@ -5148,19 +5520,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.267202166515617,
-        "final_depth_mm": 20.166869201744703,
-        "final_tilt_deg": 0.0023503212793347895,
+        "peak_force_n": 15.267202166518627,
+        "final_depth_mm": 20.16686893760588,
+        "final_tilt_deg": 0.0023501835033965797,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.11408571457571309,
-        "mean_stick_ratio": 0.739110143224275,
+        "mean_solve_time_ms": 0.39378136645748973,
+        "mean_stick_ratio": 0.7382993288062467,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7700321721720007
+        "min_tank_energy_j": 0.7700321914172724
       },
       {
         "trial_seed": 78,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           12.0,
           0.0
@@ -5175,19 +5549,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.018281332552426,
-        "final_depth_mm": 20.21561503612845,
-        "final_tilt_deg": 0.002052919885216816,
+        "peak_force_n": 16.018281332554814,
+        "final_depth_mm": 20.21561582236412,
+        "final_tilt_deg": 0.0020529279723845916,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.11437412208682755,
-        "mean_stick_ratio": 0.5343710641415363,
+        "mean_solve_time_ms": 0.38181118012095566,
+        "mean_stick_ratio": 0.534235409251662,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7613392199081956
+        "min_tank_energy_j": 0.7613398170765147
       },
       {
         "trial_seed": 79,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -12.0,
           0.0
@@ -5202,19 +5578,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.01824997335571,
-        "final_depth_mm": 20.215622631515835,
-        "final_tilt_deg": 0.0020530516907551395,
+        "peak_force_n": 16.018249973367663,
+        "final_depth_mm": 20.21562109396089,
+        "final_tilt_deg": 0.0020529362765037296,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.11220145208942348,
-        "mean_stick_ratio": 0.5357016026833793,
+        "mean_solve_time_ms": 0.30146252588160555,
+        "mean_stick_ratio": 0.5355023846269452,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7613395703194464
+        "min_tank_energy_j": 0.761337784087637
       },
       {
         "trial_seed": 80,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           12.0
@@ -5229,19 +5607,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.018250640766833,
-        "final_depth_mm": 20.19599195756255,
-        "final_tilt_deg": 0.000498601247438033,
+        "peak_force_n": 16.01825064078585,
+        "final_depth_mm": 20.195991683262136,
+        "final_tilt_deg": 0.0004984051288172131,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.11233809427213595,
-        "mean_stick_ratio": 0.7409622857958587,
+        "mean_solve_time_ms": 0.30586583850826726,
+        "mean_stick_ratio": 0.7407844911423611,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.761170852616312
+        "min_tank_energy_j": 0.76117027164481
       },
       {
         "trial_seed": 81,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           -12.0
@@ -5256,19 +5636,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.01825049265057,
-        "final_depth_mm": 20.19599065707759,
-        "final_tilt_deg": 0.000498423263695943,
+        "peak_force_n": 16.01825049271591,
+        "final_depth_mm": 20.195992621318585,
+        "final_tilt_deg": 0.0004987909465592854,
         "cycle_time_s": 0.483,
         "episode_duration_s": 0.483,
         "steps": 483,
-        "mean_solve_time_ms": 0.11314865800419024,
-        "mean_stick_ratio": 0.7403689928251203,
+        "mean_solve_time_ms": 0.3053469979288785,
+        "mean_stick_ratio": 0.7414131648735262,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7611696075207051
+        "min_tank_energy_j": 0.7611711981698047
       },
       {
         "trial_seed": 82,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           13.0,
           0.0
@@ -5283,19 +5665,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.026472809413995,
-        "final_depth_mm": 20.13209840882597,
-        "final_tilt_deg": 0.008616227602189714,
+        "peak_force_n": 16.02647280943266,
+        "final_depth_mm": 20.132098215569073,
+        "final_tilt_deg": 0.008616322008064729,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11239362302822647,
-        "mean_stick_ratio": 0.5145024212468258,
+        "mean_solve_time_ms": 0.2785716049331141,
+        "mean_stick_ratio": 0.5137148717231262,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7384325209952964
+        "min_tank_energy_j": 0.7384327243037238
       },
       {
         "trial_seed": 83,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -13.0,
           0.0
@@ -5310,19 +5694,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 16.026469859338132,
-        "final_depth_mm": 20.132098412392615,
-        "final_tilt_deg": 0.00861642927413113,
+        "peak_force_n": 16.026469859433302,
+        "final_depth_mm": 20.13209891828075,
+        "final_tilt_deg": 0.008616354744028783,
         "cycle_time_s": 0.486,
         "episode_duration_s": 0.486,
         "steps": 486,
-        "mean_solve_time_ms": 0.11166255253294306,
-        "mean_stick_ratio": 0.5142964372129928,
+        "mean_solve_time_ms": 0.27772983539125934,
+        "mean_stick_ratio": 0.5142355230102185,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7384323168706365
+        "min_tank_energy_j": 0.7384325747976134
       },
       {
         "trial_seed": 84,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           14.0,
           0.0
@@ -5337,19 +5723,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.789152568893423,
-        "final_depth_mm": 20.130747085362003,
-        "final_tilt_deg": 0.0037224221067312176,
+        "peak_force_n": 15.789152568860175,
+        "final_depth_mm": 20.13074533073871,
+        "final_tilt_deg": 0.0037222208108215024,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11312086058967197,
-        "mean_stick_ratio": 0.5019983765068866,
+        "mean_solve_time_ms": 0.3146515337398146,
+        "mean_stick_ratio": 0.5018742834322276,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7153980634585753
+        "min_tank_energy_j": 0.7153973545304034
       },
       {
         "trial_seed": 85,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -14.0,
           0.0
@@ -5364,19 +5752,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.789136000152887,
-        "final_depth_mm": 20.130749076230398,
-        "final_tilt_deg": 0.0037222833457332205,
+        "peak_force_n": 15.789136000180035,
+        "final_depth_mm": 20.130749492439257,
+        "final_tilt_deg": 0.003722340174776473,
         "cycle_time_s": 0.489,
         "episode_duration_s": 0.489,
         "steps": 489,
-        "mean_solve_time_ms": 0.11333476124495145,
-        "mean_stick_ratio": 0.5019482583540252,
+        "mean_solve_time_ms": 0.27618077709880123,
+        "mean_stick_ratio": 0.5012101208048666,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7153969001821916
+        "min_tank_energy_j": 0.7153972201616726
       },
       {
         "trial_seed": 86,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           15.0,
           0.0
@@ -5391,19 +5781,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.30980556635612,
-        "final_depth_mm": 20.058772098731826,
-        "final_tilt_deg": 0.007932649452306156,
+        "peak_force_n": 15.309805566345059,
+        "final_depth_mm": 20.05877241168011,
+        "final_tilt_deg": 0.007932906330223565,
         "cycle_time_s": 0.494,
         "episode_duration_s": 0.494,
         "steps": 494,
-        "mean_solve_time_ms": 0.11058987979871421,
-        "mean_stick_ratio": 0.5100982519673734,
+        "mean_solve_time_ms": 0.2853823886647594,
+        "mean_stick_ratio": 0.5107588988647915,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.6788861356278181
+        "min_tank_energy_j": 0.678886138025451
       },
       {
         "trial_seed": 87,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           -15.0,
           0.0
@@ -5418,19 +5810,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.309921634799696,
-        "final_depth_mm": 20.058766588726275,
-        "final_tilt_deg": 0.007932742444440076,
+        "peak_force_n": 15.309921634798972,
+        "final_depth_mm": 20.058764813379756,
+        "final_tilt_deg": 0.007932548264721256,
         "cycle_time_s": 0.494,
         "episode_duration_s": 0.494,
         "steps": 494,
-        "mean_solve_time_ms": 0.11224655772894923,
-        "mean_stick_ratio": 0.5120710655646921,
+        "mean_solve_time_ms": 0.33684514169604507,
+        "mean_stick_ratio": 0.5124126969291116,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.6788874549096933
+        "min_tank_energy_j": 0.6788869134426643
       },
       {
         "trial_seed": 88,
+        "final_stage": 3,
+        "rim_arrest_latched": false,
         "tilt_deg": [
           0.0,
           14.0
@@ -5445,19 +5839,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "success",
-        "peak_force_n": 15.789214127441062,
-        "final_depth_mm": 20.14355677988315,
-        "final_tilt_deg": 0.0005672197131073992,
+        "peak_force_n": 15.789214127441237,
+        "final_depth_mm": 20.143556446033976,
+        "final_tilt_deg": 0.0005671521879608939,
         "cycle_time_s": 0.488,
         "episode_duration_s": 0.488,
         "steps": 488,
-        "mean_solve_time_ms": 0.11392704642484666,
-        "mean_stick_ratio": 0.7495877337590207,
+        "mean_solve_time_ms": 0.3310520491798671,
+        "mean_stick_ratio": 0.7490376132597587,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.7015929752953208
+        "min_tank_energy_j": 0.701592321504283
       },
       {
         "trial_seed": 89,
+        "final_stage": 3,
+        "rim_arrest_latched": true,
         "tilt_deg": [
           14.0,
           -11.0
@@ -5472,19 +5868,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "jammed",
-        "peak_force_n": 26.64737092153151,
+        "peak_force_n": 26.647375498355444,
         "final_depth_mm": 0.0,
-        "final_tilt_deg": 0.004363753474894535,
+        "final_tilt_deg": 0.004363597989115078,
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.11254218047146093,
-        "mean_stick_ratio": 0.5946253722433851,
+        "mean_solve_time_ms": 0.3005505454579675,
+        "mean_stick_ratio": 0.5945047245228647,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.6623090620616677
+        "min_tank_energy_j": 0.6623092450795027
       },
       {
         "trial_seed": 90,
+        "final_stage": 3,
+        "rim_arrest_latched": true,
         "tilt_deg": [
           -14.5,
           11.5
@@ -5499,19 +5897,21 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "jammed",
-        "peak_force_n": 25.929140056819875,
+        "peak_force_n": 25.929145244710405,
         "final_depth_mm": 0.0,
-        "final_tilt_deg": 0.0048057271874054714,
+        "final_tilt_deg": 0.004805713483218461,
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.11077945776791735,
-        "mean_stick_ratio": 0.5858693146567668,
+        "mean_solve_time_ms": 0.26925909090509365,
+        "mean_stick_ratio": 0.5859591184729506,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.6396251772141797
+        "min_tank_energy_j": 0.6396265539456044
       },
       {
         "trial_seed": 91,
+        "final_stage": 3,
+        "rim_arrest_latched": true,
         "tilt_deg": [
           15.0,
           12.0
@@ -5526,16 +5926,16 @@
         "is_safe_force": false,
         "force_limit_exceeded": true,
         "termination_reason": "jammed",
-        "peak_force_n": 25.36786983229621,
+        "peak_force_n": 25.367871550224198,
         "final_depth_mm": 0.0,
-        "final_tilt_deg": 0.004023084595559962,
+        "final_tilt_deg": 0.004022956780935922,
         "cycle_time_s": 0.55,
         "episode_duration_s": 0.55,
         "steps": 550,
-        "mean_solve_time_ms": 0.11284781789237802,
-        "mean_stick_ratio": 0.562105438906791,
+        "mean_solve_time_ms": 0.2861863636330368,
+        "mean_stick_ratio": 0.5622905282466034,
         "min_stick_ratio": 0.0,
-        "min_tank_energy_j": 0.6164932462725372
+        "min_tank_energy_j": 0.616493616034227
       }
     ]
   }

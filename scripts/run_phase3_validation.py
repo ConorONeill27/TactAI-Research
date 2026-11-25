@@ -335,6 +335,7 @@ def run_benchmark_a(out_dir: str) -> Dict[str, Any]:
     json_path = os.path.join(out_dir, "benchmark_a_summary.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
+    np.savez_compressed(os.path.join(out_dir, "phase3_trajectories.npz"), **npz_payload)
 
     return summary
 
@@ -360,10 +361,11 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     bench_b_summary: Dict[str, Any] = {}
     bench_b_traces: Dict[str, np.ndarray] = {}
 
+    phase_shifts = np.linspace(0.0, np.pi, 20)
     for mode_key, label in bench_b_ctrls:
         trials = [
             contour_env.run_trial(controller_mode=mode_key, phase_shift=p, latency_ms=25.0)
-            for p in np.linspace(0.0, np.pi, 20)
+            for p in phase_shifts
         ]
         safe_tracking = float(np.mean([t.get("safe_tracking", t.get("is_safe", False)) for t in trials])) * 100.0
         force_rmse = float(np.mean([t.get("force_rmse", t.get("rmse_force_n", 0.0)) for t in trials]))
@@ -379,6 +381,11 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
             "mean_peak_force_n": round(float(np.mean([t["peak_force_n"] for t in trials])), 2),
             "std_peak_force_n": round(float(np.std([t["peak_force_n"] for t in trials], ddof=1)), 2),
             "chatter_detected": chatter,
+            "trials": [
+                {"phase_rad": float(phase), "seed": contour_env.seed,
+                 **{key: value for key, value in trial.items() if not isinstance(value, np.ndarray)}}
+                for phase, trial in zip(phase_shifts, trials)
+            ],
         }
         bench_b_traces[mode_key] = trials[0]["forces_trace"]
         print(f"  {label:35s} -> Safe: {safe_tracking:5.1f}% | RMSE: {force_rmse:5.2f} N | Peak: {peak_force:6.2f} N | Chatter: {chatter}")
@@ -416,6 +423,11 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
             "mean_slip_mm": round(mean_slip, 2),
             "max_slip_mm": round(max_slip, 2),
             "mean_grip_force_n": round(mean_grip, 2),
+            "trials": [
+                {"friction": float(mu), "seed": slip_env.seed,
+                 **{key: value for key, value in trial.items() if not isinstance(value, np.ndarray)}}
+                for mu, trial in zip(mu_list, trials)
+            ],
         }
         bench_c_traces[f"{mode_key}_slip"] = np.mean([t["slip_trace_mm"] for t in trials], axis=0)
         bench_c_traces[f"{mode_key}_grip"] = np.mean([t["grip_trace_n"] for t in trials], axis=0)
@@ -458,6 +470,9 @@ def run_benchmarks_bc_and_ablations(out_dir: str) -> Dict[str, Any]:
     json_clean = {k: v for k, v in payload.items() if not k.startswith("_")}
     with open(os.path.join(out_dir, "benchmarks_bc_ablation_summary.json"), "w", encoding="utf-8") as f:
         json.dump(json_clean, f, indent=2)
+    np.savez_compressed(os.path.join(out_dir, "benchmark_bc_plot_traces.npz"),
+                        **{f"contour_{key}": trace for key, trace in bench_b_traces.items()},
+                        **bench_c_traces)
 
     return payload
 
@@ -591,10 +606,10 @@ def generate_phase3_figure(
         "tactile_safety_filter_ours",
     ]
     short_labels = [
-        "Unconstrained\nPolicy (FARM)",
+        "Unconstrained\npolicy proxy",
         "Fixed Impedance\n($K=200$ N/m)",
         "Wrist F/T\nAdmittance",
-        "TactAI Filter\n+ FARM (Ours)",
+        "TactAI filter",
     ]
 
     # Check for held-out evaluation dataset (N=50, seed 20261020)
@@ -649,7 +664,7 @@ def generate_phase3_figure(
     # Panel B: Peak Contact Force across OOD Tilt Angles
     ax = axes[0, 1]
     colors_map = {
-        "unconstrained_farm": ("#DC2626", "o-", "Unconstrained Policy (FARM)"),
+        "unconstrained_farm": ("#DC2626", "o-", "Unconstrained policy proxy"),
         "fixed_impedance_k200": ("#D97706", "s--", "Fixed Impedance ($K=200$)"),
         "wrist_ft_admittance": ("#2563EB", "^-.", "Wrist F/T Admittance"),
         "tactile_safety_filter_ours": ("#059669", "D-", "TactAI Safety Filter (Ours)"),
@@ -783,15 +798,15 @@ def generate_bc_ablation_figure(
     traces_c = bc_ablation.get("_traces_c", {})
     t_c = np.arange(400)
 
-    if traces_c:
-        if "unconstrained_farm_slip" in traces_c:
-            ax.plot(t_c, traces_c["unconstrained_farm_slip"][:400], color="#DC2626", linewidth=2.0, label="Unconstrained Policy (148.8 mm)")
-        if "wrist_ft_admittance_slip" in traces_c:
-            ax.plot(t_c, traces_c["wrist_ft_admittance_slip"][:400], color="#2563EB", linewidth=1.8, linestyle="--", label="Wrist F/T (44.0 mm)")
-        if "tactai_no_slip_cbf_slip" in traces_c:
-            ax.plot(t_c, traces_c["tactai_no_slip_cbf_slip"][:400], color="#D97706", linewidth=1.8, linestyle="-.", label="w/o Slip CBF (148.8 mm)")
-        if "tactai_ours_slip" in traces_c:
-            ax.plot(t_c, traces_c["tactai_ours_slip"][:400], color="#059669", linewidth=2.4, label="TactAI Slip-CBF (Ours: 0.44 mm)")
+    for key, label, color, style in [
+        ("unconstrained_farm_slip", "Unconstrained proxy", "#DC2626", "-"),
+        ("wrist_ft_admittance_slip", "Wrist F/T", "#2563EB", "--"),
+        ("tactai_ours_slip", "TactAI", "#059669", "-"),
+    ]:
+        if key in traces_c:
+            trace = traces_c[key][:400]
+            ax.plot(t_c[:len(trace)], trace, color=color, linestyle=style,
+                    label=f"{label} ({trace[-1]:.2f} mm)")
 
     ax.axhline(2.0, color="#DC2626", linestyle=":", linewidth=1.2, label="Gross Slip / Drop Limit (2.0 mm)")
     ax.set_xlabel("Time (ms)", fontsize=9.5, fontweight="bold")

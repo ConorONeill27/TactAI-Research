@@ -108,7 +108,7 @@ def main():
     ax2.imshow(img_aligned)
     ax2.set_title("2. Aligned Insertion (0° Tilt) — SUCCESS", color="#4ADE80", fontsize=13, weight="bold", pad=10)
     ax2.axis("off")
-    ax2.text(0.04, 0.92, f"Insertion Depth: {info_a['insertion_depth_m']*1e3:.1f} mm / 25 mm\nContact Force: {info_a['peak_force_n']:.1f} N\nState: Fully Seated",
+    ax2.text(0.04, 0.92, f"Insertion depth: {info_a['insertion_depth_m']*1e3:.1f} mm\nPeak force: {info_a['peak_force_n']:.1f} N",
              transform=ax2.transAxes, color="#F8FAFC", fontsize=10,
              bbox=dict(boxstyle="round,pad=0.5", facecolor="#14532D", edgecolor="#4ADE80", alpha=0.9))
 

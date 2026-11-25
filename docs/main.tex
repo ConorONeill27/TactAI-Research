@@ -9,6 +9,12 @@
 
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+\else
+  \usepackage{lmodern}
+\fi
 \usepackage{booktabs}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{cite}
@@ -23,6 +29,7 @@
 \input{benchmark_results.tex}
 
 \begin{document}
+\raggedbottom
 
 \maketitle
 \thispagestyle{empty}
@@ -59,8 +66,11 @@ Consider a parallel-jaw gripper with left ($L$) and right ($R$) GelSight-type pa
 \subsection{Differential Center of Pressure and Contact Constraint Tensor}
 With $\mathbf{r}_{c,p}=F_{z,p}^{-1}\int_\Omega \mathbf{u}\,f_{z,p}\,\mathrm{d}u\,\mathrm{d}v$ the normal CoP on pad $p$:
 \begin{equation}
-\Delta\mathbf{r}_c=\tfrac12(\mathbf{r}_{c,L}-\mathbf{r}_{c,R}),\quad
-\mathbf{C}_p=\int_\Omega(\mathbf{u}-\mathbf{r}_{c,p})(\mathbf{u}-\mathbf{r}_{c,p})^\top f_{z,p}\,\mathrm{d}u\,\mathrm{d}v\succeq\mathbf{0}.
+\begin{aligned}
+\Delta\mathbf{r}_c&=\tfrac12(\mathbf{r}_{c,L}-\mathbf{r}_{c,R}),\\
+\mathbf{C}_p&=\int_\Omega(\mathbf{u}-\mathbf{r}_{c,p})(\mathbf{u}-\mathbf{r}_{c,p})^\top
+ f_{z,p}\,\mathrm{d}u\,\mathrm{d}v\succeq\mathbf{0}.
+\end{aligned}
 \label{eq:invariants}
 \end{equation}
 An alignment couple shifts the two CoPs in opposite directions, so $\Delta\mathbf{r}_c$ responds to in-hand rotation while rejecting common-mode tip shear.
@@ -166,7 +176,7 @@ Set $T_k=1$ for nonpositive power. At the floor $E_{\min}=0.05$\,J, only the dis
 \label{sec:exp}
 
 \subsection{Simulation Setup and Idealizations}
-All experiments run in MuJoCo 3.15 at 1\,kHz. The end-effector is modeled as a 6-DoF operational-space carriage coupled to a compliant in-hand peg mount ($K_{\mathrm{grip}}=1500$\,N/m, $K_{\mathrm{rot,grip}}=8.0$\,Nm/rad), kinematically synchronized to a 7-DoF Panda model. The nominal policy is a 20\,Hz \texttt{StochasticActionChunkingPolicy} ($H=50$) with OOD extrapolation bias and Ornstein--Uhlenbeck noise; it is a \emph{proxy} for FARM, not the trained FARM model.
+All experiments run in MuJoCo 3.15 at 1\,kHz. The end-effector is modeled as a 6-DoF carriage coupled to a compliant in-hand peg mount (lateral stiffness $15{,}000$\,N/m, axial stiffness $30{,}000$\,N/m, rotational stiffness $80$\,Nm/rad). A Panda model is synchronized kinematically for visualization. The nominal policy is a 20\,Hz stochastic action-chunking proxy ($H=50$) with OOD extrapolation bias and Ornstein--Uhlenbeck noise.
 
 \textbf{Tactile idealization.} Pad traction fields are synthesized analytically (Cattaneo--Mindlin patch model). During contact ($\|\mathbf F\|\ge0.1$\,N) the pad CoP offsets are computed from the true peg orientation plus in-hand deflection, without sensor noise, hysteresis, or learned-estimator error. The tactile channel therefore approximates a noise-free tilt measurement, and all tactile-dependent results should be read as an upper bound pending hardware validation with FEATS-style estimation.
 
@@ -195,6 +205,7 @@ Controller & Insert & In basin & Jam & Safe & Peak (N) & Insert & Jam & Safe & P
 \centering
 \caption{Benchmarks B and C ($N=20$ each).}
 \label{tab:bench_bc}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccc}
 \toprule
 & \multicolumn{2}{c}{\textbf{B: contour}} & \multicolumn{2}{c}{\textbf{C: slip}}\\
@@ -221,7 +232,6 @@ w/o energy tank (B) & $79.14\pm6.37$\,N mean peak\\
  & 88.53\,N max peak, 0\% safe\\
 Wrist F/T adm. (B) & $126.86\pm11.29$\,N mean peak\\
  & 142.17\,N max peak, 0\% safe\\
-w/o slip barrier (C) & 100\% drop\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -229,7 +239,7 @@ w/o slip barrier (C) & 100\% drop\\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.92\textwidth]{figures/phase3_benchmark_comparison.pdf}
-\caption{Benchmark A held-out evaluation and multi-seed robustness sweeps. (A) Insertion success and jamming rates across held-out random trials ($N=50$). (B) Peak force by rounded initial tilt norm $\|\boldsymbol\theta_0\|_2$. Dots are individual trials, with bin means and one-standard-deviation bands. (C) Stiffness sweep. (D) Latency sweep.}
+\caption{Benchmark A evaluation and multi-seed robustness sweeps. (A) Insertion success and benchmark jam rates across held-out random trials ($N=50$). (B) Structured development-set peak forces by rounded initial tilt norm $\|\boldsymbol\theta_0\|_2$. Dots are individual trials, with bin means and one-standard-deviation bands. (C) Stiffness sweep. (D) Latency sweep.}
 \label{fig:bench_a}
 \end{figure*}
 
@@ -250,7 +260,7 @@ The tensor-only comparison keeps CoP alignment active while using isotropic $K_{
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/benchmark_a_contact_audit.pdf}
+\includegraphics[width=0.84\textwidth]{figures/benchmark_a_contact_audit.pdf}
 \caption{Benchmark A contact audits. Bars show insertion and benchmark jam rates. Dots show per-trial force peaks and the dashed line marks 15\,N. The 12-trial tactile and tensor panels use separate in-basin seeds. Each guard point uses the same 50 held-out initial conditions.}
 \label{fig:contact_audit}
 \end{figure*}
@@ -276,7 +286,7 @@ The contact sequence and tactile orientation channel improve insertion relative 
 \section{Wrist F/T Baseline}
 Benchmark A uses a direct wrench-feedback law with no virtual mass matrix. The lateral stiffness is 80\,N/m with 8\,Ns/m damping and a shear feedback coefficient of 0.3. The axial controller adds $1.4(1-0.018\tau_{\mathrm{ms}})(\|\mathbf F\|-14)$ above 14\,N and uses 6\,Ns/m damping. The roll/pitch torque feedback gain is 6.5, with a 25\,mm lever-arm correction and 1.2\,Nms/rad rotational damping. Wrist states are buffered by the configured delay, zero by default, without low-pass filtering. Limits are $\pm15$\,N laterally, $\pm25$\,N net axial, and $\pm6$\,Nm rotationally, with 24.525\,N axial gravity compensation. For initial tilt at most $5.5^\circ$ and delay below 15\,ms, a separate contact branch uses 18 ticks of retraction (240\,N/m, 16\,Ns/m, $3\|\mathbf F\|$) and then attitude feedback (32\,Nm/rad, wrist torque gain 1.5). Axial height feedback is 120\,N/m with 6\,Ns/m damping through tick 189 after contact, then returns to the nominal axial command plus damping.
 
-Benchmark B uses $u_z=\mathrm{clip}(-8+1.55(F_{\mathrm{delayed}}-8)-6\dot z,-25,25)$\,N with 25\,ms delay. The 2.5\,kg probe is the simulated plant mass.
+Benchmark B uses $u_z=\mathrm{clip}(-8+1.55(F_{\mathrm{delayed}}-8)-6\dot z,-25,25)$\,N with 25\,ms delay. The 2.5\,kg probe is the simulated plant mass. In Benchmark C the wrist F/T comparator reacts when slip velocity exceeds 4\,mm/s or displacement exceeds 0.4\,mm. Its commanded grip rises at 85\,N/s up to 16.5\,N, from a nominal 6.5\,N.
 
 \section{Additional Benchmark A Results}
 \begin{table}[t]

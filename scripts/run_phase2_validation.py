@@ -127,16 +127,18 @@ def run_benchmark():
     axes[0].legend(loc="upper right", framealpha=0.9)
 
     # Subplot 2: Tilt Angle Correction
-    axes[1].plot(b_times, b_tilts, "r-", linewidth=2.2, label="Unconstrained Baseline (Wedged at ~10°)")
-    axes[1].plot(c_times, c_tilts, "b-", linewidth=2.2, label="TactAI Dynamic Reorientation (+10° -> 0°)")
+    axes[1].plot(b_times, b_tilts, "r-", linewidth=2.2, label="Unconstrained baseline")
+    axes[1].plot(c_times, c_tilts, "b-", linewidth=2.2, label="TactAI reorientation")
     axes[1].axhline(1.0, color="green", linestyle="--", linewidth=1.5, label="Sub-Degree Alignment (< 1.0°)")
     axes[1].set_ylabel("Peg Tilt Angle (°)", fontsize=11, fontweight="bold")
     axes[1].grid(True, linestyle="--", alpha=0.6)
     axes[1].legend(loc="upper right", framealpha=0.9)
 
     # Subplot 3: Insertion Depth
-    axes[2].plot(b_times, b_depths, "r-", linewidth=2.2, label="Unconstrained Baseline (Wedged at Rim 0.48 mm)")
-    axes[2].plot(c_times, c_depths, "b-", linewidth=2.2, label="TactAI Insertion (Deep 20.1 mm Entry)")
+    axes[2].plot(b_times, b_depths, "r-", linewidth=2.2,
+                 label=f"Unconstrained baseline ({b_depths[-1]:.2f} mm)")
+    axes[2].plot(c_times, c_depths, "b-", linewidth=2.2,
+                 label=f"TactAI insertion ({c_depths[-1]:.2f} mm)")
     axes[2].axhline(20.0, color="green", linestyle="--", linewidth=1.5, label="Task Success Depth (20.0 mm)")
     axes[2].set_xlabel("Elapsed Time (ms)", fontsize=11, fontweight="bold")
     axes[2].set_ylabel("Insertion Depth (mm)", fontsize=11, fontweight="bold")

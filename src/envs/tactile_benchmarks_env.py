@@ -56,7 +56,8 @@ class NonPlanarContourEnv:
         self.max_steps = max_steps
         self.seed = seed
 
-        self.sensor = GelSightSensor(grid_h=32, grid_w=32, noise_std_pa=50.0)
+        self.sensor = GelSightSensor(grid_h=32, grid_w=32, noise_std_pa=50.0,
+                                     rng=np.random.default_rng(seed))
         self.invariant_engine = TactileInvariantEngine(lx=self.sensor.lx, ly=self.sensor.ly)
 
         # Build MuJoCo 1-DoF vertical probe model interacting with external contour force
@@ -107,6 +108,7 @@ class NonPlanarContourEnv:
         f_buffer: deque = deque(maxlen=max(1, latency_steps + 1))
 
         mujoco.mj_resetData(self.model, self.data)
+        self.sensor.rng = np.random.default_rng(self.seed)
         z0, _ = self.surface_profile(0.0, phase_shift)
         self.data.qpos[0] = z0 - (self.f_des / self.k_env)
         self.data.qvel[0] = 0.0
@@ -303,7 +305,8 @@ class IncipientSlipManipulationEnv:
         - 'tactai_no_slip_cbf': TactAI Force-CBF without Incipient Slip CBF (ablation)
         - 'tactai_ours': Full TactAI 1 kHz Incipient Slip CBF (h_slip >= 0) + Force Limit CBF (h_force >= 0)
         """
-        sensor = GelSightSensor(grid_h=32, grid_w=32, friction_coeff=mu_friction, noise_std_pa=35.0)
+        sensor = GelSightSensor(grid_h=32, grid_w=32, friction_coeff=mu_friction,
+                                noise_std_pa=35.0, rng=np.random.default_rng(self.seed))
         inv_engine = TactileInvariantEngine(lx=sensor.lx, ly=sensor.ly)
 
         mujoco.mj_resetData(self.model, self.data)

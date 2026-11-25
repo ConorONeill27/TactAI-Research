@@ -1,5 +1,5 @@
 """
-Generate Peer-Reviewed Research Preprint PDF
+Generate the historical ReportLab draft. The current IEEEtran paper is built by reproduce_all.py.
 Title: Tactile Contact-Manifold Safety Filtering for Learned Manipulation Policies:
        A 1 kHz Multi-Rate Control Barrier Function Architecture for Anti-Jamming and Contact Passivity
 Authors: Conor O'Neill* and Alec Vysotski* (*Equal contribution)
@@ -113,7 +113,7 @@ class NumberedCanvas(canvas.Canvas):
         self.restoreState()
 
 
-def create_paper_pdf(output_path: str = "docs/research_paper.pdf"):
+def create_paper_pdf(output_path: str = "build/historical_reportlab_draft.pdf"):
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     eq_dir = os.path.join("docs", "figures", "equations")
     os.makedirs(eq_dir, exist_ok=True)

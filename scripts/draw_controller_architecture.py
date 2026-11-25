@@ -44,7 +44,7 @@ def main():
     arrow(6.12, 0.37, 8.63, 0.37)
     arrow(6.26, 0.71, 6.26, 2.17)
     ax.text(3.02, 0.49, r"$G_{1\to2}$: force $>0.1$ N and" "\n"
-            r"$h_{\rm jam}<0$ or tilt $\geq0.65^\circ$",
+            r"($h_{\rm jam}<0$ or tilt $\geq0.65^\circ$)",
             ha="center", va="bottom", fontsize=9)
     ax.text(7.47, 0.49, r"$G_{2\to3}$: $z>-3.2$ mm" "\n"
             "and dwell elapsed", ha="center", va="bottom", fontsize=9)
