@@ -26,8 +26,14 @@ LABELS = {"cop_only": "TactAI CoP only",
           "no_alignment": "Without proportional rotational alignment"}
 
 
+def _normalized_bytes(path: Path) -> bytes:
+    """Normalize CRLF line endings on Python sources for cross-platform SHA-256 verification."""
+    raw = path.read_bytes()
+    return raw.replace(b"\r\n", b"\n") if path.suffix == ".py" else raw
+
+
 def fingerprint():
-    return {path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest() for path in FILES}
+    return {path: hashlib.sha256(_normalized_bytes(ROOT / path)).hexdigest() for path in FILES}
 
 
 def freeze():

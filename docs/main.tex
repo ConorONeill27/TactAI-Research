@@ -56,7 +56,7 @@ We study a tactile supervisory wrench filter for a learned action-chunking inser
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
 
-Visuomotor imitation learning and action-chunking diffusion policies \cite{chi2023diffusion,zhao2023act} let robots acquire manipulation skills from demonstrations. Tactile-conditioned variants such as FARM \cite{helmut2026farm} additionally consume 3D force-distribution estimates from optical tactile sensors (FEATS \cite{helmut2024feats}). These policies nonetheless provide no physical safety guarantee. When a grasped part meets an OOD constraint---for example, an angular misalignment of several degrees during sub-millimeter-clearance insertion---the policy may extrapolate and drive the part into the receptacle. Under stiff contact, an insertion policy can continue applying axial effort while misalignment supports a large contact moment.
+Visuomotor imitation learning and action-chunking diffusion policies \cite{chi2023diffusion,zhao2023act} let robots acquire manipulation skills from demonstrations. Tactile-conditioned variants such as FARM \cite{helmut2025farm} additionally consume 3D force-distribution estimates from optical tactile sensors (FEATS \cite{helmut2024feats}). These policies nonetheless provide no physical safety guarantee. When a grasped part meets an OOD constraint---for example, an angular misalignment of several degrees during sub-millimeter-clearance insertion---the policy may extrapolate and drive the part into the receptacle. Under stiff contact, an insertion policy can continue applying axial effort while misalignment supports a large contact moment.
 
 Classical compliance does not resolve this trade-off. Low-gain isotropic impedance limits impact force but stalls on the rim because it lacks directional authority to reorient the part. Wrist F/T admittance suffers from single-point wrench ambiguity: it cannot separate a tip-shear moment ($\mathbf{r}_{\mathrm{tip}}\times\mathbf{F}_{\mathrm{shear}}$) from a pure alignment couple, nor observe incipient slip inside the grasp.
 
@@ -65,16 +65,13 @@ Classical compliance does not resolve this trade-off. Low-gain isotropic impedan
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{RELATED WORK}
 
-\subsection{Optical Tactile Force Estimation}
-Vision-based elastomeric sensors (GelSight Mini, DIGIT) capture high-resolution surface deformation. FEATS \cite{helmut2024feats} maps GelSight images to 3D traction distributions $\mathbf{f}(u,v)$ in real time using FEA-calibrated learning, and TacEx \cite{nguyen2024tacex} provides GPU-accelerated elastomer simulation. Whereas FARM \cite{helmut2026farm} feeds high-dimensional tactile observations to a neural policy, we project $\mathbf{f}(u,v)$ onto low-dimensional mechanical invariants usable inside a 1\,kHz convex filter.
+\subsection{Optical Tactile Sensing and Force Estimation}
+Vision-based elastomeric sensors such as GelSight Mini and DIGIT resolve local contact geometry, surface deformation, and incipient slip \cite{yuangelsight,lambetadigit,dongslip}. FEATS \cite{helmut2024feats} maps GelSight images to 3D traction distributions $\mathbf{f}(u,v)$ using FEA-calibrated learning, and TacEx \cite{nguyen2024tacex} simulates elastomer response on GPU. Rather than feeding high-dimensional tactile observations directly to a neural policy like FARM \cite{helmut2025farm}, or relying on active tactile search and extrinsic contact localization during sliding and insertion \cite{kimactive,kimextrinsic,shecable}, we project $\mathbf{f}(u,v)$ onto low-dimensional mechanical invariants usable inside a 1\,kHz convex wrench filter.
 
-\subsection{Control Barrier Functions and Passivity}
-Control Barrier Functions \cite{ames2019cbf} enforce forward invariance of safe sets via quadratic programming. Energy tanks \cite{ferraguti2013tank} bound energy injection under variable impedance and delayed feedback. Our filter combines these tools with Cattaneo--Mindlin partial-slip reasoning and Whitney's quasi-static assembly analysis \cite{whitney1982quasi}.
+\subsection{Safety Filters, Control Barrier Functions, and Passivity}
+Predictive safety filters verify learned control inputs against system constraints before execution \cite{wabersichfilter,hsufilter}, while Control Barrier Functions (CBFs) enforce set invariance via convex quadratic programming \cite{ames2019cbf}, including extensions for high-relative-degree constraints and input delays \cite{xiaohocbf,singletarydelay}. Because our contact supervisor relies on a stage-conditioned wrench bound rather than an exact relative-degree-two contact model, its force bounds are verified empirically. Energy tanks \cite{ferraguti2013tank} bound energy injection under variable impedance and delayed feedback; we combine tank-based dissipation accounting with Cattaneo--Mindlin partial-slip reasoning and Whitney's quasi-static assembly analysis \cite{whitney1982quasi}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Predictive filters assess learned inputs against a model before execution \cite{wabersichfilter}. Safety-filter surveys relate these intervention mechanisms \cite{hsufilter}. High-relative-degree and sampled-data barriers address constraint dynamics and delayed control explicitly \cite{xiaohocbf,singletarydelay}. Our contact supervisor uses a stage-conditioned wrench bound, and its force-safety results are empirical.
-
-Optical tactile sensors measure contact geometry, deformation and slip \cite{yuangelsight,lambetadigit,dongslip}. Active sensing applies tactile feedback to peg insertion \cite{kimactive}, and simultaneous estimation and control extends it to extrinsic contact localization \cite{kimextrinsic}. Tactile-reactive cable following demonstrates the value of local feedback during sliding \cite{shecable}.
 
 \section{CONTACT MECHANICS AND MULTI-RATE TACTILE INVARIANTS}
 
@@ -136,8 +133,8 @@ h_{\mathrm{slip}}&=\rho_{\mathrm{stick}}-0.20 .
 \subsection{Tensor Gain Modulation}
 Let $\mathbf C$ be the tensor from the pad with greater normal load.
 \begin{equation}
-\begin{aligned}\kappa(\mathbf{C})&=\mathrm{clip}\!\left(\frac{\mathrm{tr}(\mathbf{C})}{C_{\mathrm{ref}}},\kappa_{\min},1.05\right),\\ &
-\mathbf{K}_{\mathrm{rot}}=K_{\mathrm{rot},0}\,\kappa\!\left(\eta_0\mathbf{I}_2+(1-\eta_0)\frac{\mathbf{C}}{\mathrm{tr}(\mathbf{C})+\epsilon}\right),
+\begin{aligned}\kappa(\mathbf{C})&=\mathrm{clip}\!\left(\frac{\mathrm{tr}(\mathbf{C})}{C_{\mathrm{ref}}},\kappa_{\min},1.05\right),\\
+\mathbf{K}_{\mathrm{rot}}&=K_{\mathrm{rot},0}\,\kappa\!\left(\eta_0\mathbf{I}_2+(1-\eta_0)\frac{\mathbf{C}}{\mathrm{tr}(\mathbf{C})+\epsilon}\right),
 \end{aligned}
 \label{eq:tensor_control}
 \end{equation}
@@ -173,7 +170,7 @@ u_{z,\mathrm{cbf}}=\begin{cases}
 \end{equation}
 Here $F_{\mathrm{app}}=8$\,N and the Stage 2 bound is $\ell_{\mathrm{retract}}=K_z(z_{\mathrm{clear}}-z)-D_2\dot z+\beta_f\|\hat{\mathbf F}\|+u_{f,\mathrm{delay}}$. Stage 3 holds retraction height while alignment settles, then uses an insertion law with force-dependent throttling. At \ForceTrigger\,N, an upward feedback override raises the axial lower bound. The guards are $G_{1\to2}$ with $\|\hat{\mathbf F}\|>0.1$\,N and either $h_{\mathrm{jam}}<0$ or wrist tilt $\ge0.65^\circ$, and $G_{2\to3}$ with $z>-3.2$\,mm and at least $\max(15,\tau/\Delta t)$ ticks in Stage 2 (delay rounded to ticks). Initially aligned trials can enter Stage 3 directly.
 
-\textbf{Development-only tuning.} Stage 3 raises axial damping to \RimDamping\,Ns/m for heights between \RimBandLower\,mm and $-1.5$\,mm. Above $-5.8$\,mm, vertical force above 4.2\,N triggers retraction, and force above 6.5\,N latches it. During retraction and alignment the lateral centering gains are \CenterK\,N/m and \CenterD\,Ns/m. The zero-delay alignment dwell is \SettleTicks{} ticks. The axial push after passing $z=-7$\,mm is \DeepPush\,N. Stage 1 uses the learned axial reference clipped to $[-8,-6]$\,N net, and the hybrid laws determine the remaining wrench targets. The structured development panel was used to select the gains before the held-out seed was generated.
+\textbf{Development-only tuning.} Stage 3 raises axial damping to \RimDamping\,Ns/m for heights between $\RimBandLower$\,mm and $-1.5$\,mm. Above $-5.8$\,mm, vertical force above 4.2\,N triggers retraction, and force above 6.5\,N latches it. During retraction and alignment the lateral centering gains are \CenterK\,N/m and \CenterD\,Ns/m. The zero-delay alignment dwell is \SettleTicks{} ticks. The axial push after passing $z=-7$\,mm is \DeepPush\,N. Stage 1 uses the learned axial reference clipped to $[-8,-6]$\,N net, and the hybrid laws determine the remaining wrench targets. The structured development panel was used to select the gains before the held-out seed was generated.
 
 \subsection{Decoupled Grip Barrier}
 \begin{equation}
@@ -390,30 +387,10 @@ Trial seed & Basin & End & Latch & Peak (N)\\
 \end{tabular}
 \end{auditTable}
 
-% TODO: verify citations for these related-work slots before submission.
-% 01. Runtime assurance for learned manipulation
-% 02. Safety layers for reinforcement learning
-% 03. CBF filters for robot manipulation
-% 04. High-order CBFs for force constraints
-% 05. Sampled-data CBFs and intersample violations
-% 06. QP feasibility and safety slack
-% 07. Safety under uncertain contact dynamics
-% 08. Diffusion policy test-time guidance
-% 09. Runtime action-chunking supervision
-% 10. Energy tanks for variable impedance
-% 11. Passivity with delayed force feedback
-% 12. Peg-in-hole capture geometry and RCC
-% 13. Tactile peg-in-hole pose estimation
-% 14. Extrinsic contact localization with optical tactile sensing
-% 15. Distributed contact traction and slip estimation
-% 16. Tactile calibration and hysteresis
-% 17. Contact-rich tactile sim-to-real transfer
-% 18. Wrist F/T insertion admittance benchmarks
-
 \clearpage
 \begin{thebibliography}{99}
 
-\bibitem{helmut2026farm}
+\bibitem{helmut2025farm}
 E. Helmut, N. Funk, T. Schneider, C. de Farias, and J. Peters, ``Tactile-conditioned diffusion policy for force-aware robotic manipulation,'' arXiv:2510.13324, 2025.
 
 \bibitem{helmut2024feats}
