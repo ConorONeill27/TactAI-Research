@@ -689,15 +689,15 @@ def generate_bc_ablation_figure(
     fig_path: str
 ) -> None:
     """Generates a 3-panel publication figure for Benchmark B, Benchmark C, and Ablation Study."""
-    fig, axes = plt.subplots(1, 3, figsize=(15.8, 4.9), dpi=300)
-    plt.subplots_adjust(wspace=0.33)
+    fig, axes = plt.subplots(1, 3, figsize=(16.2, 4.9), dpi=300)
+    plt.subplots_adjust(wspace=0.40)
 
     # Panel A: Benchmark B (Contour Tracking) Force Profiles
     ax = axes[0]
     traces_b = bc_ablation.get("_traces_b", {})
     for key, label, color, style in [
-        ("unconstrained_farm", "Unconstrained policy", "#DC2626", "-"),
-        ("wrist_ft_admittance", "Wrist F/T admittance", "#2563EB", "--"),
+        ("unconstrained_farm", "Unconstrained", "#DC2626", "-"),
+        ("wrist_ft_admittance", "Wrist F/T", "#2563EB", "--"),
         ("tactai_no_tank", "TactAI without tank", "#D97706", "-."),
         ("tactai_ours", "TactAI with tank", "#059669", "-"),
     ]:
@@ -721,7 +721,7 @@ def generate_bc_ablation_figure(
     t_c = np.arange(400)
 
     for key, label, color, style in [
-        ("unconstrained_farm_slip", "Unconstrained proxy", "#DC2626", "-"),
+        ("unconstrained_farm_slip", "Unconstrained", "#DC2626", "-"),
         ("wrist_ft_admittance_slip", "Wrist F/T", "#2563EB", "--"),
         ("tactai_ours_slip", "TactAI", "#059669", "-"),
     ]:
@@ -746,25 +746,36 @@ def generate_bc_ablation_figure(
 
     succ_rates = [ab_dict.get(k, {}).get("success_rate_pct", 0.0) for k in ab_keys]
     peak_f = [ab_dict.get(k, {}).get("mean_peak_force_n", 0.0) for k in ab_keys]
+    std_f = [ab_dict.get(k, {}).get("std_peak_force_n", 0.0) for k in ab_keys]
 
     x_ab = np.arange(len(ab_keys))
     w_ab = 0.38
     b1 = ax.bar(x_ab - w_ab / 2, succ_rates, w_ab, label="Insertion Success (%)", color="#10B981", edgecolor="#065F46")
     ax2 = ax.twinx()
-    b2 = ax2.bar(x_ab + w_ab / 2, peak_f, w_ab, label="Mean Peak Force (N)", color="#3B82F6", edgecolor="#1D4ED8")
+    b2 = ax2.bar(
+        x_ab + w_ab / 2,
+        peak_f,
+        w_ab,
+        yerr=std_f,
+        capsize=3,
+        error_kw={"elinewidth": 1.0, "ecolor": "#1E3A8A"},
+        label="Mean Peak Force (N)",
+        color="#3B82F6",
+        edgecolor="#1D4ED8",
+    )
 
     ax.set_xticks(x_ab)
     ax.set_xticklabels(ab_labels, fontsize=8, fontweight="bold")
     ax.set_ylabel("Success Rate (%)", fontsize=9, fontweight="bold", color="#065F46")
-    ax2.set_ylabel("Peak Force (N)", fontsize=9, fontweight="bold", color="#1D4ED8")
+    ax2.set_ylabel("Mean Peak Force (N)", fontsize=9, fontweight="bold", color="#1D4ED8")
     ax.set_ylim(0, 118)
     ax2.set_ylim(0, 42)
     ax.set_title(r"(C) Component Ablation Study ($N=20$ OOD Trials)", fontsize=9.5, fontweight="bold")
     ax.grid(True, axis="y", linestyle=":", alpha=0.6)
     for b in b1:
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2, f"{b.get_height():.0f}%", ha="center", fontsize=7.2, fontweight="bold", color="#065F46")
-    for b in b2:
-        ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.6, f"{b.get_height():.1f}N", ha="center", fontsize=7.2, fontweight="bold", color="#1D4ED8")
+    for b, err in zip(b2, std_f):
+        ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + err + 0.8, f"{b.get_height():.1f}N", ha="center", fontsize=7.2, fontweight="bold", color="#1D4ED8")
 
     plt.savefig(fig_path, dpi=300, bbox_inches="tight")
     pdf_path = os.path.splitext(fig_path)[0] + ".pdf"

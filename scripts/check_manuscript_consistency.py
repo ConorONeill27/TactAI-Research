@@ -50,7 +50,8 @@ def main():
     macros = dict(re.findall(r"\\newcommand\{\\([A-Za-z]+)\}\{([^{}\n]*)\}", expected))
     source = (docs / "main.tex").read_text(encoding="utf-8")
     row_macros = ("GraspComparisonRows", "BenchmarkBCRows", "AblationRows",
-                  "SharedAblationRows", "CounterTiltRows", "UnknownFailureRows", "HeldFailureRows")
+                  "SharedAblationRows", "CounterTiltRows", "UnknownFailureRows", "HeldFailureRows",
+                  "RobustnessRows", "GuardRows")
     tables = re.findall(r"\\begin\{tabular\}.*?\\end\{tabular\}", source, re.S)
     assert len(tables) == len(row_macros)
     for table, name in zip(tables, row_macros, strict=True):
@@ -98,7 +99,7 @@ def main():
                             for key in ("aligned", "wedged")], "workbench render")
     assert workbench["wedged"]["peak_force_n"] == cases[0]["peak_force_n"]
     assert round(workbench["wedged"]["insertion_depth_m"] * 1000, 2) == round(cases[0]["final_insertion_depth_mm"], 2)
-    print("Verified the frozen runs, all seven generated tables, figure annotations, and bibliography order.")
+    print("Verified the frozen runs, all nine generated tables, figure annotations, and bibliography order.")
 
 
 if __name__ == "__main__":

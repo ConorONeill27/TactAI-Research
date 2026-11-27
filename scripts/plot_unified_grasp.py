@@ -29,11 +29,11 @@ def plot_comparison(folder):
     for ax, panel, title in zip(axes, ("a1", "a2"), ("A1: Known grasp", "A2: Unknown in-hand tilt")):
         data = load(panel)
         rows = [r["all"] for r in data["controllers"].values()]
-        for shift, key, label, color in ((-.18, "success_rate", "Insertion", "#177d70"),
-                                         (.18, "force_safe_rate", "Peak ≤15 N", "#4b70b5")):
-            bars = ax.bar(x + shift, [r[key] * 100 for r in rows], .34, color=color, label=label)
-            ax.bar_label(bars, fmt="%.0f%%", padding=3 if shift < 0 else 8, fontsize=8)
-        ax.set(title=f"{title} (N={data['n']})", xticks=x, xticklabels=labels, ylim=(0, 117))
+        for shift, key, label, color in ((-.19, "success_rate", "Insertion", "#177d70"),
+                                         (.19, "force_safe_rate", "Peak ≤15 N", "#4b70b5")):
+            bars = ax.bar(x + shift, [r[key] * 100 for r in rows], .35, color=color, label=label)
+            ax.bar_label(bars, fmt="%.0f%%", padding=3 if shift < 0 else 11, fontsize=7.6)
+        ax.set(title=f"{title} (N={data['n']})", xticks=x, xticklabels=labels, ylim=(0, 121))
         ax.tick_params(axis="x", labelsize=8)
         ax.grid(axis="y", alpha=.22)
     axes[0].set_ylabel("Trials (%)")
@@ -55,7 +55,11 @@ def plot_stress(folder):
     for i, run in enumerate(rows.values()):
         force.scatter([t["peak_force_n"] for t in run["trials"]],
                       [i]*len(run["trials"]), color="#4b70b5", s=11, alpha=.55)
-    ax.set(yticks=y, yticklabels=[k.replace("_", " ") for k in rows], xlim=(0, 105),
+    labels = [
+        k.replace("_", " ").replace("50hz", "50 Hz").replace("deg", "\u00b0")
+        for k in rows
+    ]
+    ax.set(yticks=y, yticklabels=labels, xlim=(0, 105),
            xlabel="Trials (%)")
     ax.invert_yaxis()
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.01), frameon=False, ncol=2)

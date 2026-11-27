@@ -25,6 +25,7 @@
 \else
   \usepackage{lmodern}
 \fi
+\usepackage{array}
 \usepackage{booktabs}
 \ifXeTeX\XeTeXdefaultencoding "iso-8859-1"\fi
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
@@ -49,18 +50,17 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-We study a tactile supervisory wrench filter for a learned action-chunking insertion policy. Across \HeldN{} held-out known-grasp episodes (A1), the unconstrained policy succeeds in \UnconstrainedSuccess{}, the wrist force/torque-only QP in \FTSuccess{}, and TactAI in \HeldSuccess{}. With unknown grasp tilt and wrist-origin wrench sensing (A2), the wrist-only QP succeeds in \UnknownFT{} and TactAI in \UnknownSuccess{}, with \UnknownSafe{} TactAI peaks at or below 15\,N. TactAI counter-tilts the wrist by estimating the in-hand offset from distributed tactile pressure. Independent simulation benchmarks evaluate force tracking and slip suppression.
-
+We study a contact-triggered tactile supervisory controller for a learned 20\,Hz proprioceptive action-chunking insertion policy. Across \HeldN{} held-out known-grasp episodes (A1, spanning wider out-of-basin initial poses over a 550\,ms horizon) with synchronous 1\,kHz idealized tactile invariants, the unconstrained proprioceptive policy succeeds in \UnconstrainedSuccess{}, the wrist force/torque-only QP in \FTSuccess{}, and TactAI in \HeldSuccess{} (\HeldInBasin{} in-basin, \HeldOutBasin{} out-of-basin). With unknown grasp tilt and wrist-origin wrench sensing inside the capture basin (A2, 850\,ms horizon), the wrist-only QP succeeds in \UnknownFT{} and TactAI in \UnknownSuccess{}, with \UnknownSafe{} TactAI peaks at or below 15\,N---reflecting both dual-pad in-hand tilt observability and hybrid supervision. TactAI filters the clipped Stage~1 policy axial reference and switches to analytical tactile-guided alignment laws during contact. Independent simulation benchmarks with scripted references evaluate delayed contour tracking (Benchmark~B, isolating the energy tank) and dynamic slip suppression (Benchmark~C, where the grip barrier is active).
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
 
-Visuomotor imitation learning and action-chunking diffusion policies \cite{chi2023diffusion,zhao2023act} let robots acquire manipulation skills from demonstrations. Tactile-conditioned variants such as FARM \cite{helmut2025farm} additionally consume 3D force-distribution estimates from optical tactile sensors (FEATS \cite{helmut2024feats}). These policies nonetheless provide no physical safety guarantee. When a grasped part meets an OOD constraint---for example, an angular misalignment of several degrees during sub-millimeter-clearance insertion---the policy may extrapolate and drive the part into the receptacle. Under stiff contact, an insertion policy can continue applying axial effort while misalignment supports a large contact moment.
+Visuomotor imitation learning and action-chunking diffusion policies \cite{chi2023diffusion,zhao2023act} let robots acquire manipulation skills from demonstrations. Tactile-conditioned variants such as FARM \cite{helmut2025farm} additionally consume 3D force-distribution estimates from optical tactile sensors (FEATS \cite{helmut2024feats}). These policies nonetheless provide no physical safety guarantee. When a grasped part meets an out-of-distribution (OOD) constraint---for example, an angular misalignment of several degrees during sub-millimeter-clearance insertion---a proprioceptive policy may extrapolate and drive the part into the receptacle. Under stiff contact, an insertion policy can continue applying axial effort while misalignment supports a large contact moment.
 
 Classical compliance does not resolve this trade-off. Low-gain isotropic impedance limits impact force but stalls on the rim because it lacks directional authority to reorient the part. Wrist F/T admittance suffers from single-point wrench ambiguity: it cannot separate a tip-shear moment ($\mathbf{r}_{\mathrm{tip}}\times\mathbf{F}_{\mathrm{shear}}$) from a pure alignment couple, nor observe incipient slip inside the grasp.
 
-\textbf{Contributions.} (1) A tactile-invariant extractor and multi-rate observer that fuses 25--50\,Hz dual-pad traction fields with 1\,kHz proprioception, gated by a contact-latching threshold. (2) A supervisory filter combining a seven-variable CBF-inspired supervisory QP, a closed-form grip barrier, a 3-stage anti-jamming automaton, and an energy-tank passivity supervisor. (3) A simulation study with held-out evaluation, sensor-matched baselines, component ablations, and robustness sweeps, together with an explicit account of which components are hand-tuned and how the tactile signal is idealized.
+\textbf{Contributions.} (1) A tactile-invariant extractor (differential CoP $\Delta\mathbf{r}_c$, incipient stick ratio $\rho_{\mathrm{stick}}$, and an optional load-scaled contact constraint tensor $\mathbf{C}_p$ shown to be neutral in ablations) and complementary observer designed to fuse 25--50\,Hz dual-pad traction fields with 1\,kHz proprioception via contact latching (validated primarily with synchronous 1\,kHz idealized invariants in A1/A2 and under 50\,Hz sample-and-hold perturbations in Section~\ref{sec:audit}). (2) A contact-triggered 1\,kHz hybrid supervisory controller combining a seven-variable box- and soft-corridor-constrained QP (filtering a clipped Stage~1 policy reference and switching to analytical tactile-guided laws in Stages~2--3), a proportional slip-margin grip rule (active in Benchmark~C; telemetry-only in Benchmark~A), and a discrete energy-tank power valve (isolating stability under delayed contour tracking in Benchmark~B). (3) A simulation study with held-out evaluation, sensor-matched baselines, component ablations, and robustness sweeps, together with an explicit account of which components are hand-tuned, where baselines differ, and how the tactile signal is idealized.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{RELATED WORK}
@@ -78,77 +78,79 @@ Predictive safety filters verify learned control inputs against system constrain
 Consider a parallel-jaw gripper with left ($L$) and right ($R$) GelSight-type pads (domain $\Omega$, $32\times32$ grid) grasping a $10\times10\times50$\,mm workpiece. Each pad $p\in\{L,R\}$ measures a traction field $\mathbf{f}_p(u,v)=[f_{x,p},f_{y,p},f_{z,p}]^\top$.
 
 \subsection{Differential Center of Pressure and Contact Constraint Tensor}
-With $\mathbf{r}_{c,p}=F_{z,p}^{-1}\int_\Omega \mathbf{u}\,f_{z,p}\,\mathrm{d}u\,\mathrm{d}v$ the normal CoP on pad $p$:
+Each pad domain $\Omega$ spans $l_x\times l_y$ in a shared wrist-aligned tangential plane $\boldsymbol\xi=[u,v]^\top\in\Omega\subset\mathbb{R}^2$ (in meters), where $f_{z,p}(u,v)\ge 0$ denotes pad-normal pressure in $\mathrm{Pa}=\mathrm{N/m^2}$ (plotted in kPa in Fig.~\ref{fig:workbench}, distinct from the world vertical axis $z$ in Section~\ref{sec:exp}). On the $32\times32$ grid with cell area $\Delta A=\Delta u\,\Delta v$, discrete quadrature yields normal force $F_{z,p}=\int_\Omega f_{z,p}\,\mathrm{d}u\,\mathrm{d}v\approx\sum_i f_{z,p,i}\Delta A$ (in N). With $\mathbf{r}_{c,p}=F_{z,p}^{-1}\int_\Omega \boldsymbol\xi\,f_{z,p}\,\mathrm{d}u\,\mathrm{d}v$ for $F_{z,p}>0$:
 \begin{equation}
 \begin{aligned}
 \Delta\mathbf{r}_c&=\tfrac12(\mathbf{r}_{c,L}-\mathbf{r}_{c,R}),\\
-\mathbf{C}_p&=\int_\Omega(\mathbf{u}-\mathbf{r}_{c,p})(\mathbf{u}-\mathbf{r}_{c,p})^\top
- f_{z,p}\,\mathrm{d}u\,\mathrm{d}v\succeq\mathbf{0}.
+\mathbf{C}_p&=\int_\Omega(\boldsymbol\xi-\mathbf{r}_{c,p})(\boldsymbol\xi-\mathbf{r}_{c,p})^\top
+ f_{z,p}\,\mathrm{d}u\,\mathrm{d}v\succeq\mathbf{0},
 \end{aligned}
 \label{eq:invariants}
 \end{equation}
-An alignment couple shifts the two CoPs in opposite directions, so $\Delta\mathbf{r}_c$ responds to in-hand rotation while rejecting common-mode tip shear.
+where $\mathbf{C}_p$ is unnormalized by $F_{z,p}$ (carrying units of $\mathrm{N\cdot m^2}$, scaling with both normal load and patch spread), and $\mathbf{C}$ is taken from the loaded left pad in implementation. An alignment couple shifts the two CoPs in opposite directions, so $\Delta\mathbf{r}_c$ responds to in-hand rotation while rejecting common-mode tip shear.
 
 \subsection{Multi-Rate Complementary Observer and Contact Latching}
-With tick $k$ and buffered delay $d$, the wrist wrench and orientation estimate use
+With 1\,kHz tick $k$ and buffered delay $d$ ticks ($d=0$ in default A1/A2 held-out runs), the wrist force and orientation estimate combine live 1\,kHz wrist F/T measurements $\mathbf{F}_k$ and delayed measurements $\mathbf{F}_{k-d}$ via
 \begin{equation}
 \begin{aligned}
-\hat{\mathbf F}_{k}&=0.70\mathbf F_k+0.30\mathbf F_{k-d},\\
+\hat{\mathbf F}_{k}&=0.70\,\mathbf F_k+0.30\,\mathbf F_{k-d},\\
 \hat{\boldsymbol\theta}_{k}&=\boldsymbol\theta_k+\boldsymbol\delta_k,\\
 \boldsymbol\delta_k&=
 \begin{cases}
 0.75\boldsymbol\delta_{k-1}+0.25\mathbf e_k, & L_k,\\
-\boldsymbol\delta_{k-1}, & \text{unloaded, Stages 2--3},\\
-0.90\boldsymbol\delta_{k-1}, & \text{unloaded, Stage 1}.
+\boldsymbol\delta_{k-1}, & \neg L_k,\;\text{Stages 2--3},\\
+0.90\boldsymbol\delta_{k-1}, & \neg L_k,\;\text{Stage 1}.
 \end{cases}
 \end{aligned}
 \label{eq:observer}
 \end{equation}
-Here $\boldsymbol\theta$ is measured wrist roll and pitch and $\mathbf a_j=\arcsin(\mathrm{clip}(\Delta\mathbf r_{c,j}/r_{\mathrm{pad}},-1,1))$ componentwise, with $r_{\mathrm{pad}}=6$\,mm. The latch $L_k$ requires $\|\mathbf F_{k-d}\|\ge1$\,N and $\|\Delta\mathbf r_{c,k-d}\|>0.1$\,mm. An accepted frame updates the residual by EMA. The innovation $\mathbf e_k=\mathbf a_{k-d}-\boldsymbol\theta_{k-d}$ is the difference between the synchronized CoP-derived world peg angle and wrist angle and estimates the in-hand angle between the peg and jaws. The unloaded hold carries this estimate through retraction and alignment. At zero delay $\hat{\mathbf F}_k=\mathbf F_k$, and the moment coupling uses the delayed wrist torque. The sensing architecture targets 25--50\,Hz tactile updates. The default simulator supplies invariants each tick.
+Blended force $\hat{\mathbf F}_k$ preserves 70\% live impact response while smoothing against the delayed reading (reducing to $\hat{\mathbf F}_k=\mathbf F_k$ at $d=0$), and the external moment estimate is $\hat{\boldsymbol\tau}_{\mathrm{ext}}=\boldsymbol\tau_{k-d}$ ($\boldsymbol\tau_k$ at $d=0$). Here $\boldsymbol\theta_k=[\phi_k,\theta_k]^\top$ is measured wrist roll and pitch, and $a_j=\arcsin(\mathrm{clip}(\Delta r_{c,j}/r_{\mathrm{pad}},-1,1))$ maps pad axes $(u,v)$ componentwise to roll/pitch $(a_1,a_2)$ via the calibrated surrogate constant $r_{\mathrm{pad}}=6$\,mm tied to the simulator's synthetic world-frame patch model (Section~\ref{sec:exp}). The latch $L_k$ requires $\|\mathbf F_{k-d}\|\ge1$\,N and $\|\Delta\mathbf r_{c,k-d}\|>0.1$\,mm. Because the simulator synthesizes patches from the world-frame peg axis, the innovation $\mathbf e_k=\mathbf a_{k-d}-\boldsymbol\theta_{k-d}$ estimates the relative in-hand offset between peg and jaws; on physical hardware where tactile pads rotate rigidly with the wrist, $\mathbf a_{k-d}$ directly measures the relative peg-to-jaw angle and $\mathbf e_k=\mathbf a_{k-d}$ omits $-\boldsymbol\theta_{k-d}$ to avoid double-counting wrist rotation. Although $G_{1\to 2}$ triggers at $0.1$\,N whereas $L_k$ requires $1.0$\,N, rim impact forces rise past $1$\,N within milliseconds before unloading; under light contact or large delay $d$, early unloading can leave $\boldsymbol\delta_k$ partially latched. The unloaded hold ($\neg L_k$, Stages~2--3) carries $\boldsymbol\delta_k$ through retraction and alignment. In 50\,Hz perturbation mode (Section~\ref{sec:audit}, $d=0$), tactile invariants refresh every 20\,ms and the 1\,kHz EMA executes each tick over the zero-order-held frame; default A1/A2 runs supply synchronous 1\,kHz invariants.
 
 \subsection{Incipient Stick Ratio and Jamming Index}
-The active set $\mathcal A$ on each pad contains cells with $f_z>0.01\max f_z$. The simulator takes the smaller of the two per-pad stick fractions (the per-pad empty-contact default is unity) and computes a jamming index from the contact wrench:
+The active set $\mathcal A_p=\{i\in\Omega_p : f_{z,i}>0.01\max_j f_{z,j}\}$ collects loaded cells on pad $p$. The simulator takes $\rho_{\mathrm{stick}}=\min_{p\in\{L,R\}}\rho_{\mathrm{stick},p}$ (empty-contact default unity, held at its latest buffered value as $\hat\rho_{\mathrm{stick}}$) and computes a jamming index from traction moments (or from delayed wrist wrench with $r_{\mathrm{char}}=25$\,mm in the wrist-only baseline; note A1 resolves $\boldsymbol\tau_{\mathrm{ext},xy}$ about the mount while A2 resolves it about the wrist origin, incorporating the contact lever arm):
 \begin{equation}
 \begin{aligned}
 \rho_{\mathrm{stick},p}
- &= \frac{|\{i\in\mathcal A : \|\mathbf f_{xy,i}\| < 0.8\mu f_{z,i}\}|}{|\mathcal A|},\\
+ &= \frac{|\{i\in\mathcal A_p : \|\mathbf f_{xy,i}\| < 0.8\mu f_{z,i}\}|}{|\mathcal A_p|},\\
 J_{\mathrm{jam}}
  &= \frac{\max(0.01\,\mathrm N,|F_{z,\mathrm{ext}}|)\,r_{\mathrm{char}}}
-          {\|\boldsymbol\tau_{\mathrm{ext},xy}\|_2+\epsilon}.
+          {\|\boldsymbol\tau_{\mathrm{ext},xy}\|_2+\epsilon_{\mathrm{jam}}}.
 \end{aligned}
 \label{eq:stick_jam}
 \end{equation}
-Here $r_{\mathrm{char}}=25$\,mm and $\epsilon=10^{-4}$\,Nm. The index uses the reciprocal convention to the moment-to-load ratio, with regularization on the measured load and moment. Smaller values indicate greater wedging risk. The supervisor uses
+Here $r_{\mathrm{char}}=\min(l_x,l_y)/2\approx7.7$\,mm on the pad ($25$\,mm in the wrist-only baseline) and $\epsilon_{\mathrm{jam}}=10^{-4}$\,Nm ($10^{-12}$\,Nm on the pad). The index uses the reciprocal convention to the moment-to-load ratio, with regularization on the measured load and moment. Smaller values indicate greater wedging risk. The supervisor tracks three barrier-like scalar monitors,
 \[
 \begin{aligned}
 h_{\mathrm{jam}}&=J_{\mathrm{jam}}-2,\qquad
-h_{\mathrm{force}}=15\,\mathrm{N}-\|\hat{\mathbf F}\|,\\
-h_{\mathrm{slip}}&=\rho_{\mathrm{stick}}-0.20 .
+h_{\mathrm{force}}=15\,\mathrm{N}-\|\hat{\mathbf F}_k\|,\\
+h_{\mathrm{slip}}&=\hat\rho_{\mathrm{stick}}-0.20 ,
 \end{aligned}
 \]
+which serve as discrete switching guards and proportional throttling margins in Section~\ref{sec:supervisor} rather than Lie-derivative differential CBF constraints.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{SUPERVISORY FILTER}
+\label{sec:supervisor}
 
 \subsection{Tensor Gain Modulation}
-Let $\mathbf C$ be the tensor from the pad with greater normal load.
+Let $\mathbf C$ be the unnormalized left-pad tensor ($\mathrm{N\cdot m^2}$), used optionally alongside $\Delta\mathbf r_c$:
 \begin{equation}
 \begin{aligned}\kappa(\mathbf{C})&=\mathrm{clip}\!\left(\frac{\mathrm{tr}(\mathbf{C})}{C_{\mathrm{ref}}},\kappa_{\min},1.05\right),\\
-\mathbf{K}_{\mathrm{rot}}&=K_{\mathrm{rot},0}\,\kappa\!\left(\eta_0\mathbf{I}_2+(1-\eta_0)\frac{\mathbf{C}}{\mathrm{tr}(\mathbf{C})+\epsilon}\right),
+\mathbf{K}_{\mathrm{rot}}&=K_{\mathrm{rot},0}\,\kappa\!\left(\eta_0\mathbf{I}_2+(1-\eta_0)\frac{\mathbf{C}}{\mathrm{tr}(\mathbf{C})+\epsilon_C}\right),
 \end{aligned}
 \label{eq:tensor_control}
 \end{equation}
-with $\kappa_{\min}=0.92$, $C_{\mathrm{ref}}=10^{-4}$, $\eta_0=0.85$, and $\boldsymbol\tau_{\mathrm{align}}=-\mathbf{K}_{\mathrm{rot}}\hat{\boldsymbol\theta}_{\mathrm{est}}+K_\tau\hat{\boldsymbol\tau}_{\mathrm{ext}}$. TactAI CoP only and Full TactAI match on both development panels (Table~\ref{tab:shared_ablation}): \KnownCopAgreement{} on A1 and \UnknownCopAgreement{} on A2. These results do not establish a separate contribution from $\mathbf{C}$.
+with $\kappa_{\min}=0.92$, $C_{\mathrm{ref}}=10^{-4}\,\mathrm{N\cdot m^2}$, $\eta_0=0.85$, $K_{\mathrm{rot},0}=35$\,Nm/rad, $K_\tau=2.0$, $\epsilon_C=10^{-9}\,\mathrm{N\cdot m^2}$, and $\boldsymbol\tau_{\mathrm{align}}=-\mathbf{K}_{\mathrm{rot}}\hat{\boldsymbol\theta}_k+K_\tau\hat{\boldsymbol\tau}_{\mathrm{ext},xy}$ (rotational compliance assists alignment under external moments while $-\mathbf{K}_{\mathrm{rot}}\hat{\boldsymbol\theta}_k$ provides the primary restoring couple). TactAI CoP only and Full TactAI match on both development panels (Table~\ref{tab:shared_ablation}): \KnownCopAgreement{} on A1 and \UnknownCopAgreement{} on A2. Thus $\mathbf{C}$ is an optional modulation that shows no separate empirical gain here; $\Delta\mathbf r_c$ and $\rho_{\mathrm{stick}}$ are the active invariants.
 
 \subsection{CBF-Inspired Supervisory QP and Hybrid Automaton}
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/controller_architecture.pdf}
-\caption{Signal flow and contact-state transitions. The 25--50\,Hz tactile path is the target sensing architecture. Benchmark A supplies synthetic invariants at each simulation tick by default and uses a 50\,Hz sample-and-hold path in the perturbation sweep.}
+\caption{Signal flow and contact-state transitions. The 25--50\,Hz tactile path is the target sensing architecture; Benchmark~A supplies synthetic invariants synchronously at 1\,kHz by default and uses a 50\,Hz sample-and-hold path in Section~\ref{sec:audit}. The grip barrier channel is computed for telemetry only in Benchmark~A and actively closed in Benchmark~C.}
 \label{fig:architecture}
 \end{figure*}
 
-Given the 20\,Hz learned-policy wrench $\mathbf{u}_\pi$ (chunk horizon $H=\ChunkHorizon$), at 1\,kHz we solve over $\mathbf{z}=[\mathbf{u}^\top,\delta]^\top\in\mathbb{R}^7$:
+Given the 20\,Hz learned-policy wrench $\mathbf{u}_\pi$ (chunk horizon $H=\ChunkHorizon$), at 1\,kHz the contact-triggered hybrid supervisor solves over $\mathbf{z}=[\mathbf{u}^\top,\delta]^\top\in\mathbb{R}^7$:
 \begin{equation}
 \begin{aligned}
 \min_{\mathbf{u},\delta}\;&\tfrac12\|\mathbf{u}-\mathbf{u}_{\mathrm{target}}\|_{\mathbf{W}}^2+\tfrac12\lambda\delta^2\\
@@ -159,25 +161,42 @@ Given the 20\,Hz learned-policy wrench $\mathbf{u}_\pi$ (chunk horizon $H=\Chunk
 \end{aligned}
 \label{eq:cbf_qp}
 \end{equation}
-OSQP uses stage-dependent axial bounds $\ell_z,r_z$ and a signed slack. The force margin informs a feedback override and does not enter through a relative-degree-two contact model. Representative lower bounds before the force-response override are
+With diagonal $\mathbf{W}=\mathrm{diag}(1,1,1,0.1,0.1,0.1)$ and $\lambda=10^3$, Eq.~(\ref{eq:cbf_qp}) decouples into box clipping on $(u_x,u_y,u_{4:6})$ plus a 1D soft-corridor projection on $u_z$, where signed slack $\delta$ shifts the corridor to $[\ell_z-\delta,r_z-\delta]$ to preserve feasibility against $|u_z|\le 25$\,N (trading axial bound violation against $\lambda\delta^2$; $\ell_z=r_z$ in Stage~2 and holding/obstructed Stage~3). If OSQP fails to solve, execution falls back fail-closed to zero lateral/rotational net wrench and $u_z=\mathrm{clip}(\max(0,\ell_z),0,15)\,\mathrm{N}$. Letting $\mathbf{e}_{xy}$ denote lateral error to slot center (augmented in A2 by the nominal $25$\,mm wrist-to-mount kinematic lever), $\psi$ wrist yaw, and $F_{\mathrm{app}}=8$\,N ($z\ge -7$\,mm) or \DeepPush\,N ($z<-7$\,mm), the piecewise targets $\mathbf{u}_{\mathrm{target}}$ and pre-override axial lower bounds $\ell_z$ are
 \begin{equation}
-u_{z,\mathrm{cbf}}=\begin{cases}
--F_{\mathrm{app}}-D_1\dot z, & \text{Stage 1 (free space)},\\
+\begin{aligned}
+\mathbf{u}_{\mathrm{target},xy}&=\begin{cases}
+\mathbf{0}, & \text{Stage 1},\\
+\mathrm{clip}(\mathbf{f}_{\mathrm{lat}},\pm F_{\mathrm{lat},\max}), & \text{Stages 2--3},
+\end{cases}\\
+\mathbf{u}_{\mathrm{target},4:6}&=\begin{cases}
+\mathrm{clip}(-2\,\boldsymbol\omega,\pm 6\,\mathrm{Nm}), & \text{Stages 1--2},\\
+\mathrm{clip}([\boldsymbol\tau_{\mathrm{align}}^\top,\,\tau_{\psi}]^\top,\pm 6\,\mathrm{Nm}), & \text{Stage 3},
+\end{cases}\\
+u_{\mathrm{target},z}&=\begin{cases}
+\mathrm{clip}(u_{\pi,z}{-}mg,-8,-6){-}d_z\dot z, & \text{St.\,1},\\
+-F_{\mathrm{app}}-d_z\dot z, & \text{St.\,2--3},
+\end{cases}\\
+u_{z,\mathrm{cbf}}&=\begin{cases}
+-8-D_1\dot z, & \text{Stage 1},\\
 \ell_{\mathrm{retract}}, & \text{Stage 2},\\
--F_{\mathrm{app}}-D_3\dot z, & \text{Stage 3, low force}.
+-F_{\mathrm{app}}-d_z\dot z, & \text{Stage 3 (low force)},
 \end{cases}
+\end{aligned}
 \label{eq:uz_piecewise}
 \end{equation}
-Here $F_{\mathrm{app}}=8$\,N and the Stage 2 bound is $\ell_{\mathrm{retract}}=K_z(z_{\mathrm{clear}}-z)-D_2\dot z+\beta_f\|\hat{\mathbf F}\|+u_{f,\mathrm{delay}}$. Stage 3 holds retraction height while alignment settles, then uses an insertion law with force-dependent throttling. At \ForceTrigger\,N, an upward feedback override raises the axial lower bound. The guards are $G_{1\to2}$ with $\|\hat{\mathbf F}\|>0.1$\,N and either $h_{\mathrm{jam}}<0$ or wrist tilt $\ge0.65^\circ$, and $G_{2\to3}$ with $z>-3.2$\,mm and at least $\max(15,\tau/\Delta t)$ ticks in Stage 2 (delay rounded to ticks). Initially aligned trials can enter Stage 3 directly.
+where $\mathbf{f}_{\mathrm{lat}}=-K_{\mathrm{lat}}\mathbf{e}_{xy}-D_{\mathrm{lat}}\dot{\mathbf{x}}_{xy}-0.5\hat{\mathbf F}_{k,xy}$ and $\tau_\psi=-K_{\mathrm{rot},0}\psi+K_\tau\hat\tau_{\mathrm{ext},z}$. Thus Stage~1 preserves only the clipped learned axial reference while Stages~2--3 switch to analytical hybrid laws. Here $+z$ points upward from pre-contact $z=0$ (rim at $z_{\mathrm{rim}}=-3.5$\,mm), $D_1=30$\,Ns/m, $D_2=18$\,Ns/m, and $d_z=5$\,Ns/m outside the rim band. In Stage~2, $\ell_{\mathrm{retract}}=\max(F_r,\,K_z(z_{\mathrm{clear}}-z)-(D_2-0.06\tau_{\mathrm{ms}})\dot z+\beta_f\|\hat{\mathbf F}_k\|+u_{f,\mathrm{delay}})$ with $z_{\mathrm{clear}}=5$\,mm, $K_z=260-1.2\tau_{\mathrm{ms}}$\,N/m, $\beta_f=3.5$, $F_r=\RetractionFloor$\,N, and $u_{f,\mathrm{delay}}=3.8\|\mathbf F_{k-d}\|$ (zeroed by the energy tank when $P_{\mathrm{delay}}=u_{f,\mathrm{delay}}\dot z+0.08\|\mathbf F_{k-d}\|^2>0$). Stage~3 holds retraction height ($120(z_{\mathrm{clear}}-z)-5\dot z$) while alignment settles, then inserts with force throttling above $10$\,N: $\ell_z=-\max(1,\,8\cdot\tfrac15\max(0,h_{\mathrm{force}})\,\mathrm{clip}(\tfrac12(h_{\mathrm{jam}}+2),0.25,1))-\max(10,d_z)\dot z$ ($r_z=\max(25,\ell_z)$). At $\|\hat{\mathbf F}_k\|\ge\ForceTrigger$\,N, an upward feedback override enforces $\ell_z\ge\min(15,\,2+1.5(\|\hat{\mathbf F}_k\|-\ForceTrigger)+8\max(0,-\dot z))$. The guards are $G_{1\to2}$ with $\|\hat{\mathbf F}_k\|>0.1$\,N and either $h_{\mathrm{jam}}<0$ or tilt $\ge0.65^\circ$ (always active in A2), $G_{1\to3}$ direct entry when initial wrist tilt $<0.65^\circ$ in A1, and $G_{2\to3}$ with $z>-3.2$\,mm and at least $\max(15,\tau_{\mathrm{delay}}/\Delta t)$ ticks in Stage~2 (delay rounded to ticks).
 
-\textbf{Development-only tuning.} Stage 3 raises axial damping to \RimDamping\,Ns/m for heights between $\RimBandLower$\,mm and $-1.5$\,mm. Above $-5.8$\,mm, vertical force above 4.2\,N triggers retraction, and force above 6.5\,N latches it. During retraction and alignment the lateral centering gains are \CenterK\,N/m and \CenterD\,Ns/m. The zero-delay alignment dwell is \SettleTicks{} ticks. The axial push after passing $z=-7$\,mm is \DeepPush\,N. Stage 1 uses the learned axial reference clipped to $[-8,-6]$\,N net, and the hybrid laws determine the remaining wrench targets. The structured development panel was used to select the gains before the held-out seed was generated.
+\textbf{Development-only tuning.} Stage~3 raises axial damping to \RimDamping\,Ns/m for heights between $\RimBandLower$\,mm and $-1.5$\,mm. Above $-5.8$\,mm, vertical force above 4.2\,N triggers the Stage~2 retraction law ($G_{3\to2}$), and force above 6.5\,N latches it for the rest of the episode. During retraction and alignment the lateral centering gains are \CenterK\,N/m and \CenterD\,Ns/m. The zero-delay alignment dwell is \SettleTicks{} ticks. The axial push after passing $z=-7$\,mm is \DeepPush\,N. Stage~1 uses the learned axial reference clipped to $[-8,-6]$\,N net, and the hybrid laws determine the remaining wrench targets. The structured development panel was used to select the gains before the held-out seed was generated.
 
 \subsection{Decoupled Grip Barrier}
 \begin{equation}
-F_{\mathrm{grip}}=F_{\mathrm{grip},0}+K_{\mathrm{slip}}\max(0,\rho_{\mathrm{safe}}-\hat\rho_{\mathrm{stick}})+\mu_{\mathrm{safe}}^{-1}\|\hat{\mathbf F}_{xy}\|.
+\begin{aligned}
+F_{\mathrm{grip}}&=F_{\mathrm{grip},0}+K_{\mathrm{slip}}\max(0,\rho_{\mathrm{safe}}-\hat\rho_{\mathrm{stick}})\\
+&\quad+\mu_{\mathrm{safe}}^{-1}\|\hat{\mathbf F}_{k,xy}\|,
+\end{aligned}
 \label{eq:grip_cbf}
 \end{equation}
-Benchmark A computes this grip demand for telemetry and uses a passive compliant peg mount. Benchmark C uses a separate simulated grip loop.
+with $F_{\mathrm{grip},0}=6$\,N, $K_{\mathrm{slip}}=35$\,N, $\rho_{\mathrm{safe}}=0.55$, $\mu_{\mathrm{safe}}^{-1}=1.8$ (horizontal plane shear), and $\hat\rho_{\mathrm{stick}}$ held at the latest buffered pad value; $h_{\mathrm{slip}}$ also scales $F_{\mathrm{lat},\max}=15\,\mathrm{clip}(0.5+0.5\,h_{\mathrm{slip}}/0.8,0.3,1.0)$\,N in Eq.~(\ref{eq:cbf_qp}). Benchmark~A computes this grip demand for telemetry and uses a passive compliant peg mount. Benchmark~C uses a separate simulated grip loop.
 
 \begin{algorithm}[t]
 \small
@@ -193,35 +212,37 @@ Update tank bookkeeping from the limited wrench\;
 
 \subsection{Safety and Passivity Arguments}
 \textbf{Proposition 1 (scalar impact-arrest condition).}
-For a one-dimensional elastic contact, let $d=(F_{\max}-F_g)/K$ be the remaining compression at guard force $F_g$. If the delivered net retracting force remains at least $F_r$ through compression, a sufficient condition for arrest before $F_{\max}$ is
+For a one-dimensional elastic contact, let $\Delta z_{\mathrm{rem}}=(F_{\max}-F_g)/K$ be the remaining compression at guard force $F_g$. If the delivered net retracting force remains at least $F_r$ through compression, a sufficient condition for arrest before $F_{\max}$ is
 \begin{equation}
-v_0^2 \le \frac{2}{m}\left(F_rd+\frac{F_{\max}^2-F_g^2}{2K}\right).
+v_0^2 \le \frac{2}{m}\left(F_r\Delta z_{\mathrm{rem}}+\frac{F_{\max}^2-F_g^2}{2K}\right).
 \end{equation}
-This follows by comparing kinetic energy with the work of the spring and retraction force. The simulated wrist and peg masses are 2.42 and 0.08\,kg. With $m=2.5$\,kg, $F_g=0.1$\,N, the frozen Stage 2 nominal lower bound $F_r=\RetractionFloor$\,N, $F_{\max}=15$\,N and $K=10^4$\,N/m, the scalar bound gives $v_0\le\ArrestSpeed$\,m/s. One 1\,ms sampling interval at that speed adds about \SamplingDistance\,mm of compression (about \SamplingForce\,N in the spring model), so delayed detection consumes part of the arrest margin. QP slack, tank scaling, actuator clipping, and multiple contacts can change the delivered force, limiting this calculation to the stated assumptions.
+This follows by comparing kinetic energy with the work of the spring and retraction force. The simulated wrist and peg masses are 2.42 and 0.08\,kg. With $m=2.5$\,kg, $F_g=0.1$\,N (applicable to misaligned rim impacts satisfying $G_{1\to 2}$, whereas aligned Stage~3 entry relies on the higher $4.2$--$11.25$\,N overrides), the Stage~2 retraction lower floor $F_r=\RetractionFloor$\,N in $\ell_{\mathrm{retract}}$, $F_{\max}=15$\,N, and receptacle contact stiffness $K=10^4$\,N/m, the scalar bound gives $\Delta z_{\mathrm{rem}}=1.49$\,mm and $v_0\le\ArrestSpeed$\,m/s. One 1\,ms sampling interval at that speed adds about \SamplingDistance\,mm of compression (about \SamplingForce\,N at $K=10^4$\,N/m, or $3.51$\,N against the $30{,}000$\,N/m axial mount stiffness; evaluated directly at $K=30{,}000$\,N/m, $\Delta z_{\mathrm{rem}}=0.497$\,mm and the arrest speed bound tightens to $v_0\le 0.068$\,m/s), so delayed detection consumes part of the arrest margin. QP slack, tank scaling, actuator clipping, and multiple contacts can change the delivered force, limiting this calculation to the stated assumptions.
 
-\textbf{Proposition 2 (discrete power budget).} Before actuator clipping, scaling the gravity-excluded QP wrench by $T_k$ bounds its predicted positive power by $P_{\mathrm{avail}}=(E_k-E_{\min})/\Delta t+0.8P_{\mathrm{diss}}$, with
+\textbf{Proposition 2 (discrete power budget).} Let $\mathbf{v}=[\mathbf{v}_{\mathrm{lin}}^\top,\boldsymbol{\omega}^\top]^\top\in\mathbb{R}^6$ be the wrist twist and define virtual damping dissipation $P_{\mathrm{diss}}=15\|\mathbf{v}_{\mathrm{lin}}\|_2^2+1.5\|\boldsymbol{\omega}\|_2^2$. Before actuator clipping, scaling the gravity-excluded QP wrench by $T_k$ bounds its predicted positive power by $P_{\mathrm{avail}}=(E_k-E_{\min})/\Delta t+0.8P_{\mathrm{diss}}$, with
 \begin{equation}
 T_k=\min(1,P_{\mathrm{avail}}/P_k),\qquad
 P_k=\mathbf u_{\mathrm{QP}}^\top\mathbf v>0.
 \end{equation}
-Set $T_k=1$ for nonpositive power. At the floor $E_{\min}=0.05$\,J, only the dissipation credit is available. This post-solve valve scales the entire net wrench and leaves QP feasibility independent of tank energy. Stage 2 also gates delayed axial feedback when its power estimate is positive. The final update uses the clipped actuator wrench (with gravity removed) and clamps the stored energy to its allowed interval. The resulting command can differ from the QP solution, and the bookkeeping floor alone does not establish passivity of the clipped robot--environment system.
+Set $T_k=1$ for nonpositive power. At the floor $E_{\min}=0.05$\,J, only the dissipation credit is available. This post-solve valve scales all six components of the net wrench uniformly (leaving QP feasibility independent of tank energy, though positive lateral or rotational power can also scale axial retraction). Stage~2 additionally gates delayed axial feedback $u_{f,\mathrm{delay}}$ when $P_{\mathrm{delay}}>0$. After final actuator clipping to $\mathbf{u}_{\mathrm{lim}}$ (with gravity removed), stored energy updates as $E_{k+1}=\mathrm{clip}(E_k+\Delta t(0.8P_{\mathrm{diss}}-\mathbf{u}_{\mathrm{lim}}^\top\mathbf{v}),E_{\min},E_{\max})$ from $E_0=1.0$\,J ($E_{\max}=5.0$\,J). The clipped command can differ from $\mathbf{u}_{\mathrm{QP}}$, and this bookkeeping floor alone does not establish passivity of the closed-loop robot--environment system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{EXPERIMENTS}
 \label{sec:exp}
 
 \subsection{Simulation Setup and Idealizations}
-All experiments run in MuJoCo 3.15 at 1\,kHz. The end-effector is modeled as a 6-DoF carriage coupled to a compliant in-hand peg mount (lateral stiffness $15{,}000$\,N/m, axial stiffness $30{,}000$\,N/m, rotational stiffness $80$\,Nm/rad). A Panda model is synchronized kinematically for visualization. Insertion uses the learned policy described in Appendix~\ref{app:policy}. Contour and slip use task-specific scripted references.
+All experiments run in MuJoCo 3.15 at 1\,kHz. The end-effector is modeled as a 6-DoF carriage coupled to a compliant in-hand peg mount (lateral stiffness $15{,}000$\,N/m, axial stiffness $30{,}000$\,N/m, rotational stiffness $80$\,Nm/rad; slot/pad friction coefficient $\mu=0.40$ in Benchmark~A). A Panda model is synchronized kinematically for visualization. Insertion uses the learned policy described in Appendix~\ref{app:policy}. Contour and slip use task-specific scripted references.
 
-\textbf{Tactile idealization.} Both insertion environments synthesize opposing tapered elliptical pressure patches from the world-frame axis of the peg while loaded. Pressure goes to zero at the patch boundary, reducing grid-induced jumps in the discrete CoP. Differential CoP is calibrated to the peg axis using the same 6\,mm factor in both environments. The calibration is an analytical surrogate for asymmetric compression at the jaws, with direct access to simulated geometry. Physical deployment would need a calibrated estimator from GelSight images, such as a FEATS-style traction estimator.
+\textbf{Tactile idealization.} Both insertion environments synthesize opposing tapered elliptical pressure patches directly from the world-frame peg axis while loaded ($\|\mathbf F\|\ge0.1$\,N), mapping both horizontal tilt components onto $\pm6\,\mathrm{mm}\sin\theta$ pad CoP shifts as an idealized two-axis surrogate. Pressure goes to zero at the patch boundary, reducing grid-induced jumps in the discrete CoP. Physical deployment would need a calibrated estimator from GelSight images, such as a FEATS-style traction estimator, since flat parallel pads alone only produce opposing normal pressure asymmetry along out-of-plane roll.
 
-\textbf{Benchmark A1 (known grasp).} We replay the \HeldN{} held-out conditions from seed \HeldSeed{} using the unified controller. The original distribution uses independent per-axis tilt in $[-15^\circ,15^\circ]$, rejecting norms above $19.2^\circ$, and independent lateral offsets in $[-0.92,0.92]$\,mm. The predefined capture basin has tilt norm at most $15^\circ$ and maximum per-axis offset at most 0.80\,mm. A1 retains its known-grasp wrench convention.
+\textbf{Benchmark A1 (known grasp).} We replay the \HeldN{} held-out conditions from seed \HeldSeed{} over a 550\,ms horizon in a 25\,mm-deep slot ($0.15$\,mm clearance per side, receptacle contact stiffness $10^4$\,N/m acting in series with the $30{,}000$\,N/m axial mount; insertion success requires depth $\ge20.0$\,mm, force $<20$\,N, and tilt $<2^\circ$). The original distribution uses independent per-axis tilt in $[-15^\circ,15^\circ]$, rejecting norms above $19.2^\circ$, and independent lateral offsets in $[-0.92,0.92]$\,mm. The predefined capture basin has tilt norm at most $15^\circ$ and maximum per-axis offset at most 0.80\,mm. A1 retains its known-grasp wrench convention.
 
-\textbf{Benchmark A2 (unknown grasp).} After freezing the code and protocol we drew seed \UnknownSeed{} and evaluated \HeldN{} random conditions once. The compliant mount has an unobserved rest tilt with uniformly sampled direction and radius from $3^\circ$ to $10^\circ$. Per-axis wrist tilts and offsets are independently uniform on $\pm4^\circ$ and $\pm0.35$\,mm. The external wrench is resolved about the wrist origin, so the moment includes the contact force lever arm. Both QPs use the same nominal wrist-to-mount geometry for lateral centering. The observer is shared. A2 uses contact-triggered entry without a free-space alignment shortcut and rim damping of \UnknownRimDamping\,Ns/m, shared by its QPs. The A2 horizon is 850\,ms. Accordingly, the within-A2 comparison controls for QP settings, while the A1-to-A2 comparison also changes the task protocol.
+\textbf{Benchmark A2 (unknown grasp).} After freezing the code and protocol we drew seed \UnknownSeed{} and evaluated \HeldN{} random conditions once over an 850\,ms horizon. The compliant mount has an unobserved rest tilt with uniformly sampled direction and tilt magnitude from $3^\circ$ to $10^\circ$. Per-axis wrist tilts and offsets are independently uniform on $\pm4^\circ$ and $\pm0.35$\,mm (lying inside A1's predefined capture basin). The external wrench is resolved about the wrist origin, so the moment includes the contact force lever arm. Both QPs use the same nominal wrist-to-mount geometry for lateral centering. The observer is shared. A2 uses contact-triggered entry without a free-space alignment shortcut and rim damping of \UnknownRimDamping\,Ns/m, shared by its QPs. Accordingly, the within-A2 comparison controls for QP settings, while the A1-to-A2 comparison alters initial pose bounds, horizon, entry guard, and rim damping simultaneously.
 
-\textbf{Benchmark B (contour tracking).} $N=20$ phase-shifted stiff sinusoidal contours, $K_{\mathrm{env}}=10^4$\,N/m, $v_x=0.05$\,m/s, $\tau_{\mathrm{delay}}=25$\,ms.
+\textbf{Benchmark B (contour tracking).} $N=20$ phase-shifted two-harmonic contours ($4.5$\,mm amplitude, $25$\,mm spatial wavelength, $z(x)=4.5[0.75\sin(2\pi x/\lambda+\phi)+0.25\sin(4\pi x/\lambda+0.5\phi)]$\,mm), $K_{\mathrm{env}}=10^4$\,N/m, $v_x=0.05$\,m/s, $F_{\mathrm{des}}=8.0$\,N, $m=2.5$\,kg, $\tau_{\mathrm{delay}}=25$\,ms.
 
-\textbf{Benchmark C (incipient slip).} $N=20$ manipulation trials of a 0.45\,kg tool under shear pulses, $\mu\in[0.22,0.58]$.
+\textbf{Benchmark C (incipient slip).} $N=20$ manipulation trials of a 0.45\,kg tool under sinusoidal inertial acceleration ($4.2\sin(2\pi t/0.40)\,\mathrm{m/s^2}$) and a 3.1\,N Gaussian shear pulse at $t=0.18$\,s, $\mu\in[0.22,0.58]$, 4\,ms grip actuator lag, two-pad Coulomb capacity $2\mu F_{\mathrm{grip}}$, and a 2.0\,mm gross slip drop threshold.
+
+\textbf{Benchmark A component ablation protocol.} Table~\ref{tab:ablation} evaluates the four Benchmark~A ablations over \AblationN{} structured moderate-to-severe development scenarios ($\pm 7^\circ$ to $\pm 11^\circ$ tilt, trial seeds \texttt{100}--\texttt{119}, known-grasp A1 mode, $\tau_{\mathrm{delay}}=0$, 550\,ms horizon).
 
 \begin{table*}[t]
 \centering
@@ -277,27 +298,28 @@ Condition & Insert & Jam & Mean peak & Max\\
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/phase3_benchmarks_bc_ablation.pdf}
-\caption{(A) Benchmark B contour force traces for the phase-zero trial. Legend peaks are computed over the displayed samples. Tables~\ref{tab:bench_bc} and~\ref{tab:ablation} summarize the full \TaskTrialCount{}-phase sweep. (B) Benchmark C cumulative slip. (C) Component ablations.}
+\caption{(A) Benchmark B contour force traces for the phase-zero trial. Legend peaks are computed over the displayed samples. Tables~\ref{tab:bench_bc} and~\ref{tab:ablation} summarize the full \TaskTrialCount{}-phase sweep. (B) Benchmark C cumulative slip. (C) Benchmark~A component ablations showing insertion rate and mean peak force ($\pm1\,$SD error bars matching Table~\ref{tab:ablation}) over $N=\AblationN$ structured development scenarios.}
 \label{fig:bench_bc}
 \end{figure*}
 
 \subsection{Results}
-On A1, TactAI inserts in \HeldInBasin{} in-basin and \HeldOutBasin{} out-of-basin trials. It records \HeldJam{} benchmark jams and \HeldSafe{} force-compliant trials. On A2, full TactAI inserts in \UnknownSuccess{} of trials, with \UnknownJam{} benchmark jams and a maximum peak of \UnknownMax\,N. The wrist-only QP remains within the force limit in \UnknownFTSafe{} A2 trials. A benchmark jam includes a simulator jam or a failed episode with peak force above 22\,N and depth below 10\,mm.
+On A1, TactAI inserts in \HeldInBasin{} in-basin and \HeldOutBasin{} out-of-basin trials. It records \HeldJam{} benchmark jams and \HeldSafe{} force-compliant trials. Across paired A1 episodes, TactAI and Wrist F/T-only QP differ on \PairedDisagreements{} trial (seed \texttt{1524526722}, out-of-basin): Table~\ref{tab:failure_audit} reports the Stage~3 $>6.5$\,N rim-arrest latch (\emph{Rim latch}), not the observer latch $L_k$. Neither controller hits the flat rim above $6.5$\,N on \texttt{1524526722}, but slower delayed-EMA alignment under TactAI leaves the peg at 18.90\,mm depth (0.17$^\circ$ final tilt, 3.46\,N peak force) at the 550\,ms horizon, 1.10\,mm short of the 20.0\,mm insertion cutoff where Wrist F/T QP finishes in 517\,ms (20.29\,mm depth). On Table~\ref{tab:ablation}, all 20 episode peak forces for Full TactAI (3.35\,N), Without proportional rotational alignment (3.35\,N), and Without energy tank (2.46\,N) occur upon Stage~2 rim arrest prior to Stage~3 rotational alignment: thus removing Stage~3 proportional alignment leaves Stage~2 peak forces unchanged, while disabling the energy tank removes positive-power gating on $u_{f,\mathrm{delay}}$, keeping $3.8\|\mathbf F_{k-d}\|$ active alongside $3.5\|\hat{\mathbf F}_k\|$ for a stronger upward retraction pulse that arrests earlier at 2.46\,N. Removing Stage~2 collapses success from 100\% to 5\% (13.96\,N mean peak, 15.24\,N max). On A2, full TactAI inserts in \UnknownSuccess{} of trials (matching its \HeldInBasin{} in-basin A1 rate under the narrower A2 pose envelope and 850\,ms horizon), with \UnknownJam{} benchmark jams and a maximum peak of \UnknownMax\,N, reflecting both dual-pad in-hand tilt observability and hybrid supervision. The wrist-only QP remains within the force limit in \UnknownFTSafe{} A2 trials. A benchmark jam includes a simulator jam or a failed episode with peak force above 22\,N and depth below 10\,mm.
 
 \subsection{Paired Contact Audits}
-On the independent A2 development panel we perturb Gaussian CoP and stick measurements, add signed angular bias, scale the CoP-to-angle signal, and drop tactile frames. The path refreshes at 50\,Hz and holds the previous accepted frame after a drop. Of \UnknownStressN{} trials per condition, \UnknownClean{} insert at the clean 50\,Hz setting, \UnknownDropHigh{} at 30\% dropout, and \UnknownHighNoise{} under the strongest Gaussian noise. At $-1^\circ$ and $+1^\circ$ bias, successes are \UnknownBiasNegOne{} and \UnknownBiasPosOne{}, respectively. The smallest force-compliant count is \UnknownStressSafe{}, and the largest force is \UnknownStressPeak\,N.
+\label{sec:audit}
+On the independent A2 development panel we perturb Gaussian CoP ($\sigma_{\mathrm{CoP}}$ in mm) and stick ($\sigma_\rho$) measurements, add signed angular bias, scale the CoP-to-angle signal, and drop tactile frames. The path refreshes at 50\,Hz and holds the previous accepted frame after a drop. Of \UnknownStressN{} trials per condition, \UnknownClean{} insert at the clean 50\,Hz setting, \UnknownDropHigh{} at 30\% dropout, and \UnknownHighNoise{} under the strongest Gaussian noise (where $0.25$\,mm CoP noise corrupts $\hat{\boldsymbol\theta}_k$ during rim contact, commanding rapid rotational wedging torques faster than axial retraction unloads the rim and producing three peaks above 15\,N, including the \UnknownStressPeak\,N outlier at zero insertion depth). At $-1^\circ$ and $+1^\circ$ bias ($\approx 0.105$\,mm systematic CoP shift under $r_{\mathrm{pad}}\sin 1^\circ$, roughly one-quarter taxel on the $32\times32$ pad), successes collapse from \UnknownClean{} to \UnknownBiasNegOne{} and \UnknownBiasPosOne{}, respectively, because the open-loop contact latch holds the biased offset throughout unloaded Stage~3 alignment. Across all sweeps, the smallest force-compliant count is \UnknownStressSafe{}, and the largest peak force is \UnknownStressPeak\,N.
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.84\textwidth]{figures/a2_tactile_stress.pdf}
-\caption{A2 development-set tactile perturbations. Bars summarize insertion and benchmark jams. Dots are individual episode peaks, with the dashed line at 15\,N.}
+\caption{A2 development-set tactile perturbations (label format \texttt{noise} $\sigma_{\mathrm{CoP}}$ $\sigma_\rho$, denoting Gaussian CoP standard deviation in mm and dimensionless stick-ratio standard deviation). Bars summarize insertion and benchmark jams. Dots are individual episode peaks, with the dashed line at 15\,N.}
 \label{fig:contact_audit}
 \end{figure*}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figures/simulation_3d_overview.pdf}
-\caption{MuJoCo insertion workbench. Gold arrows indicate compressive peg contact normals at wedging, with lengths chosen for visibility. The close-ups omit the decorative arm meshes. The pressure field and CoP come from the left simulated pad at that state.}
+\caption{MuJoCo insertion workbench. Panel~1 lists the $10{,}000$\,N/m receptacle contact stiffness (in series with the $30{,}000$\,N/m axial mount). Panel~2 reports 0.0\,N external peg-wall contact force during a clean $0^\circ$ descent clearing the $0.15$\,mm slot (distinct from the applied downward actuator force). In Panel~3, gold arrows indicate compressive peg contact normals at wedging, with lengths chosen for visibility; close-ups omit decorative arm meshes, and the normal pressure field $f_z(u,v)$ (kPa) and CoP (Panel~4) come from the left simulated pad at that state.}
 \label{fig:workbench}
 \end{figure}
 
@@ -309,9 +331,9 @@ On the independent A2 development panel we perturb Gaussian CoP and stick measur
 \end{figure}
 
 \section{Discussion and Limitations}
-The A1 results show that shared hybrid supervision accounts for most of the gain when wrist pose is a useful orientation reference. In A2, a wrist-only QP can unload the rim while leaving a crooked peg misaligned. The dual-pad estimate enables counter-tilt, separating insertion success from force compliance. In the controlled development ablation, removing proportional alignment removes the orientation target but retains damping and limited moment feedback. CoP-only and full TactAI attain the same A2 development insertion count (Table~\ref{tab:shared_ablation}).
+The A1 results show that shared hybrid supervision accounts for most of the gain when wrist pose is a useful orientation reference. In A2, a wrist-only QP can unload the rim while leaving a crooked peg misaligned; the 0\% vs. 100\% A2 gap reflects both dual-pad tilt observability and hybrid supervisory control. In the controlled development ablation, removing proportional alignment removes the orientation target while retaining damping and moment feedback. CoP-only and full TactAI attain the same A2 development insertion count (Table~\ref{tab:shared_ablation}).
 
-Benchmark B isolates the effect of a tank on delayed contour tracking. Benchmark C assesses the value of stick information for retention. The A2 perturbations test dependence on the estimated grasp angle. Angle bias can remain latched throughout unloaded alignment, so small systematic errors matter even when peak force stays bounded. These are measurements on the stated simulation splits. The simulated pad has access to the true axis through its rendering model, and the wrist-origin wrench is idealized. Hardware validation requires a calibrated tactile estimator and wrist wrench acquisition with realistic delays and uncertainty.
+Benchmark B isolates the effect of a tank on delayed contour tracking. Benchmark C assesses the value of stick information for retention. The A2 perturbations expose open-loop latch fragility: a $1^\circ$ ($\approx0.105$\,mm) systematic CoP bias remains frozen throughout unloaded Stage~3 alignment and collapses insertion even while forces stay bounded. Practical hardware deployment will likely require closing the Stage~3 alignment loop---for example, updating $\boldsymbol\delta_k$ from residual rim-contact moments or active extrinsic contact probing \cite{kimactive,kimextrinsic}---alongside a calibrated tactile estimator (e.g., FEATS/TacEx \cite{helmut2024feats,nguyen2024tacex}) and realistic pipeline latency. Finally, four protocol and baseline caveats qualify our measurements: (i) the learned policy is a proprioceptive-only MLP proxy rather than a tactile-conditioned diffusion policy; (ii) \emph{Impedance + spiral} uses $\pm 12$\,N componentwise limits whose 3D Euclidean norm can exceed the $15$\,N safety threshold on rim contact; (iii) Benchmark~B's Wrist F/T comparator uses an under-damped delayed force law ($6$\,Ns/m at $25$\,ms delay); and (iv) Benchmark~C's Wrist F/T comparator triggers only after gross slip without tangential-load feedforward.
 
 \appendices
 \section{Policy and Baselines}
@@ -325,8 +347,10 @@ The wrist F/T-only variant uses the same OSQP problem, automaton, post-solve tan
 
 Impedance with spiral search triggers at $\|\mathbf F\|>1$\,N. The lateral reference has angle $2\pi(5\,\mathrm{Hz})t$ measured from contact and radius $0.15$\,mm per radian capped at 2.5\,mm. The spiral is active above $z=-10$\,mm. Lateral gains are 1400\,N/m and 40\,Ns/m, with a 12\,N componentwise limit. The axial force uses a 5\,N downward bias, 55\,Ns/m damping, and upward feedback above 6\,N vertical contact. Net axial force is clipped to $\pm12$\,N before adding 24.525\,N gravity compensation. The attitude loop uses 12\,Nm/rad and 0.7\,Nms/rad with $\pm2$\,Nm clipping.
 
-\subsection{Wrist Comparators for Contour and Slip}
-Benchmark B uses $u_z=\mathrm{clip}(-8+1.55(F_{\mathrm{delayed}}-8)-6\dot z,-25,25)$\,N with 25\,ms delay. The 2.5\,kg probe is the plant mass. In Benchmark C the wrist comparator reacts when slip velocity exceeds 4\,mm/s or displacement exceeds 0.4\,mm. Its commanded grip rises at 85\,N/s to at most 16.5\,N, from a nominal 6.5\,N.
+\subsection{Controllers for Contour (B) and Slip (C)}
+In Benchmark~B ($m=2.5$\,kg, $K_{\mathrm{env}}=10^4$\,N/m, $\tau_{\mathrm{delay}}=25$\,ms): \emph{Unconstrained} tracks the initial flat-plane reference $z_{\mathrm{flat}}$ via $u_z=\mathrm{clip}(-8-2200(z-z_{\mathrm{flat}})-25\dot z,-45,45)$\,N; \emph{Fixed impedance} uses $u_z=\mathrm{clip}(200(z_{\mathrm{imp}}-z)-35\dot z,-35,35)$\,N; \emph{Wrist F/T} uses the delayed proportional-derivative law $u_z=\mathrm{clip}(-8+1.55(F_{\mathrm{delayed}}-8)-6\dot z,-25,25)$\,N (under-damped relative to $\omega_n=\sqrt{K_{\mathrm{env}}/m}\approx63.2$\,rad/s). Both \emph{TactAI} variants share the fast inner law $u_{\mathrm{fast}}=-8+1.85(F_n-8)-28\dot z$ plus delayed stiffness term $u_{\mathrm{delayed}}=2.60(F_{\mathrm{delayed}}-8)$ filtered by a 2-variable axial OSQP ($\ell_z=-8+2.20\max(0,F_n-10.5)+u_{\mathrm{delayed,safe}}-28\dot z$); the tank ($E_0=0.06$\,J, $E_{\min}=0.05$\,J, $P_{\mathrm{diss}}=18\dot z^2$, $P_{\mathrm{inject}}=\max(0,-u_{\mathrm{delayed}}\dot z+0.15u_{\mathrm{delayed}}^2)$) throttles $u_{\mathrm{delayed}}$ when energy nears $E_{\min}$.
+
+In Benchmark~C, total tangential shear is $F_{\mathrm{tang}}=m(9.81+|a_{\mathrm{cmd}}|)+F_{\mathrm{pulse}}$ and synthetic partial slip takes $\rho_{\mathrm{stick}}=\min(\rho_{\mathrm{pad}},\mathrm{clip}(1-(F_{\mathrm{tang}}/(2\mu F_{\mathrm{grip}}))^{2.2},0,1))$ across the $32\times32$ pad. \emph{Unconstrained} holds $F_{\mathrm{grip,cmd}}=6.2$\,N, $a_{\mathrm{cmd}}=a_{\mathrm{nom}}$; \emph{Fixed impedance} holds $6.8$\,N, $0.82\,a_{\mathrm{nom}}$; \emph{Wrist F/T} reacts after gross slip ($\dot s>4$\,mm/s or $s>0.4$\,mm), ramping from $6.5$\,N at $85$\,N/s to $16.5$\,N with $0.88\,a_{\mathrm{nom}}$ (without tangential-load feedforward). \emph{TactAI} solves a 2-variable OSQP over $(F_{\mathrm{grip,cmd}},a_{\mathrm{cmd}})$ enforcing $F_{\mathrm{grip,cmd}}\in[\mathrm{clip}(6.2+15.5\max(0,0.72-\rho_{\mathrm{stick}}),6.2,14.6),\,14.8]$\,N and $|a_{\mathrm{cmd}}|\le\mathrm{clip}(4.2\,\mathrm{clip}((h_{\mathrm{slip}}+0.15)/0.50,0.15,1),0.5,5)\,\mathrm{m/s^2}$ ($\rho_{\min}=0.25$), passed through the same $4$\,ms first-order grip actuator lag.
 
 \makeatletter
 \newenvironment{auditTable}{\par\medskip\noindent\begin{minipage}{\columnwidth}
@@ -335,13 +359,13 @@ Benchmark B uses $u_z=\mathrm{clip}(-8+1.55(F_{\mathrm{delayed}}-8)-6\dot z,-25,
 \makeatother
 \clearpage
 \section{Additional Benchmark A Results}
-The following tables separate measurement, alignment, and failure outcomes. Complete per-controller failure records accompany the held-out logs.
+Tables~\ref{tab:shared_ablation}--\ref{tab:guard_sensitivity} separate measurement, alignment, failure, and robustness outcomes. Complete per-controller failure records accompany the held-out logs.
 
 \begin{auditTable}
 \centering
 \caption{Developer-panel orientation ablation. Safe counts peaks at or below 15\,N.}
 \label{tab:shared_ablation}
-\begin{tabular}{lp{0.34\columnwidth}rrrr}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{0.34\columnwidth}rrrr}
 \toprule
 Panel & Controller & Insert & Jam & Safe & Max (N)\\
 \midrule
@@ -353,7 +377,9 @@ Panel & Controller & Insert & Jam & Safe & Max (N)\\
 \begin{auditTable}
 \centering
 \caption{Representative A2 development trial with $\ExampleGrasp^\circ$ grasp offset and $\ExampleWrist^\circ$ initial wrist roll. Final roll in degrees, peak in newtons and depth in millimeters.}
-\begin{tabular}{p{.31\columnwidth}rrrrr}
+\label{tab:counter_tilt}
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{.29\columnwidth}rrrrr}
 \toprule
 Controller & Wrist & Peg & Residual & Peak & Depth\\
 \midrule
@@ -365,9 +391,10 @@ Controller & Wrist & Peg & Residual & Peak & Depth\\
 \begin{auditTable}
 \centering
 \caption{A2 held-out TactAI failures (\UnknownFailures{} total).}
+\label{tab:a2_failures}
 \begin{tabular}{lrrl}
 \toprule
-Trial seed & Depth (mm) & Peak (N) & Latched\\
+Trial seed & Depth (mm) & Peak (N) & Rim latch\\
 \midrule
 \UnknownFailureRows
 \bottomrule
@@ -376,13 +403,40 @@ Trial seed & Depth (mm) & Peak (N) & Latched\\
 
 \begin{auditTable}
 \centering
-\caption{All TactAI insertion failures from the primary held-out evaluation.}
+\caption{All TactAI insertion failures from the primary Benchmark~A1 held-out evaluation (\emph{Rim latch} indicates the Stage~3 $>6.5$\,N rim-arrest latch).}
 \label{tab:failure_audit}
+\setlength{\tabcolsep}{2.2pt}
 \begin{tabular}{lllcr}
 \toprule
-Trial seed & Basin & End & Latch & Peak (N)\\
+Trial seed & Basin & End & Rim latch & Peak (N)\\
 \midrule
 \HeldFailureRows
+\bottomrule
+\end{tabular}
+\end{auditTable}
+
+\begin{auditTable}
+\centering
+\caption{Benchmark A paired robustness sweeps (\RobustPerPoint{} episodes per point: 5 scenarios $\times$ 5 seeds).}
+\label{tab:robustness}
+\begin{tabular}{lrrr}
+\toprule
+Parameter & Value & Insert & Mean peak (N)\\
+\midrule
+\RobustnessRows
+\bottomrule
+\end{tabular}
+\end{auditTable}
+
+\begin{auditTable}
+\centering
+\caption{Rim-arrest guard $\pm20\%$ parameter sensitivity (\GuardN{} historical audit trials per condition).}
+\label{tab:guard_sensitivity}
+\begin{tabular}{lrrrr}
+\toprule
+Setting & Insert & Jam & Safe & Max (N)\\
+\midrule
+\GuardRows
 \bottomrule
 \end{tabular}
 \end{auditTable}
@@ -416,25 +470,25 @@ T. Z. Zhao, V. Kumar, S. Levine, and C. Finn, ``Learning fine-grained bimanual m
 
 
 \bibitem{wabersichfilter}
-K. P. Wabersich and M. N. Zeilinger, ``A predictive safety filter for learning-based control of constrained nonlinear dynamical systems,'' arXiv:1812.05506, 2018.
+K. P. Wabersich and M. N. Zeilinger, ``A predictive safety filter for learning-based control of constrained nonlinear dynamical systems,'' \emph{Automatica}, vol. 129, art. 109597, 2021 (arXiv:1812.05506).
 \bibitem{hsufilter}
-K.-C. Hsu, H. Hu, and J. F. Fisac, ``The safety filter: A unified view of safety-critical control in autonomous systems,'' arXiv:2309.05837, 2023.
+K.-C. Hsu, H. Hu, and J. F. Fisac, ``The safety filter: A unified view of safety-critical control in autonomous systems,'' \emph{Annu. Rev. Control, Robot., Auton. Syst.}, vol. 7, pp. 47--72, 2024 (arXiv:2309.05837).
 \bibitem{xiaohocbf}
-W. Xiao and C. Belta, ``Control barrier functions for systems with high relative degree,'' arXiv:1903.04706, 2019.
+W. Xiao and C. Belta, ``Control barrier functions for systems with high relative degree,'' in \emph{Proc. IEEE Conf. Decision and Control (CDC)}, 2019, pp. 474--479 (arXiv:1903.04706).
 \bibitem{singletarydelay}
-A. Singletary, Y. Chen, and A. D. Ames, ``Control barrier functions for sampled-data systems with input delays,'' arXiv:2005.06418, 2020.
+A. Singletary, Y. Chen, and A. D. Ames, ``Control barrier functions for sampled-data systems with input delays,'' in \emph{Proc. IEEE Conf. Decision and Control (CDC)}, 2020, pp. 804--809 (arXiv:2005.06418).
 \bibitem{yuangelsight}
-W. Yuan, S. Dong, and E. H. Adelson, ``GelSight: High-resolution robot tactile sensors for estimating geometry and force,'' Sensors, vol. 17, no. 12, art. 2762, 2017.
+W. Yuan, S. Dong, and E. H. Adelson, ``GelSight: High-resolution robot tactile sensors for estimating geometry and force,'' \emph{Sensors}, vol. 17, no. 12, art. 2762, 2017.
 \bibitem{lambetadigit}
-M. Lambeta et al., ``DIGIT: A novel design for a low-cost compact high-resolution tactile sensor with application to in-hand manipulation,'' arXiv:2005.14679, 2020.
+M. Lambeta et al., ``DIGIT: A novel design for a low-cost compact high-resolution tactile sensor with application to in-hand manipulation,'' \emph{IEEE Robot. Autom. Lett. (RA-L)}, vol. 5, no. 3, pp. 3838--3845, 2020 (arXiv:2005.14679).
 \bibitem{dongslip}
-S. Dong, W. Yuan, and E. Adelson, ``Improved GelSight tactile sensor for measuring geometry and slip,'' arXiv:1708.00922, 2017.
+S. Dong, W. Yuan, and E. H. Adelson, ``Improved GelSight tactile sensor for measuring geometry and slip,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2017, pp. 137--144 (arXiv:1708.00922).
 \bibitem{kimactive}
-S. Kim and A. Rodriguez, ``Active extrinsic contact sensing: Application to general peg-in-hole insertion,'' arXiv:2110.03555, 2021.
+S. Kim and A. Rodriguez, ``Active extrinsic contact sensing: Application to general peg-in-hole insertion,'' in \emph{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2022, pp. 10241--10247 (arXiv:2110.03555).
 \bibitem{kimextrinsic}
-S. Kim, D. K. Jha, D. Romeres, P. Patre, and A. Rodriguez, ``Simultaneous tactile estimation and control of extrinsic contact,'' arXiv:2303.03385, 2023.
+S. Kim, D. K. Jha, D. Romeres, P. Patre, and A. Rodriguez, ``Simultaneous tactile estimation and control of extrinsic contact,'' in \emph{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2023, pp. 12563--12569 (arXiv:2303.03385).
 \bibitem{shecable}
-Y. She, S. Wang, S. Dong, N. Sunil, A. Rodriguez, and E. Adelson, ``Cable manipulation with a tactile-reactive gripper,'' Int. J. Robot. Res., 2021, doi: 10.1177/02783649211027233.
+Y. She, S. Wang, S. Dong, N. Sunil, A. Rodriguez, and E. H. Adelson, ``Cable manipulation with a tactile-reactive gripper,'' \emph{Int. J. Robot. Res.}, vol. 40, no. 12--14, pp. 1385--1401, 2021.
 \end{thebibliography}
 
 \end{document}

@@ -125,31 +125,31 @@ def main():
     # Panel 1: 3D Environment Setup
     ax1 = fig.add_subplot(2, 2, 1)
     ax1.imshow(img_overview)
-    ax1.set_title("1. 3D Simulation Workbench (Franka Arm, GelSight Mini Pads, Slot)", color="#38BDF8", fontsize=13, weight="bold", pad=10)
+    ax1.set_title("1. 3D Simulation Workbench (Franka, Dual Pads, Slot)", color="#38BDF8", fontsize=16, weight="bold", pad=12)
     ax1.axis("off")
     # Annotations
-    ax1.text(0.04, 0.92, f"Clearance: {snapshots['slot_clearance_mm']:.2f} mm per side\n"
-             f"Stiffness: {snapshots['stiffness_n_m']:,.0f} N/m\nFrequency: {snapshots['rate_hz']:,.0f} Hz",
-             transform=ax1.transAxes, color="#F8FAFC", fontsize=10,
-             bbox=dict(boxstyle="round,pad=0.5", facecolor="#1E293B", edgecolor="#38BDF8", alpha=0.9))
+    ax1.text(0.03, 0.95, f"Clearance: {snapshots['slot_clearance_mm']:.2f} mm per side\n"
+             f"Slot stiffness: {snapshots['stiffness_n_m']:,.0f} N/m\nFrequency: {snapshots['rate_hz']:,.0f} Hz",
+             transform=ax1.transAxes, va="top", color="#F8FAFC", fontsize=14,
+             bbox=dict(boxstyle="round,pad=0.45", facecolor="#1E293B", edgecolor="#38BDF8", alpha=0.92))
 
     # Panel 2: Aligned Insertion (Success)
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.imshow(img_aligned)
-    ax2.set_title("2. Aligned Insertion (0° Tilt) — SUCCESS", color="#4ADE80", fontsize=13, weight="bold", pad=10)
+    ax2.set_title("2. Aligned Insertion (0° Tilt) — SUCCESS", color="#4ADE80", fontsize=16, weight="bold", pad=12)
     ax2.axis("off")
-    ax2.text(0.04, 0.92, f"Insertion depth: {info_a['insertion_depth_m']*1e3:.1f} mm\nPeak force: {info_a['peak_force_n']:.1f} N",
-             transform=ax2.transAxes, color="#F8FAFC", fontsize=10,
-             bbox=dict(boxstyle="round,pad=0.5", facecolor="#14532D", edgecolor="#4ADE80", alpha=0.9))
+    ax2.text(0.03, 0.95, f"Insertion depth: {info_a['insertion_depth_m']*1e3:.1f} mm\nWall contact peak: {info_a['peak_force_n']:.1f} N",
+             transform=ax2.transAxes, va="top", color="#F8FAFC", fontsize=14,
+             bbox=dict(boxstyle="round,pad=0.45", facecolor="#14532D", edgecolor="#4ADE80", alpha=0.92))
 
     # Panel 3: Tilted Insertion (Jamming Failure)
     ax3 = fig.add_subplot(2, 2, 3)
     ax3.imshow(img_tilted)
-    ax3.set_title("3. Tilted Push (+10° Tilt) — WEDGING / FORCE SURGE", color="#F87171", fontsize=13, weight="bold", pad=10)
+    ax3.set_title("3. Tilted Push (+10° Tilt) — WEDGING / FORCE SURGE", color="#F87171", fontsize=16, weight="bold", pad=12)
     ax3.axis("off")
-    ax3.text(0.04, 0.92, f"Peak force: {kpis['peak_force_n']:.1f} N\nGold arrows: peg contact normals\nFinal depth: {kpis['final_insertion_depth_mm']:.2f} mm",
-             transform=ax3.transAxes, color="#F8FAFC", fontsize=10,
-             bbox=dict(boxstyle="round,pad=0.5", facecolor="#7F1D1D", edgecolor="#F87171", alpha=0.9))
+    ax3.text(0.03, 0.95, f"Peak force: {kpis['peak_force_n']:.1f} N\nGold arrows: peg contact normals\nFinal depth: {kpis['final_insertion_depth_mm']:.2f} mm",
+             transform=ax3.transAxes, va="top", color="#F8FAFC", fontsize=14,
+             bbox=dict(boxstyle="round,pad=0.45", facecolor="#7F1D1D", edgecolor="#F87171", alpha=0.92))
 
     # Panel 4: GelSight 3D Continuous Tactile Pressure Field
     ax4 = fig.add_subplot(2, 2, 4)
@@ -157,21 +157,21 @@ def main():
     V_mm = env_tilted.sensor_left.V * 1e3
     cf = ax4.contourf(U_mm, V_mm, fz_pad, levels=30, cmap="viridis")
     cbar = fig.colorbar(cf, ax=ax4, fraction=0.046, pad=0.04)
-    cbar.set_label("Normal Pressure $f_z(u,v)$ (kPa)", color="#F8FAFC", fontsize=10)
-    cbar.ax.yaxis.set_tick_params(color="#F8FAFC")
+    cbar.set_label("Normal Pressure $f_z(u,v)$ (kPa)", color="#F8FAFC", fontsize=14)
+    cbar.ax.yaxis.set_tick_params(color="#F8FAFC", labelsize=12)
     plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='#F8FAFC')
     ax4.set_facecolor("#1E293B")
-    ax4.set_title("4. GelSight Tactile Pad Pressure Field $f_z(u,v)$", color="#FBBF24", fontsize=13, weight="bold", pad=10)
-    ax4.set_xlabel("Pad Width $u$ (mm)", color="#F8FAFC", fontsize=10)
-    ax4.set_ylabel("Pad Height $v$ (mm)", color="#F8FAFC", fontsize=10)
-    ax4.tick_params(colors="#94A3B8")
+    ax4.set_title("4. GelSight Tactile Pad Pressure Field $f_z(u,v)$", color="#FBBF24", fontsize=16, weight="bold", pad=12)
+    ax4.set_xlabel("Pad Width $u$ (mm)", color="#F8FAFC", fontsize=14)
+    ax4.set_ylabel("Pad Height $v$ (mm)", color="#F8FAFC", fontsize=14)
+    ax4.tick_params(colors="#CBD5E1", labelsize=12)
     for spine in ax4.spines.values():
         spine.set_color("#475569")
     
     # Mark Center of Pressure
     cop_u, cop_v = tactile_data["center_of_pressure"] * 1e3
-    ax4.plot(cop_u, cop_v, "r*", markersize=14, label="Center of Pressure (CoP)")
-    ax4.legend(loc="upper left", facecolor="#0F172A", edgecolor="#FBBF24", labelcolor="#F8FAFC", fontsize=9)
+    ax4.plot(cop_u, cop_v, "r*", markersize=16, label="Center of Pressure (CoP)")
+    ax4.legend(loc="upper left", facecolor="#0F172A", edgecolor="#FBBF24", labelcolor="#F8FAFC", fontsize=13)
 
     plt.tight_layout()
     dashboard_path = os.path.join(figures_dir, "simulation_3d_overview.png")

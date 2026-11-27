@@ -129,7 +129,7 @@ def render():
     for key, label in [
         ("unconstrained_farm", "Unconstrained"),
         ("fixed_impedance_k200", "Fixed impedance"),
-        ("wrist_ft_admittance", "Wrist F/T adm."),
+        ("wrist_ft_admittance", "Wrist F/T"),
         ("tactai_ours", "TactAI"),
     ]:
         b = bc["benchmark_b_contour"][key]
@@ -141,7 +141,7 @@ def render():
     for sweep, parameter, label in (
         ("stiffness_sweep", "stiffness_n_per_m", r"$K$ (N/m)"),
         ("friction_sweep", "friction_mu", r"$\mu$"),
-        ("latency_sweep", "latency_ms", r"$\tau$ (ms)"),
+        ("latency_sweep", "latency_ms", r"$\tau_{\mathrm{delay}}$ (ms)"),
     ):
         for row in robustness[sweep]:
             lines.append(f"{label} & {row[parameter]:g} & {row['tactai_success_count']} & "

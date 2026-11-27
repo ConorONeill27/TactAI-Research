@@ -35,7 +35,7 @@ def main():
     box(5.0, 4.25, 2.6, .88, "Complementary\nobserver + latch", compute)
     box(8.25, 5.8, 2.6, .84, "7-variable OSQP\nwrench filter", compute)
     box(11.65, 5.8, 2.75, .84, "Net-wrench energy tank\nand actuator limits", compute)
-    box(1.40, 1.55, 2.50, .74, "Grip barrier\n(separate channel)", compute)
+    box(1.40, 1.55, 2.50, .74, "Grip barrier\n(telemetry A; active C)", compute)
     route((4.20, 3.79), (4.20, 2.72), (1.40, 2.72), (1.40, 1.94))
     ax.text(2.30, 2.48, r"$\hat{\rho}_{\mathrm{stick}},\,\hat{\mathbf{F}}_{xy}$",
             va="center", ha="center", fontsize=9, color=ink)
@@ -56,7 +56,7 @@ def main():
             va="center", fontsize=10.5, weight="bold", color=ink)
     route((8.25, 2.62), (8.25, 5.37))
     route((5.0, 3.79), (5.0, 2.62))
-    ax.text(5.18, 3.26, r"$\hat{\mathbf{F}},\,\hat{\boldsymbol{\theta}}_{\rm est},\,h_{\rm jam}$",
+    ax.text(5.18, 3.26, r"$\hat{\mathbf{F}}_k,\,\hat{\boldsymbol{\theta}}_k,\,h_{\rm jam}$",
             ha="left", va="center", fontsize=9, color=ink)
 
     for x, label in [(4.0, "Stage 1\nApproach"), (7.93, "Stage 2\nUn-wedge"),
