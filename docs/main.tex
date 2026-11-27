@@ -66,10 +66,10 @@ Classical compliance does not resolve this trade-off. Low-gain isotropic impedan
 \section{RELATED WORK}
 
 \subsection{Optical Tactile Sensing and Force Estimation}
-Vision-based elastomeric sensors such as GelSight Mini and DIGIT resolve local contact geometry, surface deformation, and incipient slip \cite{yuangelsight,lambetadigit,dongslip}. FEATS \cite{helmut2024feats} maps GelSight images to 3D traction distributions $\mathbf{f}(u,v)$ using FEA-calibrated learning, and TacEx \cite{nguyen2024tacex} simulates elastomer response on GPU. Rather than feeding high-dimensional tactile observations directly to a neural policy like FARM \cite{helmut2025farm}, or relying on active tactile search and extrinsic contact localization during sliding and insertion \cite{kimactive,kimextrinsic,shecable}, we project $\mathbf{f}(u,v)$ onto low-dimensional mechanical invariants usable inside a 1\,kHz convex wrench filter.
+Vision-based elastomeric sensors such as GelSight Mini and DIGIT resolve local contact geometry, surface deformation, and incipient slip \cite{yuangelsight,lambetadigit,dongslip}. FEATS \cite{helmut2024feats} maps GelSight images to 3D traction distributions $\mathbf{f}(u,v)$ using FEA-calibrated learning, and TacEx \cite{nguyen2024tacex} simulates elastomer response on GPU. Rather than feeding high-dimensional tactile observations directly to a neural policy like FARM \cite{helmut2025farm}, coupling a 6-DoF force-domain diffusion policy to a dynamic-system filter as in TacDiffusion \cite{wu2025tacdiffusion}, or relying on active tactile search and extrinsic contact localization during sliding and insertion \cite{kimactive,kimextrinsic,shecable}, we project $\mathbf{f}(u,v)$ onto low-dimensional mechanical invariants usable inside a 1\,kHz convex wrench filter.
 
 \subsection{Safety Filters, Control Barrier Functions, and Passivity}
-Predictive safety filters verify learned control inputs against system constraints before execution \cite{wabersichfilter,hsufilter}, while Control Barrier Functions (CBFs) enforce set invariance via convex quadratic programming \cite{ames2019cbf}, including extensions for high-relative-degree constraints and input delays \cite{xiaohocbf,singletarydelay}. Because our contact supervisor relies on a stage-conditioned wrench bound rather than an exact relative-degree-two contact model, its force bounds are verified empirically. Energy tanks \cite{ferraguti2013tank} bound energy injection under variable impedance and delayed feedback; we combine tank-based dissipation accounting with Cattaneo--Mindlin partial-slip reasoning and Whitney's quasi-static assembly analysis \cite{whitney1982quasi}.
+Predictive safety filters verify learned control inputs against system constraints before execution \cite{wabersichfilter,hsufilter}, while Control Barrier Functions (CBFs) enforce set invariance via convex quadratic programming \cite{ames2019cbf}, including extensions for high-relative-degree constraints, input delays, and tactile grasp slip prevention \cite{xiaohocbf,singletarydelay,kim2025tactilecbf}. Because our contact supervisor relies on a stage-conditioned wrench bound rather than an exact relative-degree-two contact model, its force bounds are verified empirically. Energy tanks \cite{ferraguti2013tank} bound energy injection under variable impedance and delayed feedback; we combine tank-based dissipation accounting with Cattaneo--Mindlin partial-slip reasoning and Whitney's quasi-static assembly analysis \cite{whitney1982quasi}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -216,7 +216,7 @@ For a one-dimensional elastic contact, let $\Delta z_{\mathrm{rem}}=(F_{\max}-F_
 \begin{equation}
 v_0^2 \le \frac{2}{m}\left(F_r\Delta z_{\mathrm{rem}}+\frac{F_{\max}^2-F_g^2}{2K}\right).
 \end{equation}
-This follows by comparing kinetic energy with the work of the spring and retraction force. The simulated wrist and peg masses are 2.42 and 0.08\,kg. With $m=2.5$\,kg, $F_g=0.1$\,N (applicable to misaligned rim impacts satisfying $G_{1\to 2}$, whereas aligned Stage~3 entry relies on the higher $4.2$--$11.25$\,N overrides), the Stage~2 retraction lower floor $F_r=\RetractionFloor$\,N in $\ell_{\mathrm{retract}}$, $F_{\max}=15$\,N, and receptacle contact stiffness $K=10^4$\,N/m, the scalar bound gives $\Delta z_{\mathrm{rem}}=1.49$\,mm and $v_0\le\ArrestSpeed$\,m/s. One 1\,ms sampling interval at that speed adds about \SamplingDistance\,mm of compression (about \SamplingForce\,N at $K=10^4$\,N/m, or $3.51$\,N against the $30{,}000$\,N/m axial mount stiffness; evaluated directly at $K=30{,}000$\,N/m, $\Delta z_{\mathrm{rem}}=0.497$\,mm and the arrest speed bound tightens to $v_0\le 0.068$\,m/s), so delayed detection consumes part of the arrest margin. QP slack, tank scaling, actuator clipping, and multiple contacts can change the delivered force, limiting this calculation to the stated assumptions.
+This follows by comparing kinetic energy with the work of the spring and retraction force. The simulated wrist and peg masses are 2.42 and 0.08\,kg. With $m=2.5$\,kg, $F_g=0.1$\,N (applicable to misaligned rim impacts satisfying $G_{1\to 2}$, whereas aligned Stage~3 entry relies on the higher $4.2$--$11.25$\,N overrides), the Stage~2 retraction lower floor $F_r=\RetractionFloor$\,N in $\ell_{\mathrm{retract}}$, $F_{\max}=15$\,N, and receptacle contact stiffness $K=10^4$\,N/m, the scalar bound gives $\Delta z_{\mathrm{rem}}=1.49$\,mm and $v_0\le\ArrestSpeed$\,m/s. Under the actual Benchmark~A series compliance ($K_{\mathrm{eff}}=(1/10{,}000+1/30{,}000)^{-1}=7{,}500$\,N/m), $\Delta z_{\mathrm{rem}}=1.987$\,mm, $v_0\le 0.135$\,m/s, and a 1\,ms step at $0.117$\,m/s adds $0.88$\,N (versus \SamplingForce\,N at $K=10^4$\,N/m, or $3.51$\,N in the rigid-receptacle worst case $K=30{,}000$\,N/m where $\Delta z_{\mathrm{rem}}=0.497$\,mm and $v_0\le 0.068$\,m/s), so delayed detection consumes part of the arrest margin. QP slack, tank scaling, actuator clipping, and multiple contacts can change the delivered force, limiting this calculation to the stated assumptions.
 
 \textbf{Proposition 2 (discrete power budget).} Let $\mathbf{v}=[\mathbf{v}_{\mathrm{lin}}^\top,\boldsymbol{\omega}^\top]^\top\in\mathbb{R}^6$ be the wrist twist and define virtual damping dissipation $P_{\mathrm{diss}}=15\|\mathbf{v}_{\mathrm{lin}}\|_2^2+1.5\|\boldsymbol{\omega}\|_2^2$. Before actuator clipping, scaling the gravity-excluded QP wrench by $T_k$ bounds its predicted positive power by $P_{\mathrm{avail}}=(E_k-E_{\min})/\Delta t+0.8P_{\mathrm{diss}}$, with
 \begin{equation}
@@ -445,10 +445,10 @@ Setting & Insert & Jam & Safe & Max (N)\\
 \begin{thebibliography}{99}
 
 \bibitem{helmut2025farm}
-E. Helmut, N. Funk, T. Schneider, C. de Farias, and J. Peters, ``Tactile-conditioned diffusion policy for force-aware robotic manipulation,'' arXiv:2510.13324, 2025.
+E. Helmut, N. Funk, T. Schneider, C. de Farias, and J. Peters, ``Tactile-conditioned diffusion policy for force-aware robotic manipulation,'' in \emph{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2026, pp. 1815--1822 (arXiv:2510.13324).
 
 \bibitem{helmut2024feats}
-E. Helmut, L. Dziarski, N. Funk, B. Belousov, and J. Peters, ``Learning force distribution estimation for the GelSight Mini optical tactile sensor based on finite element analysis,'' arXiv:2411.03315, 2024.
+E. Helmut, L. Dziarski, N. Funk, B. Belousov, and J. Peters, ``Learning force distribution estimation for the GelSight Mini optical tactile sensor based on finite element analysis,'' in \emph{NeurIPS Workshop on Touch Processing: From Data to Knowledge (WTP)}, 2024 (arXiv:2411.03315).
 
 \bibitem{nguyen2024tacex}
 D. H. Nguyen, T. Schneider, G. Duret, A. Kshirsagar, B. Belousov, and J. Peters, ``TacEx: GelSight tactile simulation in Isaac Sim,'' arXiv:2411.04776, 2024.
@@ -489,6 +489,10 @@ S. Kim and A. Rodriguez, ``Active extrinsic contact sensing: Application to gene
 S. Kim, D. K. Jha, D. Romeres, P. Patre, and A. Rodriguez, ``Simultaneous tactile estimation and control of extrinsic contact,'' in \emph{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2023, pp. 12563--12569 (arXiv:2303.03385).
 \bibitem{shecable}
 Y. She, S. Wang, S. Dong, N. Sunil, A. Rodriguez, and E. H. Adelson, ``Cable manipulation with a tactile-reactive gripper,'' \emph{Int. J. Robot. Res.}, vol. 40, no. 12--14, pp. 1385--1401, 2021.
+\bibitem{wu2025tacdiffusion}
+Y. Wu et al., ``TacDiffusion: Force-domain diffusion policy for precise tactile manipulation,'' in \emph{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2025 (arXiv:2409.11047).
+\bibitem{kim2025tactilecbf}
+Y. Kim, J. Kim, C. Sloth, and A. D. Ames, ``Robust adaptive safe robotic grasping with tactile sensing,'' in \emph{Proc. European Control Conf. (ECC)}, 2025, pp. 2531--2538 (arXiv:2411.07833).
 \end{thebibliography}
 
 \end{document}
